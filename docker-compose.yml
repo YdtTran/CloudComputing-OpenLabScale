@@ -1,0 +1,112 @@
+name: openlab-scale
+
+services:
+  redis:
+    image: redis:7.2-alpine
+    container_name: ols-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 2s
+    networks:
+      - ols-network
+
+  license-manager:
+    build:
+      context: ./services/license-manager
+      dockerfile: Dockerfile
+    container_name: ols-license-manager
+    restart: unless-stopped
+    ports:
+      - "${LICENSE_MANAGER_PORT:-8000}:8000"
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - MAX_SEATS=${MAX_SEATS:-100}
+      - LEASE_TTL_SEC=${LEASE_TTL_SEC:-60}
+      - HEARTBEAT_INTERVAL_SEC=${HEARTBEAT_INTERVAL_SEC:-15}
+      - EBPF_MODE=${EBPF_MODE:-auto}
+      - ALLOCATION_POLICY=${ALLOCATION_POLICY:-baseline}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./services/license-manager/src:/app/src
+      - ./logs:/app/logs
+    depends_on:
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/health')\" || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 3s
+    networks:
+      - ols-network
+
+  ebpf-agent:
+    build:
+      context: ./services/ebpf-agent
+      dockerfile: Dockerfile
+    container_name: ols-ebpf-agent
+    restart: unless-stopped
+    pid: host
+    cgroup: host
+    cap_add:
+      - BPF
+      - PERFMON
+      - SYS_ADMIN
+    environment:
+      - EBPF_MODE=${EBPF_MODE:-auto}
+      - LICENSE_MANAGER_URL=http://license-manager:8000
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - /sys/kernel/btf:/sys/kernel/btf:ro
+      - /sys/kernel/debug:/sys/kernel/debug:rw
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ./services/ebpf-agent/src:/app/src
+      - ./logs:/app/logs
+    depends_on:
+      license-manager:
+        condition: service_started
+    networks:
+      - ols-network
+
+  mock-workload:
+    profiles:
+      - workload
+    build:
+      context: ./services/mock-workload
+      dockerfile: Dockerfile
+    container_name: ols-mock-workload
+    restart: "no"
+    environment:
+      - LICENSE_MANAGER_URL=http://license-manager:8000
+      - HOLD_TIME_SEC=${HOLD_TIME_SEC:-30}
+      - HEARTBEAT_INTERVAL_SEC=${HEARTBEAT_INTERVAL_SEC:-10}
+      - WORKLOAD_ID=mock-workload-1
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    volumes:
+      - ./services/mock-workload/src:/app/src
+      - ./logs:/app/logs
+    depends_on:
+      license-manager:
+        condition: service_started
+    networks:
+      - ols-network
+
+volumes:
+  redis_data:
+    driver: local
+
+networks:
+  ols-network:
+    driver: bridge
