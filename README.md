@@ -32,6 +32,7 @@ This repository provides:
 │   ├── 02-kien-truc-he-thong.md
 │   ├── 03-mo-hinh-du-lieu-va-chinh-sach.md
 │   ├── 04-huong-dan-thuc-nghiem-va-ket-qua.md
+│   ├── 05-huong-dan-thuc-hanh-ebpf-live.md
 │   └── adr/                 # Architecture Decision Records (Two-clock, Degraded abstention)
 ├── GLOSSARY.md              # Ubiquitous domain language & terminology boundaries
 ├── measured/                # Real-host coordinator, worker, cgroup sampler, and truth builder
