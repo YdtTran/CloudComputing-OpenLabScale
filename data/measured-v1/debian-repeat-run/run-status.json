@@ -1,0 +1,56 @@
+{
+  "cleanup_diagnostics": [],
+  "collector_image": "sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b",
+  "diagnostic": "docker image inspect sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f: Error response from daemon: No such image: sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b",
+  "evidence_sha256": {
+    "actual-actions.json": "4a3d7861b44d3275f4ff0db768ec30a509588a6df08e9008acfa17560c97b55d",
+    "collector-command.json": "176ac710937f4f86f63bdb62eca5913d54bb4ae05ea0c3ed69e3a91233e3db82",
+    "events.csv": "8d93fc6a4957f78eed490106ec870197b4a5372c0610055808c4dd826b259118",
+    "observations.csv": "67b436c781e5541fe4b618514ca96d8df9ff8d2a4f30d5f5fd0e7f5e5e7dd3dd",
+    "phases.csv": "c862adf57168c4c546654d4664bc6dca237ed8e180062d1a9ec3fa745066ced1",
+    "preflight.json": "a40746bc2149fb202f6976fc081252456ae1aba0ddad7ffb743fb86def3c8d07",
+    "raw-cgroup.json": "dfc01d112bd88219031c75dbb861275cfd1e26315f212794a3d042f3998c9d4b",
+    "raw-signals.jsonl": "db7f0a9ae50e4b9b82e59e1a997ed36745d53eef3bf5fa01b971d60702a3dae8",
+    "sessions.csv": "75b233228d5e97515e3f0d9c8fedce78063cdce3869690d3b7911ce3c3f72f3d",
+    "source-plan.json": "9ee291ddfb2e45bb0b4d289cb374370c54e31272f918624eed3a84ded5906137",
+    "truth.csv": "171fd0e924c3359ddbf76d1f505ca2c3336aa33dce3598450c19dcbc3e334241"
+  },
+  "instances": {
+    "0836d46d418e4028bcd852c3": {
+      "cgroup_id": 16877,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-d6255a48308e89a86a382138adcf3fd13659bde9e99dd62c6f3c4503049eef93.scope",
+      "docker_id": "d6255a48308e89a86a382138adcf3fd13659bde9e99dd62c6f3c4503049eef93",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 61229,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:36:39.840074752Z"
+    },
+    "a2436739916327ea02b59030": {
+      "cgroup_id": 16956,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-937abfba5802a6c6ceab2cb562aab8dbe275238a39efba603ad3930d54024f92.scope",
+      "docker_id": "937abfba5802a6c6ceab2cb562aab8dbe275238a39efba603ad3930d54024f92",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 61275,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:36:39.976296001Z"
+    }
+  },
+  "origin_monotonic_ns": 2622345754871,
+  "origin_utc": "2026-11-05T10:36:41.212590Z",
+  "project": "measured-0e71ebb636d243469ead2c6588872b5a",
+  "run_id": "0e71ebb636d243469ead2c6588872b5a",
+  "stage": "replaying",
+  "status": "incomplete",
+  "worker_clocks": [
+    {
+      "after_ns": 2621647405315,
+      "before_ns": 2621300310787,
+      "worker_ns": 2621636537227
+    },
+    {
+      "after_ns": 2621813483767,
+      "before_ns": 2621754073307,
+      "worker_ns": 2621809604360
+    }
+  ]
+}

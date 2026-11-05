@@ -1,0 +1,41 @@
+{
+  "actual_cpu_actions_ms": {
+    "CONNECT": 0,
+    "DISCONNECT": 40008,
+    "EXECUTE": 20007,
+    "JOB_COMPLETE": 180239,
+    "JOB_START": 20230
+  },
+  "cpu_job_execs": [
+    {
+      "cgroup_id": 17351,
+      "coordinator_received_ns": 2981908095129,
+      "job_id": null,
+      "pid": 70954,
+      "received_ns": 2981907732796,
+      "session_id": null,
+      "stream": "collector",
+      "tgid": 70954,
+      "timestamp_ns": 2981907718598,
+      "type": "exec"
+    },
+    {
+      "cgroup_id": 17351,
+      "coordinator_received_ns": 2981928483541,
+      "job_id": null,
+      "pid": 70959,
+      "received_ns": 2981928218877,
+      "session_id": null,
+      "stream": "collector",
+      "tgid": 70959,
+      "timestamp_ns": 2981928207564,
+      "type": "exec"
+    }
+  ],
+  "limitations": "Partial measured collection: sched:sched_process_exec covers exec only; I/O, socket, disk and network counters are uncollected/null. All resource windows are DEGRADED. Multi-signal policies abstain. These two sessions do not establish real-world accuracy or monitoring overhead; synthetic and measured scores are never pooled. Ubuntu and full workloads are deferred.",
+  "mean_busy_cpu_pct": 71.10930306636985,
+  "mean_idle_cpu_pct": 0.0,
+  "mean_trailing_cpu_pct": 0.0,
+  "resource_windows": 122,
+  "status": "verified"
+}

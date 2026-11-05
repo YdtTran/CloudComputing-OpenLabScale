@@ -1,0 +1,21 @@
+{
+  "config": {
+    "cpu_threshold_pct": 1.0,
+    "freshness_ms": 10000,
+    "hysteresis_ms": 10000,
+    "interaction_grace_ms": 30000,
+    "interaction_timeout_ms": 40000,
+    "quiet_ms": 30000
+  },
+  "config_hash": "2934d9eeb23384fd46526e8fa71da0036cc8aa2d02110f8209785e1c180d3816",
+  "input_hash": "75b1ba27724d91f6b39003801492bf1aea99cb225431de2c6d7cce7d864acb66",
+  "policy_versions": {
+    "cpu-only": "1.0",
+    "interaction-aware": "1.0",
+    "interaction-timeout": "1.0",
+    "no-reclaim": "1.0",
+    "resource-multi": "1.0"
+  },
+  "predictions_sha256": "ba8ad2104aed0d2bb15ce20c412eb2dc3e4474f43125d690f2618b666ceb0c7c",
+  "source_mode": "synthetic"
+}

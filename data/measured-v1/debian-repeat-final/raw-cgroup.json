@@ -1,0 +1,1614 @@
+{
+  "a6384f3d48ca1104200ceb19": [
+    {
+      "acquisition_start_ns": 2961853940002,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 11091968,
+      "timestamp_ns": 2961854088884,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2966788732471,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2966788917560,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2971729575922,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2971729731723,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2976676948677,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2976677117232,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2981618391218,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2981618467764,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2986560191281,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2986560277997,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2991501647045,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2991501727259,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 2996442162102,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2996442232825,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3001377898458,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3001377974480,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3006318497693,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3006318581032,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3011268085251,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3011268162644,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3016232729628,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3016232999734,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3021185609195,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3021185764438,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3026126876883,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3026127033256,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3031064519001,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3031064660599,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3036003719910,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3036003872596,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3040948488166,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3040948557411,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3045900919164,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3045901076391,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3050846331602,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3050846482198,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3055800401859,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3055800613775,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3060738955087,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3060739040914,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3065674317141,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3065674391252,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3070622103997,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3070622197558,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3075559157219,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3075559297904,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3080522513328,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3080522642539,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3085467615753,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3085467689094,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3090433858671,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3090434147346,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3095391802701,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3095391966912,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3100338153540,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3100338221782,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3105291001820,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3105291071709,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3110238258073,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3110238420431,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3115184158355,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3115184237312,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3120116530473,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3120116611777,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3125066699519,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3125066771333,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3130020904149,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3130020982986,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3134952592955,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3134952758990,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3139894836843,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3139895001057,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3144838789931,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3144838968862,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3149788567900,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3149788642646,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3154724729188,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3154724798782,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3159683915333,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3159684129060,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3164622730034,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3164622891667,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3169568405789,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3169568580019,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3174510159194,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3174510326653,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3179446817884,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3179446895453,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3184414437842,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3184414605735,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3189371323239,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3189371405642,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3194348581366,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3194348744462,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3199312181122,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3199312351481,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3204287416188,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3204287583738,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3209262896697,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3209263035168,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3214237597614,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3214237769600,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3219214344470,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3219214705263,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3224190654817,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3224190940047,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3229156343974,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3229156465287,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3234128364822,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3234128532516,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3239090829661,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3239091055021,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3244065284216,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3244065408163,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3249041022885,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3249041195047,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3254003423418,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3254003583927,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3258968322768,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3258968451966,
+      "usage_usec": 245571
+    },
+    {
+      "acquisition_start_ns": 3261918784939,
+      "cgroup_id": 17430,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3261918944326,
+      "usage_usec": 245571
+    }
+  ],
+  "c942cadd87e91c83e2be566a": [
+    {
+      "acquisition_start_ns": 2961853679054,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10960896,
+      "timestamp_ns": 2961853931580,
+      "usage_usec": 231529
+    },
+    {
+      "acquisition_start_ns": 2966774627631,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10956800,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2966774790433,
+      "usage_usec": 231529
+    },
+    {
+      "acquisition_start_ns": 2971714248855,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10956800,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2971714321428,
+      "usage_usec": 231529
+    },
+    {
+      "acquisition_start_ns": 2976658232340,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10956800,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2976658380164,
+      "usage_usec": 231529
+    },
+    {
+      "acquisition_start_ns": 2981602468197,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10956800,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2981602545876,
+      "usage_usec": 231529
+    },
+    {
+      "acquisition_start_ns": 2986542549418,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.34062015810912,
+      "timestamp_ns": 2986542701354,
+      "usage_usec": 1968997
+    },
+    {
+      "acquisition_start_ns": 2991486823041,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.56990959201522,
+      "timestamp_ns": 2991487026804,
+      "usage_usec": 3713600
+    },
+    {
+      "acquisition_start_ns": 2996425979559,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.27809575331013,
+      "timestamp_ns": 2996426140234,
+      "usage_usec": 5473853
+    },
+    {
+      "acquisition_start_ns": 3001363502302,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.47553111194061,
+      "timestamp_ns": 3001363583783,
+      "usage_usec": 7238385
+    },
+    {
+      "acquisition_start_ns": 3006299407080,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.68895978619167,
+      "timestamp_ns": 3006299568144,
+      "usage_usec": 8982983
+    },
+    {
+      "acquisition_start_ns": 3011252283755,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.39022682148743,
+      "timestamp_ns": 3011252358123,
+      "usage_usec": 10750887
+    },
+    {
+      "acquisition_start_ns": 3016206176686,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.96006458410127,
+      "timestamp_ns": 3016206338958,
+      "usage_usec": 12508561
+    },
+    {
+      "acquisition_start_ns": 3021169531137,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.40229524141283,
+      "timestamp_ns": 3021169607979,
+      "usage_usec": 14280505
+    },
+    {
+      "acquisition_start_ns": 3026112987527,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.91944308964756,
+      "timestamp_ns": 3026113149337,
+      "usage_usec": 16033471
+    },
+    {
+      "acquisition_start_ns": 3031049786504,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.67847059087127,
+      "timestamp_ns": 3031049863404,
+      "usage_usec": 17778068
+    },
+    {
+      "acquisition_start_ns": 3035987974547,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.77703196621414,
+      "timestamp_ns": 3035988192425,
+      "usage_usec": 19550361
+    },
+    {
+      "acquisition_start_ns": 3040928523642,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.95109870637182,
+      "timestamp_ns": 3040928674058,
+      "usage_usec": 21303024
+    },
+    {
+      "acquisition_start_ns": 3045884953128,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.88516560864339,
+      "timestamp_ns": 3045885293641,
+      "usage_usec": 23059778
+    },
+    {
+      "acquisition_start_ns": 3050825480219,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.57900837091394,
+      "timestamp_ns": 3050825557666,
+      "usage_usec": 24827874
+    },
+    {
+      "acquisition_start_ns": 3055778115094,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.45780961466468,
+      "timestamp_ns": 3055778195307,
+      "usage_usec": 26572634
+    },
+    {
+      "acquisition_start_ns": 3060723725327,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.85333911517586,
+      "timestamp_ns": 3060723880565,
+      "usage_usec": 28349454
+    },
+    {
+      "acquisition_start_ns": 3065658938800,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.86461104626375,
+      "timestamp_ns": 3065659102742,
+      "usage_usec": 30098117
+    },
+    {
+      "acquisition_start_ns": 3070598301767,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.63566044187229,
+      "timestamp_ns": 3070598435054,
+      "usage_usec": 31842582
+    },
+    {
+      "acquisition_start_ns": 3075544876279,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.95947615692603,
+      "timestamp_ns": 3075545030263,
+      "usage_usec": 33622354
+    },
+    {
+      "acquisition_start_ns": 3080499248447,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.46402138352256,
+      "timestamp_ns": 3080499496289,
+      "usage_usec": 35367912
+    },
+    {
+      "acquisition_start_ns": 3085451797920,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.61341300931822,
+      "timestamp_ns": 3085451873017,
+      "usage_usec": 37141195
+    },
+    {
+      "acquisition_start_ns": 3090408695574,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.67961115817215,
+      "timestamp_ns": 3090408855579,
+      "usage_usec": 38892983
+    },
+    {
+      "acquisition_start_ns": 3095375037679,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.70288028070213,
+      "timestamp_ns": 3095375116329,
+      "usage_usec": 40673459
+    },
+    {
+      "acquisition_start_ns": 3100321964779,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.5311149548253,
+      "timestamp_ns": 3100322107458,
+      "usage_usec": 42418043
+    },
+    {
+      "acquisition_start_ns": 3105276288037,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.59003114064382,
+      "timestamp_ns": 3105276361484,
+      "usage_usec": 44191419
+    },
+    {
+      "acquisition_start_ns": 3110223680577,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.78940471895068,
+      "timestamp_ns": 3110223844817,
+      "usage_usec": 45942566
+    },
+    {
+      "acquisition_start_ns": 3115169776343,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.03613246132224,
+      "timestamp_ns": 3115169865776,
+      "usage_usec": 47699297
+    },
+    {
+      "acquisition_start_ns": 3120101250213,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.70167082966408,
+      "timestamp_ns": 3120101318501,
+      "usage_usec": 49467264
+    },
+    {
+      "acquisition_start_ns": 3125049899360,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.52037579826738,
+      "timestamp_ns": 3125049973355,
+      "usage_usec": 51212169
+    },
+    {
+      "acquisition_start_ns": 3130005885508,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 71.62448974434031,
+      "timestamp_ns": 3130006043566,
+      "usage_usec": 52987049
+    },
+    {
+      "acquisition_start_ns": 3134939265366,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.94236265884341,
+      "timestamp_ns": 3134939341343,
+      "usage_usec": 54736948
+    },
+    {
+      "acquisition_start_ns": 3139873238962,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 84393984,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 70.72289705396479,
+      "timestamp_ns": 3139873420892,
+      "usage_usec": 56481710
+    },
+    {
+      "acquisition_start_ns": 3144821642697,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 31.96124425111745,
+      "timestamp_ns": 3144821914097,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3149774739796,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3149774851118,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3154711371141,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3154711559303,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3159668115662,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3159668197198,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3164606744977,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3164606906355,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3169550918196,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3169550992793,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3174492639910,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3174492716222,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3179432495092,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3179432571924,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3184386815818,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3184387112465,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3189356310132,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3189356450421,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3194319545877,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3194319711104,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3199289048406,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3199289122036,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3204259746932,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3204259907979,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3209236642307,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3209236995943,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3214207373468,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3214207535919,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3219183305554,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3219183588733,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3224165374185,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3224165540523,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3229130791065,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3229130983846,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3234100293823,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3234100598250,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3239070840042,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3239071174364,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3244041174061,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3244041488586,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3249012886395,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3249013207638,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3253980205042,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3253980427716,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3258946408500,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3258946600512,
+      "usage_usec": 57272510
+    },
+    {
+      "acquisition_start_ns": 3261892257592,
+      "cgroup_id": 17351,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 3261892526194,
+      "usage_usec": 57272510
+    }
+  ]
+}

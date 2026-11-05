@@ -1,0 +1,58 @@
+ Image measured-collector:local Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 582B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 727B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/debian:trixie-slim
+#3 DONE 1.6s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [build 1/5] FROM docker.io/library/debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2
+#5 resolve docker.io/library/debian:trixie-slim@sha256:a72b4433de1cf7d6bae0c4cee74d0547f58601a643b3375f070c51600d63b6b2 0.0s done
+#5 DONE 0.0s
+
+#6 [internal] load build context
+#6 transferring context: 5.36kB done
+#6 DONE 0.0s
+
+#7 [build 2/5] RUN apt-get update && apt-get install -y --no-install-recommends clang llvm bpftool libbpf-dev libelf-dev zlib1g-dev gcc libc6-dev make && rm -rf /var/lib/apt/lists/*
+#7 CACHED
+
+#8 [build 3/5] WORKDIR /build
+#8 CACHED
+
+#9 [build 4/5] COPY collector/ ./
+#9 DONE 0.0s
+
+#10 [build 5/5] RUN clang -O2 -g -target bpf -I/usr/include/$(gcc -dumpmachine) -c exec.bpf.c -o exec.bpf.o && gcc -O2 -Wall -Wextra -Werror reader.c -o collector -lbpf -lelf -lz
+#10 DONE 0.4s
+
+#11 [stage-1 2/4] RUN apt-get update && apt-get install -y --no-install-recommends libbpf1 libelf1 zlib1g && rm -rf /var/lib/apt/lists/*
+#11 CACHED
+
+#12 [stage-1 3/4] COPY --from=build /build/collector /usr/local/bin/collector
+#12 DONE 0.0s
+
+#13 [stage-1 4/4] COPY --from=build /build/exec.bpf.o /usr/local/lib/exec.bpf.o
+#13 DONE 0.0s
+
+#14 exporting to image
+#14 exporting layers 0.1s done
+#14 exporting manifest sha256:4a40ac511deaf340abfa6f021c320f5cff845fc8b44a65a4192acfbc9d311e03 done
+#14 exporting config sha256:b116f9604d6dc02705582f231e0c0de0f4e1af1208156d9cade017cb139b499b done
+#14 exporting attestation manifest sha256:26f65e554b5ec2f024a82fec91719f359448a954d5dbcec0da60d4de2d3316f6 0.0s done
+#14 exporting manifest list sha256:aed749596dada9861a68616716b9ed9b5389350828e63ae9fd2dec9be869bb67 done
+#14 naming to docker.io/library/measured-collector:local done
+#14 unpacking to docker.io/library/measured-collector:local 0.0s done
+#14 DONE 0.2s
+
+#15 resolving provenance for metadata file
+#15 DONE 0.0s
+ Image measured-collector:local Built 

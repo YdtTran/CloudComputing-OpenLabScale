@@ -1,0 +1,60 @@
+{
+  "cleanup_diagnostics": [],
+  "diagnostic": null,
+  "evidence_sha256": {
+    "actual-actions.json": "057aad350c769e4e1f0b80ad4725d4b99c276c817f6461b11505d40da0200172",
+    "collector-command.json": "1f0568f6f8a94c22c6fe6be7c1d140bc4a32d3f5833b97a5493639db822cf280",
+    "events.csv": "94e5e512d59693a77484fc22f60cc400830b4aa03eaec89b47c3491469a8fc57",
+    "manifest.json": "6e18cdf558d06c128d8e82929a9a1677299ed93e02572486dbcf0734a9f9a440",
+    "metrics.json": "68aad98513a7d0994a5ccd7ccf8c57cdcf9335b5da8c0123987422a7d9246476",
+    "observations.csv": "1bae51d972b722082e5f51a5ac33f322ba65ec1144d96174162e1abc2754aed0",
+    "phases.csv": "2d480afb409de237af1359e8bc7b7c1ef49caed9722bde59ef6790ca9dbcc9f0",
+    "prediction-metadata.json": "c4c7269c1025707390f719846690a7db9a398782f529ff968bca8ab3d87ce271",
+    "predictions.csv": "10b53f096fd7fee78a82d5cde7bb1f79b27b0cc9266f2d6f478fda847427d673",
+    "preflight.json": "c9fa304cb0bde8c4b5a5a37cbf6edf561d34dc0279463e35842e61bfdfa1ea26",
+    "raw-cgroup.json": "8525b801e2cf0c9fc8d0d080f7b122c5459dc28a7e8e9c0285b7b7c0d56312b9",
+    "raw-signals.jsonl": "b31c1f2c028595476b84b9ca7562969795f4f49c9f4698b69c24f22fc8dd877c",
+    "report.md": "7f684c7541f1885fdd85dfd39e5d28622d02028a557667fac251730311689388",
+    "sessions.csv": "ff6290c9c52bcb5920aa3ed26b6387b4c1de002791b6c47104bc732ceafbcce6",
+    "source-plan.json": "9ee291ddfb2e45bb0b4d289cb374370c54e31272f918624eed3a84ded5906137",
+    "truth.csv": "b69922336986800856ddafda9f6b872bfb90ddb7d58406a7c20ccbe07c3bfb1c"
+  },
+  "instances": {
+    "15836158319b3d44f870b6cf": {
+      "cgroup_id": 15764,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-37edf1dbb454a58983ae33d46a831e19634abc06b49cc81e4713c37126968621.scope",
+      "docker_id": "37edf1dbb454a58983ae33d46a831e19634abc06b49cc81e4713c37126968621",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 51523,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:32:14.630945295Z"
+    },
+    "52af597f2b1b1129bf6dd65d": {
+      "cgroup_id": 15685,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-bf2d27809b6415104db78d1ee6991e34e95837dcc808696ffc9c16f33455522e.scope",
+      "docker_id": "bf2d27809b6415104db78d1ee6991e34e95837dcc808696ffc9c16f33455522e",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 51480,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:32:14.472741756Z"
+    }
+  },
+  "origin_monotonic_ns": 2356962301536,
+  "origin_utc": "2026-11-05T10:32:15.829140Z",
+  "project": "measured-3ca80221def3447e955137ba96057d40",
+  "run_id": "3ca80221def3447e955137ba96057d40",
+  "stage": "replaying",
+  "status": "complete",
+  "worker_clocks": [
+    {
+      "after_ns": 2356254051446,
+      "before_ns": 2355954890321,
+      "worker_ns": 2356249149294
+    },
+    {
+      "after_ns": 2356411729603,
+      "before_ns": 2356349862118,
+      "worker_ns": 2356407409989
+    }
+  ]
+}

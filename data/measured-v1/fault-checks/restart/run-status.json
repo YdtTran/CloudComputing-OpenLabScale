@@ -1,0 +1,49 @@
+{
+  "cleanup_diagnostics": [],
+  "diagnostic": "attribution invalid; baselines reset; experiment aborted: instance mapping changed; abort and reset baselines; replacement must not inherit old identity: {\"current\":{\"cgroup_id\":16317,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":55485,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:25.093344505Z\"},\"original\":{\"cgroup_id\":16080,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":54867,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:21.824636589Z\"}}",
+  "evidence_sha256": {
+    "actual-actions.json": "6ed64f4b3c7af4b798aaf9fd78161f59ab79c2f94402affaa58f9e438526f1e9",
+    "collector-command.json": "fda449d70c563b6d8b8f2b013b6804b3b29e2670cb0bf50781e8bb5e52f7e6f4",
+    "preflight.json": "0299f87e59e6664dbbe10a04d89b04cd9a2a93ed3aaefa221f7e28098f7090af",
+    "raw-cgroup.json": "7c664647d74b4c83e72624d9b3501306623dce7b0994152e24bb59209209abec",
+    "raw-signals.jsonl": "b4443fb045193ca41d6db8e72cbc8b55599a363eea34f0c75b353945abc16f04"
+  },
+  "instances": {
+    "2a57a6c804dad9c78b9254c6": {
+      "cgroup_id": 16080,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope",
+      "docker_id": "aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 54867,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:34:21.824636589Z"
+    },
+    "c2a5e14633fac41be5f67eb4": {
+      "cgroup_id": 16159,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-84e9ddfb9391a0158dd1d5202b1695d6867432c7e74ab368135726fec058554b.scope",
+      "docker_id": "84e9ddfb9391a0158dd1d5202b1695d6867432c7e74ab368135726fec058554b",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 54912,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:34:21.944298382Z"
+    }
+  },
+  "origin_monotonic_ns": 2484055215668,
+  "origin_utc": "2026-11-05T10:34:22.922051Z",
+  "project": "measured-0fc1d6e387e6473a88e42384b208a8d9",
+  "run_id": "0fc1d6e387e6473a88e42384b208a8d9",
+  "stage": "replaying",
+  "status": "incomplete",
+  "worker_clocks": [
+    {
+      "after_ns": 2483390522315,
+      "before_ns": 2483236123693,
+      "worker_ns": 2483386126945
+    },
+    {
+      "after_ns": 2483549789210,
+      "before_ns": 2483481856861,
+      "worker_ns": 2483545976104
+    }
+  ]
+}

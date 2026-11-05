@@ -1,0 +1,26 @@
+{
+  "cleanup_diagnostics": [],
+  "cleanup_finished_ns": 4343601836721,
+  "cleanup_started_ns": 4338451360752,
+  "diagnostic": "worker did not acknowledge readiness",
+  "evidence_sha256": {
+    "actual-actions.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "preflight.json": "070ba84e31c41efa731ef7a1d7722c3b0c85164271babd693bb3c589468fc360",
+    "raw-cgroup.json": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356",
+    "raw-signals.jsonl": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "instances": {
+    "888c92b9d4f839644d517cc0": {
+      "cgroup_id": 19749,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-47953f83c50f28a218d396274db6cd62b23223d0490bb36d334bfac78da3f22d.scope",
+      "docker_id": "47953f83c50f28a218d396274db6cd62b23223d0490bb36d334bfac78da3f22d",
+      "image": "sha256:ca36318d3cdeb42768c9f67a72d66306fe4b94b58e51fadf2b5bfee2be7a589b",
+      "pid": 99865,
+      "restart_count": 0,
+      "started_at": "2026-11-05T11:05:16.950814602Z"
+    }
+  },
+  "project": "measured-eeaf7a37afa54f2a891f8f2afccf26da",
+  "run_id": "eeaf7a37afa54f2a891f8f2afccf26da",
+  "status": "incomplete"
+}

@@ -1,0 +1,46 @@
+{
+  "2a57a6c804dad9c78b9254c6": [
+    {
+      "acquisition_start_ns": 2484055437210,
+      "cgroup_id": 16080,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 11157504,
+      "timestamp_ns": 2484055500275,
+      "usage_usec": 207515
+    },
+    {
+      "diagnostic": "instance mapping changed; abort and reset baselines; replacement must not inherit old identity: {\"current\":{\"cgroup_id\":16317,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":55485,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:25.093344505Z\"},\"original\":{\"cgroup_id\":16080,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":54867,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:21.824636589Z\"}}",
+      "received_ns": 2488986282982,
+      "type": "invalid_mapping"
+    }
+  ],
+  "c2a5e14633fac41be5f67eb4": [
+    {
+      "acquisition_start_ns": 2484055250458,
+      "cgroup_id": 16159,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10969088,
+      "timestamp_ns": 2484055430908,
+      "usage_usec": 207110
+    },
+    {
+      "acquisition_start_ns": 2488971834989,
+      "cgroup_id": 16159,
+      "cpu_max": [
+        "50000",
+        "100000"
+      ],
+      "memory_bytes": 10964992,
+      "normalization_diagnostic": null,
+      "normalized_cpu_pct": 0.0,
+      "timestamp_ns": 2488971931752,
+      "usage_usec": 207110
+    }
+  ]
+}

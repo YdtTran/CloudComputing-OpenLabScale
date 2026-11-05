@@ -1,0 +1,26 @@
+{
+  "clock": "elapsed_ms",
+  "config": {
+    "cpu_limit_cores": 0.5,
+    "memory_limit_mb": 256,
+    "session_count": 120,
+    "start_offset_ms": 1000
+  },
+  "duration_ms": 419000,
+  "files": {
+    "events.csv": "5adfc9f84b69a0c44df106b21e220ab6c7ca998992e7c5012ee9ea815c0b73f4",
+    "observations.csv": "22e382bab8474166ccaa8632bdd3c90e9f6337edff5b2bb654dd635e2ba23470",
+    "phases.csv": "5d91bb40b3c5526f1d64da45c0c3c4d443321ff2d01bb68c9f53ccf35f5d4ad9",
+    "sessions.csv": "b41b1c7d2607ea68659bba0b2c09cc228ad79ead517e118838db435692cc3ba0",
+    "truth.csv": "e370e88fea73ff0b840972aafacc8c43c3cfa74747e4775f261049ed82e949ad"
+  },
+  "generator_version": "1.0.0",
+  "interaction_truth_ms": 30000,
+  "limitations": "Synthetic model results are not real monitoring accuracy, reclamation savings, or host/eBPF overhead.",
+  "origin_utc": null,
+  "run_id": "5322a9bcd77907e0ab27d5e8",
+  "sample_ms": 5000,
+  "schema_version": "1.0",
+  "seed": 42,
+  "source_mode": "synthetic"
+}

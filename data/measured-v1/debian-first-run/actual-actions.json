@@ -1,0 +1,66 @@
+[
+  {
+    "action": "CONNECT",
+    "job_id": "",
+    "monotonic_ns": 2356962997716,
+    "parameters": {
+      "planned_at_ms": 0,
+      "source_event_id": "6f615717a283f365d6e1a9d1"
+    },
+    "received_ns": 2356962998318,
+    "session_id": "15836158319b3d44f870b6cf"
+  },
+  {
+    "action": "CONNECT",
+    "job_id": "",
+    "monotonic_ns": 2356963057912,
+    "parameters": {
+      "planned_at_ms": 0,
+      "source_event_id": "a4c1922f18e154837185f697"
+    },
+    "received_ns": 2356963058330,
+    "session_id": "52af597f2b1b1129bf6dd65d"
+  },
+  {
+    "action": "EXECUTE",
+    "job_id": "dd5bbd3c02aafb65c7a89600",
+    "monotonic_ns": 2376966408591,
+    "parameters": {
+      "planned_at_ms": 20000,
+      "source_event_id": "8910d4adb7fd746a2caa2a77"
+    },
+    "received_ns": 2376966409341,
+    "session_id": "15836158319b3d44f870b6cf"
+  },
+  {
+    "action": "JOB_START",
+    "job_id": "dd5bbd3c02aafb65c7a89600",
+    "monotonic_ns": 2377169531671,
+    "parameters": {
+      "ack": "worker"
+    },
+    "received_ns": 2377169786208,
+    "session_id": "15836158319b3d44f870b6cf"
+  },
+  {
+    "action": "DISCONNECT",
+    "job_id": "",
+    "monotonic_ns": 2396975852825,
+    "parameters": {
+      "planned_at_ms": 40000,
+      "source_event_id": "30b2a42588a755d33b4a603a"
+    },
+    "received_ns": 2396975853800,
+    "session_id": "15836158319b3d44f870b6cf"
+  },
+  {
+    "action": "JOB_COMPLETE",
+    "job_id": "dd5bbd3c02aafb65c7a89600",
+    "monotonic_ns": 2537180392808,
+    "parameters": {
+      "ack": "worker"
+    },
+    "received_ns": 2537180751283,
+    "session_id": "15836158319b3d44f870b6cf"
+  }
+]

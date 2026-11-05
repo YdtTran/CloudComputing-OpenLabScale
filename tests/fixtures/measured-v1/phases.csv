@@ -1,0 +1,3 @@
+run_id,phase_id,session_id,job_id,start_ms,end_ms,workload,parameters_json
+r,p1,s,j1,10000,25000,CPU,"{""cpu_duty"":0.5,""outcome"":""COMPLETE""}"
+r,p2,s,j2,50000,70000,CPU,"{""cpu_duty"":0.5,""outcome"":""COMPLETE""}"

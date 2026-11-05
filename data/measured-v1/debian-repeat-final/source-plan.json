@@ -1,0 +1,124 @@
+{
+  "events": [
+    {
+      "action": "CONNECT",
+      "at_ms": "0",
+      "event_id": "6f615717a283f365d6e1a9d1",
+      "job_id": "",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115"
+    },
+    {
+      "action": "EXECUTE",
+      "at_ms": "20000",
+      "event_id": "8910d4adb7fd746a2caa2a77",
+      "job_id": "8eec3cf66c33eb969e9acefb",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115"
+    },
+    {
+      "action": "JOB_START",
+      "at_ms": "20000",
+      "event_id": "bfa49f5f314b5a1d7c802789",
+      "job_id": "8eec3cf66c33eb969e9acefb",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115"
+    },
+    {
+      "action": "DISCONNECT",
+      "at_ms": "40000",
+      "event_id": "30b2a42588a755d33b4a603a",
+      "job_id": "",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115"
+    },
+    {
+      "action": "JOB_COMPLETE",
+      "at_ms": "180000",
+      "event_id": "80bbc65064ef3813948efedf",
+      "job_id": "8eec3cf66c33eb969e9acefb",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115"
+    },
+    {
+      "action": "CONNECT",
+      "at_ms": "0",
+      "event_id": "a4c1922f18e154837185f697",
+      "job_id": "",
+      "parameters_json": "{}",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "89a93efa233d25f78a5c7020"
+    }
+  ],
+  "phases": [
+    {
+      "end_ms": "180000",
+      "job_id": "8eec3cf66c33eb969e9acefb",
+      "parameters_json": "{\"burst_period_ms\":10000,\"burst_width_ms\":200,\"cpu_duty\":0.711127,\"disk_file_bytes\":0,\"disk_rate_bytes_s\":0,\"memory_bytes\":62744855,\"network_bytes\":0,\"outcome\":\"COMPLETE\",\"response_delay_ms\":0}",
+      "phase_id": "baedbb7cfa5702afc8c9b245",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115",
+      "start_ms": "20000",
+      "workload": "CPU"
+    },
+    {
+      "end_ms": "20000",
+      "job_id": "",
+      "parameters_json": "{}",
+      "phase_id": "afd545e5d2d6c5f1f63922fd",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115",
+      "start_ms": "0",
+      "workload": "IDLE"
+    },
+    {
+      "end_ms": "300000",
+      "job_id": "",
+      "parameters_json": "{}",
+      "phase_id": "8be50a8480c57aad2c3eb6b3",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "6240487857b3700caa474115",
+      "start_ms": "180000",
+      "workload": "IDLE"
+    },
+    {
+      "end_ms": "300000",
+      "job_id": "",
+      "parameters_json": "{}",
+      "phase_id": "e817e4c68523507a1835b8a3",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "session_id": "89a93efa233d25f78a5c7020",
+      "start_ms": "0",
+      "workload": "IDLE"
+    }
+  ],
+  "sessions": [
+    {
+      "container_instance_id": "a94135f0756079314a52561f",
+      "cpu_limit_cores": "0.5",
+      "end_ms": "300000",
+      "memory_limit_mb": "256",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "scenario_id": "cpu-background",
+      "session_id": "6240487857b3700caa474115",
+      "start_ms": "0",
+      "user_id": "6f45e173e0eb116925208fba"
+    },
+    {
+      "container_instance_id": "0aed9e21a59377e515d37a2c",
+      "cpu_limit_cores": "0.5",
+      "end_ms": "300000",
+      "memory_limit_mb": "256",
+      "run_id": "5322a9bcd77907e0ab27d5e8",
+      "scenario_id": "pure-idle",
+      "session_id": "89a93efa233d25f78a5c7020",
+      "start_ms": "0",
+      "user_id": "28630a584ac61646e01713d8"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "captured_monotonic_ns": 3177813039417,
+  "docker_id": "f4b87739125a1a5aea9a5d53f736f29d890aee223746b8116760bffc8e2a839b",
+  "state": {
+    "Status": "running",
+    "Running": true,
+    "Paused": false,
+    "Restarting": false,
+    "OOMKilled": false,
+    "Dead": false,
+    "Pid": 70446,
+    "ExitCode": 0,
+    "Error": "",
+    "StartedAt": "2026-11-05T10:42:20.335813819Z",
+    "FinishedAt": "0001-01-01T00:00:00Z"
+  },
+  "image": "sha256:aed749596dada9861a68616716b9ed9b5389350828e63ae9fd2dec9be869bb67",
+  "project": "measured-17dc4cd668cd4eb1bf535ea1438ef686"
+}

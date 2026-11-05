@@ -1,0 +1,39 @@
+name: ${MEASURED_PROJECT:?set a unique run-owned MEASURED_PROJECT}
+services:
+  collector:
+    image: measured-collector:local
+    build:
+      context: .
+      dockerfile: collector/Dockerfile
+    cap_drop: [ALL]
+    cap_add: [SYS_ADMIN]
+    pid: host
+    cgroup: host
+    network_mode: none
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    volumes:
+      - /sys/kernel/tracing:/sys/kernel/tracing:ro
+      - /sys/kernel/btf:/sys/kernel/btf:ro
+      - /sys/fs/cgroup:/sys/fs/cgroup:ro
+  cpu:
+    image: measured-worker:local
+    build:
+      context: .
+      dockerfile: measured/Dockerfile
+    cap_drop: [ALL]
+    network_mode: none
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 16
+  idle:
+    image: measured-worker:local
+    cap_drop: [ALL]
+    network_mode: none
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cpus: 0.5
+    mem_limit: 256m
+    pids_limit: 16

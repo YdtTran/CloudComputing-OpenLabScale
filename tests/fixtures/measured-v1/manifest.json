@@ -1,0 +1,20 @@
+{
+  "clock": "elapsed_ms",
+  "config": {},
+  "duration_ms": 100000,
+  "files": {
+    "events.csv": "4835b1ec593f6253cd28b14064bb9a595359eaa32fe8c70d1efe808bc9f12b76",
+    "observations.csv": "b082717c4b1c0593bd65e6fd7702a3223e6e507a1a2264ff1a4523317d1b3828",
+    "phases.csv": "67f15c2a5d6f927dc1c17747d0d5f0a99ae21d935e55a570de74f02c913f1ea0",
+    "sessions.csv": "d543e1fc1727bd37dc6673db47d8e805aeacb4c024e7b39fef02cc0f97c0a2aa",
+    "truth.csv": "28a0e43446b96f974eec081073875ef20571c83f2524cafeb578375727c00dc0"
+  },
+  "generator_version": "fixture-1",
+  "interaction_truth_ms": 30000,
+  "origin_utc": null,
+  "run_id": "r",
+  "sample_ms": 5000,
+  "schema_version": "1.0",
+  "seed": 42,
+  "source_mode": "measured"
+}

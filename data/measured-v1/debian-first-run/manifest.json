@@ -1,0 +1,291 @@
+{
+  "clock": "elapsed_ms",
+  "config": {
+    "deployment": {
+      "name": "measured-3ca80221def3447e955137ba96057d40",
+      "services": {
+        "collector": {
+          "build": {
+            "context": "/home/ydt/Documents/Workspace/CloudComputing",
+            "dockerfile": "collector/Dockerfile"
+          },
+          "cap_add": [
+            "SYS_ADMIN"
+          ],
+          "cap_drop": [
+            "ALL"
+          ],
+          "cgroup": "host",
+          "command": [
+            "15764",
+            "15685"
+          ],
+          "entrypoint": null,
+          "image": "measured-collector:local",
+          "network_mode": "none",
+          "pid": "host",
+          "read_only": true,
+          "security_opt": [
+            "no-new-privileges:true"
+          ],
+          "volumes": [
+            {
+              "bind": {},
+              "read_only": true,
+              "source": "/sys/kernel/tracing",
+              "target": "/sys/kernel/tracing",
+              "type": "bind"
+            },
+            {
+              "bind": {},
+              "read_only": true,
+              "source": "/sys/kernel/btf",
+              "target": "/sys/kernel/btf",
+              "type": "bind"
+            },
+            {
+              "bind": {},
+              "read_only": true,
+              "source": "/sys/fs/cgroup",
+              "target": "/sys/fs/cgroup",
+              "type": "bind"
+            }
+          ]
+        },
+        "cpu": {
+          "build": {
+            "context": "/home/ydt/Documents/Workspace/CloudComputing",
+            "dockerfile": "measured/Dockerfile"
+          },
+          "cap_drop": [
+            "ALL"
+          ],
+          "command": null,
+          "cpus": 0.5,
+          "entrypoint": null,
+          "image": "measured-worker:local",
+          "mem_limit": "268435456",
+          "network_mode": "none",
+          "pids_limit": 16,
+          "read_only": true,
+          "security_opt": [
+            "no-new-privileges:true"
+          ]
+        },
+        "idle": {
+          "cap_drop": [
+            "ALL"
+          ],
+          "command": null,
+          "cpus": 0.5,
+          "entrypoint": null,
+          "image": "measured-worker:local",
+          "mem_limit": "268435456",
+          "network_mode": "none",
+          "pids_limit": 16,
+          "read_only": true,
+          "security_opt": [
+            "no-new-privileges:true"
+          ]
+        }
+      }
+    },
+    "host": {
+      "kernel": "6.12.115+deb13.1-amd64",
+      "platform": "Linux-6.12.115+deb13.1-amd64-x86_64-with-glibc2.41"
+    },
+    "images": [
+      {
+        "Architecture": "amd64",
+        "Comment": "buildkit.dockerfile.v0",
+        "Config": {
+          "Entrypoint": [
+            "python3",
+            "-u",
+            "/worker/worker.py"
+          ],
+          "Env": [
+            "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+            "LANG=C.UTF-8",
+            "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+            "PYTHON_VERSION=3.13.18",
+            "PYTHON_SHA256=abb0102e6d4ae027509bcb82327d9dd85515b44a3ba8ad538cfc5e9847029f68"
+          ],
+          "Labels": {
+            "com.docker.compose.project": "measured-build-check",
+            "com.docker.compose.service": "cpu",
+            "com.docker.compose.version": "5.7.0"
+          },
+          "User": "65534:65534",
+          "WorkingDir": "/worker"
+        },
+        "Created": "2026-11-05T17:31:45.857501684+07:00",
+        "Descriptor": {
+          "digest": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+          "mediaType": "application/vnd.oci.image.index.v1+json",
+          "size": 856
+        },
+        "Id": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+        "Identity": {
+          "Build": [
+            {
+              "CreatedAt": "2026-11-05T17:31:46.020176307+07:00",
+              "Ref": "jmtws944o7tyhcz28g4bc6e5c"
+            }
+          ]
+        },
+        "Metadata": {
+          "LastTagTime": "2026-11-05T10:31:45.994158921Z"
+        },
+        "Os": "linux",
+        "RepoDigests": [
+          "measured-worker@sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f"
+        ],
+        "RepoTags": [
+          "measured-worker:local"
+        ],
+        "RootFS": {
+          "Layers": [
+            "sha256:a5d6d345f6afa08d7c31272055746d60a838b290bfcc82c0a23e8e984d61a933",
+            "sha256:b9baa14e993c683240d519adebb39657df4d2b973dc2f3fee23cd51367806e2b",
+            "sha256:1217eb836a36d0c4be6a310113a777ecb9d7e9c24197a407665c8884cc5369a4",
+            "sha256:3929d22d8aa43d69f436bbc47ef472db875440b850dbc4e80dd272a3adf673d2",
+            "sha256:8a79a2d7f477a28f262b4303ee48c43ea3eda35011940c97bf704894638181a2",
+            "sha256:69b7dfc91d693a514a512972d8bbdd0339e4f6a5befa3db024c929c1ef51adda"
+          ],
+          "Type": "layers"
+        },
+        "Size": 176222905
+      },
+      {
+        "Architecture": "amd64",
+        "Comment": "buildkit.dockerfile.v0",
+        "Config": {
+          "Entrypoint": [
+            "collector"
+          ],
+          "Env": [
+            "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+          ],
+          "Labels": {
+            "com.docker.compose.project": "measured-build-check",
+            "com.docker.compose.service": "collector",
+            "com.docker.compose.version": "5.7.0"
+          }
+        },
+        "Created": "2026-11-05T17:21:57.480596901+07:00",
+        "Descriptor": {
+          "digest": "sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b",
+          "mediaType": "application/vnd.oci.image.index.v1+json",
+          "size": 856
+        },
+        "Id": "sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b",
+        "Identity": {
+          "Build": [
+            {
+              "CreatedAt": "2026-11-05T17:21:57.691160807+07:00",
+              "Ref": "apqi6ylojvwowiycbc63dyjpt"
+            }
+          ]
+        },
+        "Metadata": {
+          "LastTagTime": "2026-11-05T10:21:57.644955926Z"
+        },
+        "Os": "linux",
+        "RepoDigests": [
+          "measured-collector@sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b"
+        ],
+        "RepoTags": [
+          "measured-collector:local"
+        ],
+        "RootFS": {
+          "Layers": [
+            "sha256:dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90",
+            "sha256:3923a2654099ce2ec6ef4bb9c33acbd79dbab77c2fd639b1c951c06ac0634c38",
+            "sha256:2ca297a54d2a3988ac31ee49f846adc8eec52615b836ac998055aa1ea8b18325",
+            "sha256:da0d35b1dc8809e2cdc474f2343b1d863183a0dc8a33425e8597e6f1376e9228"
+          ],
+          "Type": "layers"
+        },
+        "Size": 118844510
+      }
+    ],
+    "instances": {
+      "15836158319b3d44f870b6cf": {
+        "cgroup_id": 15764,
+        "cgroup_path": "/sys/fs/cgroup/system.slice/docker-37edf1dbb454a58983ae33d46a831e19634abc06b49cc81e4713c37126968621.scope",
+        "docker_id": "37edf1dbb454a58983ae33d46a831e19634abc06b49cc81e4713c37126968621",
+        "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+        "pid": 51523,
+        "restart_count": 0,
+        "started_at": "2026-11-05T10:32:14.630945295Z"
+      },
+      "52af597f2b1b1129bf6dd65d": {
+        "cgroup_id": 15685,
+        "cgroup_path": "/sys/fs/cgroup/system.slice/docker-bf2d27809b6415104db78d1ee6991e34e95837dcc808696ffc9c16f33455522e.scope",
+        "docker_id": "bf2d27809b6415104db78d1ee6991e34e95837dcc808696ffc9c16f33455522e",
+        "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+        "pid": 51480,
+        "restart_count": 0,
+        "started_at": "2026-11-05T10:32:14.472741756Z"
+      }
+    },
+    "omitted": [
+      "io_events",
+      "socket_events",
+      "disk_read_bytes",
+      "disk_write_bytes",
+      "network_rx_bytes",
+      "network_tx_bytes"
+    ],
+    "origin_monotonic_ns": 2356962301536,
+    "phase_timing": "source plan retained verbatim in source-plan.json; exported job phases shifted by actual request lag for contract joins; truth uses only worker acknowledgements",
+    "probe": "sched:sched_process_exec",
+    "sampling": "actual monotonic bounds, nominal 4.9s cadence to stay <=5s; overruns split into missing-CPU windows",
+    "source_hashes": {
+      "events.csv": "7819c5763910cb54cb301a69f799db2d4e7c2dc730bd67749b7a89fff1e51449",
+      "observations.csv": "8873b48d10a74c587baa83ac2aaab16db0c6ac14bd28456e09b330a52d7429eb",
+      "phases.csv": "e3f7ad57c03f49835068a1eb02da73077127370a67790cdb737056125e6693a9",
+      "sessions.csv": "6c593fd7200d31f5e6deff7898cdf809f561c1dc75c20346555769f714712a9a",
+      "truth.csv": "1ec649f8f73c12b5514334eeaa5fb4cac245a585bbf9b1fc41b4aef6bf64a67a"
+    },
+    "source_manifest_sha256": "b21c1bb6b435171a126fb5ba694064eac8881d48f7fd6a83fe7474b9826f1488",
+    "source_run_id": "5322a9bcd77907e0ab27d5e8",
+    "source_to_measured_jobs": {
+      "8eec3cf66c33eb969e9acefb": "dd5bbd3c02aafb65c7a89600"
+    },
+    "source_to_measured_sessions": {
+      "6240487857b3700caa474115": "15836158319b3d44f870b6cf",
+      "89a93efa233d25f78a5c7020": "52af597f2b1b1129bf6dd65d"
+    },
+    "worker_clocks": [
+      {
+        "after_ns": 2356254051446,
+        "before_ns": 2355954890321,
+        "worker_ns": 2356249149294
+      },
+      {
+        "after_ns": 2356411729603,
+        "before_ns": 2356349862118,
+        "worker_ns": 2356407409989
+      }
+    ]
+  },
+  "duration_ms": 300297,
+  "files": {
+    "events.csv": "94e5e512d59693a77484fc22f60cc400830b4aa03eaec89b47c3491469a8fc57",
+    "observations.csv": "1bae51d972b722082e5f51a5ac33f322ba65ec1144d96174162e1abc2754aed0",
+    "phases.csv": "2d480afb409de237af1359e8bc7b7c1ef49caed9722bde59ef6790ca9dbcc9f0",
+    "sessions.csv": "ff6290c9c52bcb5920aa3ed26b6387b4c1de002791b6c47104bc732ceafbcce6",
+    "truth.csv": "b69922336986800856ddafda9f6b872bfb90ddb7d58406a7c20ccbe07c3bfb1c"
+  },
+  "generator_version": "measured-1",
+  "interaction_truth_ms": 30000,
+  "limitations": "Partial measured collection: sched:sched_process_exec covers exec only; I/O, socket, disk and network counters are uncollected/null. All resource windows are DEGRADED. Multi-signal policies abstain. These two sessions do not establish real-world accuracy or monitoring overhead; synthetic and measured scores are never pooled. Ubuntu and full workloads are deferred.",
+  "origin_utc": "2026-11-05T10:32:15.829140Z",
+  "run_id": "3ca80221def3447e955137ba96057d40",
+  "sample_ms": 5000,
+  "schema_version": "1.0",
+  "seed": 42,
+  "source_mode": "measured"
+}

@@ -1,0 +1,6 @@
+{
+  "running_image_id": "sha256:aed749596dada9861a68616716b9ed9b5389350828e63ae9fd2dec9be869bb67",
+  "new_tag_image_id": "sha256:1cae7b0221788ff4396499fa81c901fd5dc359fa09e8d0f5bc872af96a94c389",
+  "old_id_inspect_returncode": 1,
+  "old_id_inspect_diagnostic": "Error response from daemon: No such image: sha256:aed749596dada9861a68616716b9ed9b5389350828e63ae9fd2dec9be869bb67"
+}

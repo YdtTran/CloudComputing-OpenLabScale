@@ -1,0 +1,43 @@
+ Image measured-worker:local Building 
+#1 [internal] load local bake definitions
+#1 reading from stdin 560B done
+#1 DONE 0.0s
+
+#2 [internal] load build definition from Dockerfile
+#2 transferring dockerfile: 187B done
+#2 DONE 0.0s
+
+#3 [internal] load metadata for docker.io/library/python:3.13-slim-trixie
+#3 DONE 0.9s
+
+#4 [internal] load .dockerignore
+#4 transferring context: 2B done
+#4 DONE 0.0s
+
+#5 [internal] load build context
+#5 transferring context: 2.68kB done
+#5 DONE 0.0s
+
+#6 [1/3] FROM docker.io/library/python:3.13-slim-trixie@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1
+#6 resolve docker.io/library/python:3.13-slim-trixie@sha256:ae14d4ce8771606477a81446e7ef429edd6762305fc50c84507c1041fa8285d1 0.0s done
+#6 DONE 0.0s
+
+#7 [2/3] WORKDIR /worker
+#7 CACHED
+
+#8 [3/3] COPY measured/worker.py ./worker.py
+#8 DONE 0.0s
+
+#9 exporting to image
+#9 exporting layers 0.1s done
+#9 exporting manifest sha256:8112efca776594ef9e625e971052a35bb883a7bf8da88c517c1c7cf6ecaf998d done
+#9 exporting config sha256:df504fbaf9f72bc584f8450e7ee9e324b512278558c7110d10ac25a8bfd3821c done
+#9 exporting attestation manifest sha256:bcb16f2c416bfe32d79409ddd803188fd7605bc3bbaeb52c57a01ea39261311e 0.0s done
+#9 exporting manifest list sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f 0.0s done
+#9 naming to docker.io/library/measured-worker:local done
+#9 unpacking to docker.io/library/measured-worker:local 0.0s done
+#9 DONE 0.2s
+
+#10 resolving provenance for metadata file
+#10 DONE 0.0s
+ Image measured-worker:local Built 

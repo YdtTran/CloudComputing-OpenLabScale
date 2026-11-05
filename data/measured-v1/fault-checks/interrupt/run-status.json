@@ -1,0 +1,49 @@
+{
+  "cleanup_diagnostics": [],
+  "diagnostic": "signal 15",
+  "evidence_sha256": {
+    "actual-actions.json": "528f136da2be400a08f03a894a60de5c21b293bcffa1f071b25644c64c2544f8",
+    "collector-command.json": "1e7fd54ae5b9b672eabae3957b178683a864c0f4ec01638a86d0fb7832ccdfa6",
+    "preflight.json": "c468a8f6eed8521fb6779d6643b2c3de8b04785d2d2bb54a71036462c187de96",
+    "raw-cgroup.json": "b6fa042eec1a204c1466da573d1181a8fe059c7a10ee2e97928e992d00d85849",
+    "raw-signals.jsonl": "de8e0985812bf4f1a6908afc21de450c4180aab231312022da6d96349ccdc383"
+  },
+  "instances": {
+    "41e63ba61235bf2ecf1891c4": {
+      "cgroup_id": 16475,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-c668b01f0a597432ddf79ab5bf58e179da33a8bf4784f9cceb5685598e70a71e.scope",
+      "docker_id": "c668b01f0a597432ddf79ab5bf58e179da33a8bf4784f9cceb5685598e70a71e",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 56270,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:34:34.057227043Z"
+    },
+    "dad48486e17a27499265393c": {
+      "cgroup_id": 16554,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-feb8f7c37f4c2f05b6d6647a562d6cf983acae1219d46f0ee9f2ba46a5f8102c.scope",
+      "docker_id": "feb8f7c37f4c2f05b6d6647a562d6cf983acae1219d46f0ee9f2ba46a5f8102c",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 56313,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:34:34.182815341Z"
+    }
+  },
+  "origin_monotonic_ns": 2496351996128,
+  "origin_utc": "2026-11-05T10:34:35.218844Z",
+  "project": "measured-70acceafebeb40e19d82b0519c5c4af6",
+  "run_id": "70acceafebeb40e19d82b0519c5c4af6",
+  "stage": "replaying",
+  "status": "incomplete",
+  "worker_clocks": [
+    {
+      "after_ns": 2495659309387,
+      "before_ns": 2495493303803,
+      "worker_ns": 2495655419333
+    },
+    {
+      "after_ns": 2495857539775,
+      "before_ns": 2495760242577,
+      "worker_ns": 2495851888695
+    }
+  ]
+}

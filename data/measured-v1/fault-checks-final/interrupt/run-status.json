@@ -1,0 +1,164 @@
+{
+  "cleanup_diagnostics": [],
+  "collector_image": "sha256:1cae7b0221788ff4396499fa81c901fd5dc359fa09e8d0f5bc872af96a94c389",
+  "diagnostic": "signal 15",
+  "evidence_sha256": {
+    "actual-actions.json": "24ae14f07d501cf9e15da8ee8bc3083c4679109be15768670599f5538d6df3fe",
+    "collector-command.json": "9432e0d9b2352a2be7f898630a1792383a78d003390a247a8722412a1157d281",
+    "preflight.json": "c15cf3e0380de91b719dae11ec1e6f27b11119c78cb02679caa730eee4afcd23",
+    "raw-cgroup.json": "d7d6b8ab35ebd8f73530d3ede9ec16e43c01dcd653a8e2f4a6dd800f48980130",
+    "raw-signals.jsonl": "7e2de6a0b44908b9da0bde01ad8a94510b6803916147e38d2598585392a1a259"
+  },
+  "images": [
+    {
+      "Architecture": "amd64",
+      "Comment": "buildkit.dockerfile.v0",
+      "Config": {
+        "Entrypoint": [
+          "python3",
+          "-u",
+          "/worker/worker.py"
+        ],
+        "Env": [
+          "PATH=/usr/local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin",
+          "LANG=C.UTF-8",
+          "GPG_KEY=7169605F62C751356D054A26A821E680E5FA6305",
+          "PYTHON_VERSION=3.13.18",
+          "PYTHON_SHA256=abb0102e6d4ae027509bcb82327d9dd85515b44a3ba8ad538cfc5e9847029f68"
+        ],
+        "Labels": {
+          "com.docker.compose.project": "measured-build-check",
+          "com.docker.compose.service": "cpu",
+          "com.docker.compose.version": "5.7.0"
+        },
+        "User": "65534:65534",
+        "WorkingDir": "/worker"
+      },
+      "Created": "2026-11-05T17:31:45.857501684+07:00",
+      "Descriptor": {
+        "digest": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+        "mediaType": "application/vnd.oci.image.index.v1+json",
+        "size": 856
+      },
+      "Id": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "Identity": {
+        "Build": [
+          {
+            "CreatedAt": "2026-11-05T17:31:46.020176307+07:00",
+            "Ref": "jmtws944o7tyhcz28g4bc6e5c"
+          }
+        ]
+      },
+      "Metadata": {
+        "LastTagTime": "2026-11-05T10:31:45.994158921Z"
+      },
+      "Os": "linux",
+      "RepoDigests": [
+        "measured-worker@sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f"
+      ],
+      "RepoTags": [
+        "measured-worker:local"
+      ],
+      "RootFS": {
+        "Layers": [
+          "sha256:a5d6d345f6afa08d7c31272055746d60a838b290bfcc82c0a23e8e984d61a933",
+          "sha256:b9baa14e993c683240d519adebb39657df4d2b973dc2f3fee23cd51367806e2b",
+          "sha256:1217eb836a36d0c4be6a310113a777ecb9d7e9c24197a407665c8884cc5369a4",
+          "sha256:3929d22d8aa43d69f436bbc47ef472db875440b850dbc4e80dd272a3adf673d2",
+          "sha256:8a79a2d7f477a28f262b4303ee48c43ea3eda35011940c97bf704894638181a2",
+          "sha256:69b7dfc91d693a514a512972d8bbdd0339e4f6a5befa3db024c929c1ef51adda"
+        ],
+        "Type": "layers"
+      },
+      "Size": 176222905
+    },
+    {
+      "Architecture": "amd64",
+      "Comment": "buildkit.dockerfile.v0",
+      "Config": {
+        "Entrypoint": [
+          "collector"
+        ],
+        "Env": [
+          "PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+        ],
+        "Labels": {
+          "measured.acceptance": "image-retag"
+        }
+      },
+      "Created": "2026-11-05T17:40:09.104307993+07:00",
+      "Descriptor": {
+        "digest": "sha256:1cae7b0221788ff4396499fa81c901fd5dc359fa09e8d0f5bc872af96a94c389",
+        "mediaType": "application/vnd.oci.image.index.v1+json",
+        "size": 856
+      },
+      "Id": "sha256:1cae7b0221788ff4396499fa81c901fd5dc359fa09e8d0f5bc872af96a94c389",
+      "Identity": {
+        "Build": [
+          {
+            "CreatedAt": "2026-11-05T17:44:36.145790093+07:00",
+            "Ref": "xkb0mpt6coi1z54vngcprqv0h"
+          }
+        ]
+      },
+      "Metadata": {
+        "LastTagTime": "2026-11-05T10:44:36.13534401Z"
+      },
+      "Os": "linux",
+      "RepoDigests": [
+        "measured-collector@sha256:1cae7b0221788ff4396499fa81c901fd5dc359fa09e8d0f5bc872af96a94c389"
+      ],
+      "RepoTags": [
+        "measured-collector:local"
+      ],
+      "RootFS": {
+        "Layers": [
+          "sha256:dd57f90311a2567b55ff22eeacff1602fd04ad7566e315957731359eab173b90",
+          "sha256:3923a2654099ce2ec6ef4bb9c33acbd79dbab77c2fd639b1c951c06ac0634c38",
+          "sha256:9d1807c10722b3e0ad550793cfe91eac93f4a93a56827d5d0129b2a0626f14b5",
+          "sha256:b0a3b2ad5d2db34ad18fe1b70cdc0245cdada0d90a2f5ee110846d1e2234a5a7"
+        ],
+        "Type": "layers"
+      },
+      "Size": 118844442
+    }
+  ],
+  "instances": {
+    "b67c4aadd21d27111012114a": {
+      "cgroup_id": 18220,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-476793f85055fb3878e5f4475f8185ce01d95355598fcf112bece0ed9b663e83.scope",
+      "docker_id": "476793f85055fb3878e5f4475f8185ce01d95355598fcf112bece0ed9b663e83",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 75139,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:44:49.887497516Z"
+    },
+    "e07635bf0b273e4918f4f385": {
+      "cgroup_id": 18141,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-1e2ab0a242338224425d0b00fbbd6be09e210833bb19fb0600aed6d570440f2b.scope",
+      "docker_id": "1e2ab0a242338224425d0b00fbbd6be09e210833bb19fb0600aed6d570440f2b",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 75095,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:44:49.766916222Z"
+    }
+  },
+  "origin_monotonic_ns": 3112009051674,
+  "origin_utc": "2026-11-05T10:44:50.875887Z",
+  "project": "measured-deb12e2d987946feb91022b86910eb3a",
+  "run_id": "deb12e2d987946feb91022b86910eb3a",
+  "stage": "replaying",
+  "status": "incomplete",
+  "worker_clocks": [
+    {
+      "after_ns": 3111308205831,
+      "before_ns": 3111180324332,
+      "worker_ns": 3111304148543
+    },
+    {
+      "after_ns": 3111471452331,
+      "before_ns": 3111409091985,
+      "worker_ns": 3111467237686
+    }
+  ]
+}

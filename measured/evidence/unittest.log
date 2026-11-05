@@ -1,0 +1,47 @@
+test_checksums_and_versions (tests.test_contract.ContractTests.test_checksums_and_versions) ... ok
+test_duplicate_and_lifecycle (tests.test_contract.ContractTests.test_duplicate_and_lifecycle) ... ok
+test_legacy (tests.test_contract.ContractTests.test_legacy) ... ok
+test_measured_actual_acknowledgements (tests.test_contract.ContractTests.test_measured_actual_acknowledgements) ... ok
+test_minimal (tests.test_contract.ContractTests.test_minimal) ... ok
+test_negative_counters_bounds_and_mapping (tests.test_contract.ContractTests.test_negative_counters_bounds_and_mapping) ... ok
+test_partial_delayed_missing_window (tests.test_contract.ContractTests.test_partial_delayed_missing_window) ... ok
+test_references_times_truth_provenance (tests.test_contract.ContractTests.test_references_times_truth_provenance) ... ok
+test_full_flow_twice (tests.test_integration.IntegrationTests.test_full_flow_twice) ... ok
+test_observation_identity_and_config_recording (tests.test_integration.IntegrationTests.test_observation_identity_and_config_recording) ... ok
+test_export_validates_and_predictions_ignore_truth (tests.test_measured.ExportTests.test_export_validates_and_predictions_ignore_truth) ... ok
+test_destination_is_exclusive_and_cleanup_is_scoped_bounded (tests.test_measured.OwnershipTests.test_destination_is_exclusive_and_cleanup_is_scoped_bounded) ... ok
+test_startup_failure_and_interruption_retain_incomplete_evidence (tests.test_measured.OwnershipTests.test_startup_failure_and_interruption_retain_incomplete_evidence) ... ok
+test_missing_and_duplicate_sessions (tests.test_measured.SourceTests.test_missing_and_duplicate_sessions) ... ok
+test_selection_preserves_all_source_bytes (tests.test_measured.SourceTests.test_selection_preserves_all_source_bytes) ... ok
+test_unsupported_phase_memory_and_cpu_bounds (tests.test_measured.SourceTests.test_unsupported_phase_memory_and_cpu_bounds) ... ok
+test_late_event_overrun_partial_and_missing_values (tests.test_measured.TelemetryTests.test_late_event_overrun_partial_and_missing_values) ... ok
+test_quota_normalization_missing_reset_and_over_range (tests.test_measured.TelemetryTests.test_quota_normalization_missing_reset_and_over_range) ... ok
+test_restart_mapping_never_relabels_instance (tests.test_measured.TelemetryTests.test_restart_mapping_never_relabels_instance) ... ok
+test_failed_and_missing_acknowledgements (tests.test_measured.TruthTests.test_failed_and_missing_acknowledgements) ... ok
+test_late_actual_completion_and_disconnect (tests.test_measured.TruthTests.test_late_actual_completion_and_disconnect) ... ok
+test_compose_isolation (tests.test_measured_deployment.DeploymentTests.test_compose_isolation) ... ok
+test_worker_bounds_and_actual_acknowledgements (tests.test_measured_deployment.DeploymentTests.test_worker_bounds_and_actual_acknowledgements) ... ok
+test_denied_docker_does_not_create_containers (tests.test_measured_preflight.PreflightTests.test_denied_docker_does_not_create_containers) ... ok
+test_denied_prerequisites_never_start_workloads (tests.test_measured_preflight.PreflightTests.test_denied_prerequisites_never_start_workloads) ... ok
+test_ready_requires_record_and_cleanup_failure_blocks_success (tests.test_measured_preflight.PreflightTests.test_ready_requires_record_and_cleanup_failure_blocks_success) ... ok
+test_default_generation_and_reproducibility (tests.test_observations.ObservationTests.test_default_generation_and_reproducibility) ... ok
+test_faults_do_not_change_truth (tests.test_observations.ObservationTests.test_faults_do_not_change_truth) ... ok
+test_projection_partial_and_delay (tests.test_observations.ObservationTests.test_projection_partial_and_delay) ... ok
+test_boundaries (tests.test_policies.PolicyTests.test_boundaries) ... ok
+test_causal_projection (tests.test_policies.PolicyTests.test_causal_projection) ... ok
+test_expected_policy_differences (tests.test_policies.PolicyTests.test_expected_policy_differences) ... ok
+test_isolation (tests.test_policies.PolicyTests.test_isolation) ... ok
+test_stale_missing_loss_and_delay (tests.test_policies.PolicyTests.test_stale_missing_loss_and_delay) ... ok
+test_unknown_recovery_and_disconnect (tests.test_policies.PolicyTests.test_unknown_recovery_and_disconnect) ... ok
+test_coverage_and_bounds (tests.test_scenarios.ScenarioTests.test_coverage_and_bounds) ... ok
+test_independent_truth (tests.test_scenarios.ScenarioTests.test_independent_truth) ... ok
+test_stable_expansion_and_links (tests.test_scenarios.ScenarioTests.test_stable_expansion_and_links) ... ok
+test_absent_positive_and_no_zero_delay (tests.test_scoring.ScoringTests.test_absent_positive_and_no_zero_delay) ... ok
+test_hand_calculated (tests.test_scoring.ScoringTests.test_hand_calculated) ... ok
+test_provenance_pooling (tests.test_scoring.ScoringTests.test_provenance_pooling) ... ok
+test_unknown_and_censoring (tests.test_scoring.ScoringTests.test_unknown_and_censoring) ... ok
+
+----------------------------------------------------------------------
+Ran 42 tests in 2.431s
+
+OK

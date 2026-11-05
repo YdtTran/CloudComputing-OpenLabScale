@@ -1,0 +1,171 @@
+{
+  "capabilities": [
+    "SYS_ADMIN"
+  ],
+  "collector_log": "{\"type\":\"ready\",\"monotonic_ns\":2620534323881}\n",
+  "configuration": {
+    "name": "measured-preflight-1c5f349c8e634972b105ed9a55535509",
+    "services": {
+      "collector": {
+        "build": {
+          "context": "/home/ydt/Documents/Workspace/CloudComputing",
+          "dockerfile": "collector/Dockerfile"
+        },
+        "cap_add": [
+          "SYS_ADMIN"
+        ],
+        "cap_drop": [
+          "ALL"
+        ],
+        "cgroup": "host",
+        "command": null,
+        "entrypoint": null,
+        "image": "measured-collector:local",
+        "network_mode": "none",
+        "pid": "host",
+        "read_only": true,
+        "security_opt": [
+          "no-new-privileges:true"
+        ],
+        "volumes": [
+          {
+            "bind": {},
+            "read_only": true,
+            "source": "/sys/kernel/tracing",
+            "target": "/sys/kernel/tracing",
+            "type": "bind"
+          },
+          {
+            "bind": {},
+            "read_only": true,
+            "source": "/sys/kernel/btf",
+            "target": "/sys/kernel/btf",
+            "type": "bind"
+          },
+          {
+            "bind": {},
+            "read_only": true,
+            "source": "/sys/fs/cgroup",
+            "target": "/sys/fs/cgroup",
+            "type": "bind"
+          }
+        ]
+      },
+      "cpu": {
+        "build": {
+          "context": "/home/ydt/Documents/Workspace/CloudComputing",
+          "dockerfile": "measured/Dockerfile"
+        },
+        "cap_drop": [
+          "ALL"
+        ],
+        "command": null,
+        "cpus": 0.5,
+        "entrypoint": null,
+        "image": "measured-worker:local",
+        "mem_limit": "268435456",
+        "network_mode": "none",
+        "pids_limit": 16,
+        "read_only": true,
+        "security_opt": [
+          "no-new-privileges:true"
+        ]
+      },
+      "idle": {
+        "cap_drop": [
+          "ALL"
+        ],
+        "command": null,
+        "cpus": 0.5,
+        "entrypoint": null,
+        "image": "measured-worker:local",
+        "mem_limit": "268435456",
+        "network_mode": "none",
+        "pids_limit": 16,
+        "read_only": true,
+        "security_opt": [
+          "no-new-privileges:true"
+        ]
+      }
+    }
+  },
+  "docker": {
+    "Client": {
+      "ApiVersion": "1.56",
+      "Arch": "amd64",
+      "BuildTime": "Tue Nov  3 21:42:35 2026",
+      "Context": "default",
+      "DefaultAPIVersion": "1.56",
+      "GitCommit": "5457199",
+      "GoVersion": "go1.26.10",
+      "Os": "linux",
+      "Platform": {
+        "Name": "Docker Engine - Community"
+      },
+      "Version": "29.9.3"
+    },
+    "Server": {
+      "ApiVersion": "1.56",
+      "Arch": "amd64",
+      "BuildTime": "2026-11-03T21:42:35.000000000+00:00",
+      "Components": [
+        {
+          "Details": {
+            "ApiVersion": "1.56",
+            "Arch": "amd64",
+            "BuildTime": "Tue Nov  3 21:42:35 2026",
+            "Experimental": "false",
+            "GitCommit": "70efc0e",
+            "GoVersion": "go1.26.10",
+            "KernelVersion": "6.12.115+deb13.1-amd64",
+            "MinAPIVersion": "1.40",
+            "Module": "github.com/moby/moby/v2",
+            "ModuleVersion": "v2.0.0+unknown",
+            "Os": "linux"
+          },
+          "Name": "Engine",
+          "Version": "29.9.3"
+        },
+        {
+          "Details": {
+            "GitCommit": "b7a25261e029d68978bbf290df0a62fc819b3c51"
+          },
+          "Name": "containerd",
+          "Version": "v2.4.2"
+        },
+        {
+          "Details": {
+            "GitCommit": "v1.5.2-0-g29dd3dc2"
+          },
+          "Name": "runc",
+          "Version": "1.5.2"
+        },
+        {
+          "Details": {
+            "GitCommit": "de40ad0"
+          },
+          "Name": "docker-init",
+          "Version": "0.19.0"
+        }
+      ],
+      "GitCommit": "70efc0e",
+      "GoVersion": "go1.26.10",
+      "KernelVersion": "6.12.115+deb13.1-amd64",
+      "MinAPIVersion": "1.40",
+      "Os": "linux",
+      "Platform": {
+        "Name": "Docker Engine - Community"
+      },
+      "Version": "29.9.3"
+    }
+  },
+  "image": "sha256:4998296944d5e6f9b68b648fd4d5da3832ea9c5e98bfbc017e2319f2976f0b9b",
+  "kernel": "6.12.115+deb13.1-amd64",
+  "platform": "Linux-6.12.115+deb13.1-amd64-x86_64-with-glibc2.41",
+  "probe": "sched:sched_process_exec",
+  "readiness": {
+    "monotonic_ns": 2620534323881,
+    "type": "ready"
+  },
+  "status": "attached"
+}

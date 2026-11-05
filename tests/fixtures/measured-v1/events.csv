@@ -1,0 +1,6 @@
+run_id,event_id,session_id,at_ms,action,job_id,parameters_json
+r,e,s,0,CONNECT,,{}
+r,e1,s,10000,EXECUTE,j1,{}
+r,e2,s,12000,JOB_START,j1,{}
+r,e3,s,22000,JOB_COMPLETE,j1,{}
+r,e4,s,50000,EXECUTE,j2,{}

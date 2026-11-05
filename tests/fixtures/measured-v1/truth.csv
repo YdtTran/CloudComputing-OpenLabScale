@@ -1,0 +1,7 @@
+run_id,session_id,start_ms,end_ms,interaction,connection,workload,eligibility,reason,label_source
+r,s,0,12000,RECENT,CONNECTED,IDLE,RETAIN,actual_ack_or_unconfirmed,execution_ack
+r,s,12000,22000,RECENT,CONNECTED,ACTIVE,RETAIN,actual_ack_or_unconfirmed,execution_ack
+r,s,22000,40000,RECENT,CONNECTED,IDLE,RETAIN,actual_ack_or_unconfirmed,execution_ack
+r,s,40000,50000,ABSENT,CONNECTED,IDLE,IDLE_ELIGIBLE,actual_ack_or_unconfirmed,execution_ack
+r,s,50000,80000,RECENT,CONNECTED,UNKNOWN,RETAIN,actual_ack_or_unconfirmed,execution_ack
+r,s,80000,100000,ABSENT,CONNECTED,UNKNOWN,UNKNOWN,actual_ack_or_unconfirmed,execution_ack

@@ -1,0 +1,23 @@
+{
+  "all_owned_projects_removed": true,
+  "deferred": [
+    "Ubuntu",
+    "full workload families",
+    "complete I/O/socket coverage",
+    "overhead validation"
+  ],
+  "image_retag_regression_verified": true,
+  "original_files_preserved": 43,
+  "repeat_nonempty_refusal_preserves_bytes": true,
+  "source_hashes_preserved": true,
+  "successful_runs": [
+    "debian-first-run",
+    "debian-repeat-final"
+  ],
+  "tests": {
+    "count": 42,
+    "log": "measured/evidence/unittest.log",
+    "status": "passed"
+  },
+  "truth_mutation_preserves_predictions": true
+}

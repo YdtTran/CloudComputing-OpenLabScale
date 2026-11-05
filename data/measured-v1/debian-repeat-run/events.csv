@@ -1,0 +1,7 @@
+run_id,event_id,session_id,at_ms,action,job_id,parameters_json
+0e71ebb636d243469ead2c6588872b5a,c0dcbb4ba80966945120d4e3,0836d46d418e4028bcd852c3,0,CONNECT,,"{""planned_at_ms"":0,""source_event_id"":""a4c1922f18e154837185f697""}"
+0e71ebb636d243469ead2c6588872b5a,78424d60b95ad92c9a63b199,a2436739916327ea02b59030,0,CONNECT,,"{""planned_at_ms"":0,""source_event_id"":""6f615717a283f365d6e1a9d1""}"
+0e71ebb636d243469ead2c6588872b5a,70ec9d7fe945820bd1ec54d5,a2436739916327ea02b59030,20020,EXECUTE,a46fda6fe897eabf30cf7d1a,"{""planned_at_ms"":20000,""source_event_id"":""8910d4adb7fd746a2caa2a77""}"
+0e71ebb636d243469ead2c6588872b5a,b58f805d448612e15befdd04,a2436739916327ea02b59030,20214,JOB_START,a46fda6fe897eabf30cf7d1a,"{""ack"":""worker""}"
+0e71ebb636d243469ead2c6588872b5a,192db798b654df3b2920e242,a2436739916327ea02b59030,40001,DISCONNECT,,"{""planned_at_ms"":40000,""source_event_id"":""30b2a42588a755d33b4a603a""}"
+0e71ebb636d243469ead2c6588872b5a,4a0ccc83a8104608e269af2b,a2436739916327ea02b59030,180227,JOB_COMPLETE,a46fda6fe897eabf30cf7d1a,"{""ack"":""worker""}"

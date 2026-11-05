@@ -1,0 +1,54 @@
+{
+  "cleanup_is_policy_independent": "Runner never reads recommendations; only unique owned Compose projects are removed.",
+  "interrupt": {
+    "diagnostic": "signal 15",
+    "exit_code": 2,
+    "project": "measured-70acceafebeb40e19d82b0519c5c4af6",
+    "status": "verified"
+  },
+  "restart": {
+    "diagnostic": "attribution invalid; baselines reset; experiment aborted: instance mapping changed; abort and reset baselines; replacement must not inherit old identity: {\"current\":{\"cgroup_id\":16317,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":55485,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:25.093344505Z\"},\"original\":{\"cgroup_id\":16080,\"cgroup_path\":\"/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope\",\"docker_id\":\"aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f\",\"image\":\"sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f\",\"pid\":54867,\"restart_count\":0,\"started_at\":\"2026-11-05T10:34:21.824636589Z\"}}",
+    "exit_code": 2,
+    "project": "measured-0fc1d6e387e6473a88e42384b208a8d9",
+    "status": "verified"
+  },
+  "restarted_lifecycle": {
+    "after": {
+      "id": "aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f",
+      "pid": 55485,
+      "started_at": "2026-11-05T10:34:25.093344505Z"
+    },
+    "before": {
+      "cgroup_id": 16080,
+      "cgroup_path": "/sys/fs/cgroup/system.slice/docker-aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f.scope",
+      "docker_id": "aec6ac4497978de5b443030ef160c631bf6a36be256019188b180bb57b6c987f",
+      "image": "sha256:65c9b6462e9ceaace9ab45302c2ae77b8acaa7e21220d3fcff661ebb8637fc6f",
+      "pid": 54867,
+      "restart_count": 0,
+      "started_at": "2026-11-05T10:34:21.824636589Z"
+    }
+  },
+  "unrelated_ids_after": [
+    "a2085e7b9b9b",
+    "dd45e2f84fe8",
+    "37edf1dbb454",
+    "bf2d27809b64",
+    "28a639c15459",
+    "8596a14d681d",
+    "feca96fb31c2",
+    "9d6a655b9991",
+    "7f15e60b0a16"
+  ],
+  "unrelated_ids_before": [
+    "a2085e7b9b9b",
+    "dd45e2f84fe8",
+    "37edf1dbb454",
+    "bf2d27809b64",
+    "28a639c15459",
+    "8596a14d681d",
+    "feca96fb31c2",
+    "9d6a655b9991",
+    "7f15e60b0a16"
+  ],
+  "unrelated_sentinel_id": "a2085e7b9b9b82e460f46729654d4fe0e87723e4e53617a01953e2f5798291bd"
+}

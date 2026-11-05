@@ -1,0 +1,5 @@
+run_id,phase_id,session_id,job_id,start_ms,end_ms,workload,parameters_json
+17dc4cd668cd4eb1bf535ea1438ef686,1327f60e54c4428d98f60db0,c942cadd87e91c83e2be566a,e567a468644f0ab8ccfc1f73,20007,180007,CPU,"{""burst_period_ms"":10000,""burst_width_ms"":200,""cpu_duty"":0.711127,""disk_file_bytes"":0,""disk_rate_bytes_s"":0,""memory_bytes"":62744855,""network_bytes"":0,""outcome"":""COMPLETE"",""response_delay_ms"":0}"
+17dc4cd668cd4eb1bf535ea1438ef686,d5c1232bac83ad962e60d345,c942cadd87e91c83e2be566a,,0,20000,IDLE,{}
+17dc4cd668cd4eb1bf535ea1438ef686,593a61e20faf6b5599b10919,c942cadd87e91c83e2be566a,,180000,300000,IDLE,{}
+17dc4cd668cd4eb1bf535ea1438ef686,e72cd5c83a6266c26fe462bd,a6384f3d48ca1104200ceb19,,0,300000,IDLE,{}

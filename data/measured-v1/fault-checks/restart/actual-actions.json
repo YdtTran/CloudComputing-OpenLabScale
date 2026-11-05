@@ -1,0 +1,24 @@
+[
+  {
+    "action": "CONNECT",
+    "job_id": "",
+    "monotonic_ns": 2484055669512,
+    "parameters": {
+      "planned_at_ms": 0,
+      "source_event_id": "6f615717a283f365d6e1a9d1"
+    },
+    "received_ns": 2484055669931,
+    "session_id": "c2a5e14633fac41be5f67eb4"
+  },
+  {
+    "action": "CONNECT",
+    "job_id": "",
+    "monotonic_ns": 2484055712930,
+    "parameters": {
+      "planned_at_ms": 0,
+      "source_event_id": "a4c1922f18e154837185f697"
+    },
+    "received_ns": 2484055713208,
+    "session_id": "2a57a6c804dad9c78b9254c6"
+  }
+]

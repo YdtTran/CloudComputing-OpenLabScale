@@ -1,0 +1,2 @@
+run_id,session_id,user_id,container_instance_id,scenario_id,start_ms,end_ms,cpu_limit_cores,memory_limit_mb
+r,s,u,c,minimal,0,100000,0.5,256
