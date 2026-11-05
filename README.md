@@ -24,6 +24,9 @@ This repository provides:
 │   ├── exec.bpf.c           # Kernel tracepoint probe & ringbuf/loss counter maps
 │   └── reader.c             # Userspace ring-buffer reader emitting JSONL events
 ├── compose.measured.yaml    # Hardened Docker Compose deployment for measured runs
+├── dashboard/               # Web monitoring & floating license management dashboard
+│   ├── static/index.html    # Single-page UI (Tailwind, telemetry cards, human-in-the-loop action)
+│   └── server.py            # Zero-dependency Python HTTP/REST API server
 ├── data/
 │   ├── simulation-v1/       # Versioned synthetic bundles (dev-43, heldout-44, scale-120)
 │   └── measured-v1/         # Source bundle (source-42) & retained Debian measured runs
@@ -109,6 +112,22 @@ EOF
 python3 -m simulation evaluate /tmp/scale30 /tmp/scale30/evaluation \
   --policy-config /tmp/policy-overrides.json
 ```
+
+---
+
+## Quick Start: Monitoring & License Dashboard (Web UI)
+
+Launch the lightweight, zero-dependency management dashboard to visualize real-time cgroup v2 resource usage, eBPF kernel executions, floating license pool utilization, and human-in-the-loop reclamation:
+
+```bash
+# Start dashboard on port 8500
+python3 -m dashboard --port 8500
+```
+Open **`http://localhost:8500/`** in your browser to:
+1. **Monitor Active Sessions**: View live CPU, RAM, eBPF event counts, and state classification (`ACTIVE`, `IDLE`, `IDLE_CANDIDATE`, `UNKNOWN`).
+2. **Track Floating Licenses**: View real-time pool utilization (e.g. 3/5 seats in use) and checkout seats for new student sessions.
+3. **Simulate & Test Policies**: Trigger workload bursts, idle transitions, or degraded signal fail-safes directly from UI buttons.
+4. **Human-in-the-Loop Reclaim**: Review and approve candidate reclaims with safety fencing—stopping idle containers and returning license seats to the queue.
 
 ---
 

@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenLab-Scale — Kernel Telemetry & License Dashboard</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 500: '#3b82f6', 600: '#2563eb', 700: '#1d4ed8' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.05); opacity: 0.4; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .candidate-pulse { animation: pulse-ring 2s infinite ease-in-out; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-blue-500 selection:text-white">
+
+  <!-- Navigation Bar -->
+  <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50 px-6 py-4">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="h-9 w-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20 font-bold text-white tracking-wider">
+          OL
+        </div>
+        <div>
+          <h1 class="text-lg font-bold tracking-tight text-white flex items-center gap-2">
+            OpenLab-Scale
+            <span class="text-xs font-semibold px-2 py-0.5 rounded-full bg-blue-900/60 text-blue-400 border border-blue-700/50">Monitoring-First MVP</span>
+          </h1>
+          <p class="text-xs text-slate-400">Host eBPF Tracepoints & Human-in-the-Loop Floating License Reclamation</p>
+        </div>
+      </div>
+      <div class="flex items-center space-x-4">
+        <div class="flex items-center space-x-2 text-xs bg-slate-800/80 border border-slate-700/60 px-3 py-1.5 rounded-md">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-slate-300">Kernel eBPF: <strong class="text-emerald-400">Attached</strong></span>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-300">cgroup v2: <strong class="text-emerald-400">Active</strong></span>
+        </div>
+        <button onclick="fetchStatus()" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded-md transition text-slate-300 flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-6 space-y-6">
+
+    <!-- Metrics Ribbon -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <!-- License Pool Utilization -->
+      <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-xl flex flex-col justify-between shadow-sm">
+        <div class="flex justify-between items-start">
+          <div>
+            <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Floating License Pool</span>
+            <div class="text-2xl font-extrabold mt-1 text-white flex items-baseline gap-2">
+              <span id="pool-in-use">0</span>
+              <span class="text-sm font-normal text-slate-500">/ <span id="pool-total">5</span> Seats in Use</span>
+            </div>
+          </div>
+          <span id="pool-badge" class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800">Healthy</span>
+        </div>
+        <div class="mt-4">
+          <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+            <div id="pool-progress" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+          </div>
+          <div class="flex justify-between text-xs text-slate-400 mt-2">
+            <span>Free: <strong id="pool-free" class="text-emerald-400">0</strong></span>
+            <span>Utilization: <strong id="pool-pct" class="text-slate-200">0%</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Active Workspaces -->
+      <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-xl flex flex-col justify-between shadow-sm">
+        <div>
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Active Workspaces</span>
+          <div class="text-2xl font-extrabold mt-1 text-white" id="stat-active-count">0</div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          Real-time kernel tracepoint tracking
+        </p>
+      </div>
+
+      <!-- Idle Candidates -->
+      <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-xl flex flex-col justify-between shadow-sm">
+        <div>
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Idle Candidates (Pending)</span>
+          <div class="text-2xl font-extrabold mt-1 text-rose-400 flex items-center gap-2">
+            <span id="stat-candidate-count">0</span>
+            <span class="text-xs font-medium px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-800">Action Required</span>
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">Quiet duration &ge; 30s + 10s hysteresis</p>
+      </div>
+
+      <!-- Fail-Safe Guarantee -->
+      <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-xl flex flex-col justify-between shadow-sm">
+        <div>
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Fail-Safe Status</span>
+          <div class="text-xl font-bold mt-1 text-emerald-400 flex items-center gap-1.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+            Human-in-the-Loop
+          </div>
+        </div>
+        <p class="text-xs text-slate-400 mt-3">0 unattended kills &bull; Degraded signals abstain</p>
+      </div>
+    </div>
+
+    <!-- Alert Banner when Pool Exhausted -->
+    <div id="exhausted-alert" class="hidden bg-amber-950/80 border border-amber-800/80 p-4 rounded-xl flex items-center justify-between text-amber-200">
+      <div class="flex items-center space-x-3">
+        <svg class="w-6 h-6 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        <div>
+          <p class="font-semibold text-sm">Floating License Pool Exhausted (5/5 Seats Taken)</p>
+          <p class="text-xs text-amber-300/80">New student checkout requests are being queued. Review and approve idle candidates below to release license seats.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Table of Monitored Containers & Workspaces -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+      <div class="px-6 py-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/80">
+        <div>
+          <h2 class="text-base font-bold text-white">Monitored Lab Containers & Telemetry</h2>
+          <p class="text-xs text-slate-400">Live 5-second observation windows fusing kernel eBPF executions and cgroup v2 resource counters</p>
+        </div>
+        <button onclick="openCheckoutModal()" class="text-xs bg-blue-600 hover:bg-blue-500 font-semibold px-3 py-2 rounded-lg text-white shadow-sm flex items-center gap-1.5 transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+          Checkout New Student Seat
+        </button>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-slate-950/60 text-slate-400 uppercase tracking-wider border-b border-slate-800">
+            <tr>
+              <th class="px-6 py-3">Student & Session</th>
+              <th class="px-4 py-3">Licensed Tool</th>
+              <th class="px-4 py-3">CPU Usage</th>
+              <th class="px-4 py-3">Memory</th>
+              <th class="px-4 py-3">eBPF Execs (5s)</th>
+              <th class="px-4 py-3">State / Quiet Time</th>
+              <th class="px-4 py-3">Telemetry Signal</th>
+              <th class="px-6 py-3 text-right">Human-in-the-Loop Action</th>
+            </tr>
+          </thead>
+          <tbody id="sessions-table" class="divide-y divide-slate-800/60 text-slate-300">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Audit Log & Real-time Action History -->
+    <div class="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-lg space-y-3">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-sm font-bold text-white flex items-center gap-2">
+          <svg class="w-4 h-4 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg>
+          Action Audit & Provenance Log
+        </h3>
+        <span class="text-xs text-slate-500">Immutable chronological events</span>
+      </div>
+      <div id="audit-log-list" class="divide-y divide-slate-800/40 max-h-56 overflow-y-auto font-mono text-xs text-slate-400 pr-2">
+        <!-- Log entries -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Checkout Student Seat Modal -->
+  <div id="checkout-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-6 space-y-4 shadow-2xl">
+      <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+        <h3 class="text-base font-bold text-white">Checkout Floating License</h3>
+        <button onclick="closeCheckoutModal()" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Student Name & ID</label>
+          <input id="modal-student-name" type="text" value="Vo Van D (2414202)" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500">
+        </div>
+        <div>
+          <label class="block text-slate-300 font-medium mb-1">Software Package</label>
+          <select id="modal-tool" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-blue-500">
+            <option value="MATLAB R2024b">MATLAB R2024b</option>
+            <option value="Cadence Virtuoso">Cadence Virtuoso</option>
+            <option value="Ansys HFSS">Ansys HFSS</option>
+            <option value="Synopsys Design Compiler">Synopsys Design Compiler</option>
+          </select>
+        </div>
+      </div>
+      <div class="flex justify-end space-x-2 pt-2">
+        <button onclick="closeCheckoutModal()" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-xs font-semibold text-slate-300">Cancel</button>
+        <button onclick="submitCheckout()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-xs font-semibold text-white shadow">Grant Lease</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        renderDashboard(data);
+      } catch (err) {
+        console.error("Failed to fetch status:", err);
+      }
+    }
+
+    function renderDashboard(data) {
+      const pool = data.license_pool;
+      document.getElementById('pool-in-use').innerText = pool.in_use;
+      document.getElementById('pool-total').innerText = pool.total_seats;
+      document.getElementById('pool-free').innerText = pool.free_seats;
+      document.getElementById('pool-pct').innerText = pool.utilization_pct + '%';
+      document.getElementById('pool-progress').style.width = pool.utilization_pct + '%';
+
+      // Alert when full
+      const alertBox = document.getElementById('exhausted-alert');
+      const poolBadge = document.getElementById('pool-badge');
+      if (pool.free_seats === 0) {
+        alertBox.classList.remove('hidden');
+        poolBadge.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-rose-950 text-rose-400 border border-rose-800';
+        poolBadge.innerText = 'Pool Exhausted';
+      } else {
+        alertBox.classList.add('hidden');
+        poolBadge.className = 'px-2 py-0.5 rounded text-xs font-semibold bg-emerald-950 text-emerald-400 border border-emerald-800';
+        poolBadge.innerText = 'Healthy';
+      }
+
+      // Stats
+      const candidateCount = data.sessions.filter(s => s.status === 'IDLE_CANDIDATE').length;
+      document.getElementById('stat-candidate-count').innerText = candidateCount;
+      document.getElementById('stat-active-count').innerText = data.sessions.length;
+
+      // Render Sessions Table
+      const tbody = document.getElementById('sessions-table');
+      tbody.innerHTML = '';
+
+      if (data.sessions.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-500">No active sessions. Checkout a student seat above.</td></tr>';
+      }
+
+      data.sessions.forEach(s => {
+        const tr = document.createElement('tr');
+        tr.className = 'hover:bg-slate-800/40 transition';
+
+        let statusBadge = '';
+        if (s.status === 'ACTIVE') {
+          statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-emerald-950 text-emerald-300 border border-emerald-800"><span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>ACTIVE</span>';
+        } else if (s.status === 'IDLE_CANDIDATE') {
+          statusBadge = '<span class="candidate-pulse inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-bold bg-rose-950 text-rose-300 border border-rose-700"><span class="w-1.5 h-1.5 rounded-full bg-rose-400"></span>CANDIDATE</span>';
+        } else if (s.status === 'IDLE') {
+          statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-amber-950 text-amber-300 border border-amber-800"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span>IDLE (' + s.idle_seconds + 's)</span>';
+        } else {
+          statusBadge = '<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full font-medium bg-slate-800 text-slate-400 border border-slate-700">UNKNOWN (Fail-Safe)</span>';
+        }
+
+        const signalBadge = s.telemetry_status === 'OK' 
+          ? '<span class="text-emerald-400 font-semibold flex items-center gap-1">✓ OK</span>' 
+          : '<span class="text-amber-400 font-bold flex items-center gap-1">⚠ DEGRADED</span>';
+
+        const canReclaim = s.status === 'IDLE_CANDIDATE' && s.telemetry_status === 'OK';
+
+        tr.innerHTML = `
+          <td class="px-6 py-3.5">
+            <div class="font-bold text-white">${s.user}</div>
+            <div class="text-[11px] text-slate-500 font-mono">${s.session_id} &bull; ${s.container_id}</div>
+          </td>
+          <td class="px-4 py-3.5 font-medium text-slate-200">
+            <span class="bg-blue-950/80 border border-blue-800/60 px-2 py-0.5 rounded text-[11px] text-blue-300">Seat #${s.seat_id}</span>
+            <div class="mt-0.5 text-xs text-slate-300">${s.tool}</div>
+          </td>
+          <td class="px-4 py-3.5">
+            <div class="font-mono">${s.cpu_pct.toFixed(2)}%</div>
+            <div class="w-16 bg-slate-800 h-1.5 rounded-full overflow-hidden mt-1">
+              <div class="bg-blue-500 h-1.5" style="width: ${Math.min(100, s.cpu_pct * 2)}%"></div>
+            </div>
+          </td>
+          <td class="px-4 py-3.5 font-mono text-slate-300">${s.memory_mb.toFixed(1)} MiB</td>
+          <td class="px-4 py-3.5">
+            <span class="font-mono font-bold ${s.ebpf_exec_count > 0 ? 'text-emerald-400' : 'text-slate-500'}">${s.ebpf_exec_count} execs</span>
+          </td>
+          <td class="px-4 py-3.5">${statusBadge}</td>
+          <td class="px-4 py-3.5">${signalBadge}</td>
+          <td class="px-6 py-3.5 text-right space-x-1.5">
+            <button onclick="simulateEvent('${s.session_id}', 'burst')" title="Simulate process execution" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px] border border-slate-700">Burst</button>
+            <button onclick="simulateEvent('${s.session_id}', 'idle_gap')" title="Simulate 40s quiet idle gap" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded text-[11px] border border-slate-700">Idle Gap</button>
+            <button onclick="approveReclaim('${s.session_id}')" ${!canReclaim ? 'disabled' : ''} class="px-3 py-1 font-bold rounded text-[11px] transition ${canReclaim ? 'bg-rose-600 hover:bg-rose-500 text-white shadow-lg shadow-rose-900/40 cursor-pointer' : 'bg-slate-800 text-slate-600 border border-slate-800 cursor-not-allowed'}">
+              Approve Reclaim
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      // Render Audit Log
+      const auditDiv = document.getElementById('audit-log-list');
+      auditDiv.innerHTML = '';
+      data.audit_log.forEach(e => {
+        const item = document.createElement('div');
+        item.className = 'py-1.5 flex items-start gap-2.5';
+        item.innerHTML = `
+          <span class="text-slate-500 font-mono text-[11px] shrink-0">${e.timestamp}</span>
+          <span class="px-1.5 py-0.2 rounded text-[10px] font-bold shrink-0 ${e.action.includes('RECLAIM') ? 'bg-rose-950 text-rose-300 border border-rose-800' : e.action.includes('DENIED') ? 'bg-amber-950 text-amber-300 border border-amber-800' : 'bg-slate-800 text-slate-300'}">${e.action}</span>
+          <span class="text-slate-300 text-xs">${e.message}</span>
+        `;
+        auditDiv.appendChild(item);
+      });
+    }
+
+    async function approveReclaim(sessionId) {
+      if (!confirm(`Are you sure you want to approve reclamation for session ${sessionId}?\nThis will stop the container and release the floating license seat.`)) return;
+      try {
+        const res = await fetch('/api/reclaim/approve', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId})
+        });
+        const data = await res.json();
+        if (!data.success) alert("Reclaim Denied: " + data.result);
+        fetchStatus();
+      } catch (err) {
+        alert("Error approving reclaim: " + err);
+      }
+    }
+
+    async function simulateEvent(sessionId, eventType) {
+      try {
+        await fetch('/api/simulate/event', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({session_id: sessionId, event_type: eventType})
+        });
+        fetchStatus();
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    function openCheckoutModal() { document.getElementById('checkout-modal').classList.remove('hidden'); }
+    function closeCheckoutModal() { document.getElementById('checkout-modal').classList.add('hidden'); }
+
+    async function submitCheckout() {
+      const user = document.getElementById('modal-student-name').value;
+      const tool = document.getElementById('modal-tool').value;
+      try {
+        const res = await fetch('/api/license/checkout', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({user, tool})
+        });
+        const data = await res.json();
+        closeCheckoutModal();
+        if (!data.success) {
+          alert("License Checkout Failed: " + data.result);
+        }
+        fetchStatus();
+      } catch (err) {
+        alert("Network error: " + err);
+      }
+    }
+
+    // Auto-refresh every 2.5 seconds
+    setInterval(fetchStatus, 2500);
+    window.onload = fetchStatus;
+  </script>
+</body>
+</html>
