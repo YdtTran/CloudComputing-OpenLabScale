@@ -7,7 +7,7 @@ from pathlib import Path
 from .contract import dumps, write_json, read_manifest, read_table, digest
 
 POLICIES=('no-reclaim','interaction-timeout','cpu-only','resource-multi','interaction-aware')
-DEFAULTS=dict(cpu_threshold_pct=1.0,quiet_ms=30000,hysteresis_ms=10000,interaction_grace_ms=30000,interaction_timeout_ms=40000,freshness_ms=10000)
+DEFAULTS=dict(cpu_threshold_pct=1.0,quiet_ms=30000,hysteresis_ms=10000,interaction_grace_ms=30000,interaction_timeout_ms=40000,freshness_ms=10000,socket_grace_ms=160000)
 SESSION_FIELDS=('run_id','session_id','container_instance_id','start_ms','end_ms','cpu_limit_cores','memory_limit_mb')
 OBS_FIELDS=('run_id','session_id','container_instance_id','kind','at_ms','available_at_ms','window_start_ms','window_end_ms','source','status','payload_json')
 PRED_FIELDS='policy policy_version config_hash run_id session_id container_instance_id decision_ms decision reason'.split()
@@ -49,9 +49,11 @@ class Policy:
         if name not in POLICIES:raise ValueError('unknown policy')
         self.name=name;self.cfg=config_values(config)
         self.quiet_start=None;self.quiet_end=None;self.seen_end=None;self.recovery_after=-1
+        self.socket_wait_start=None
 
     def reset(self,t):
         self.quiet_start=None;self.quiet_end=None;self.recovery_after=t
+        self.socket_wait_start=None
 
     def decide(self,session,t,observations):
         c=self.cfg
@@ -86,9 +88,16 @@ class Policy:
             if self.seen_end is not None and b<=self.seen_end:continue
             self.seen_end=b
             if not valid(r) or a<self.recovery_after:
-                self.quiet_start=None;self.quiet_end=None;continue
+                self.quiet_start=None;self.quiet_end=None;self.socket_wait_start=None;continue
             p=r['payload'];quiet=p['cpu_pct']<c['cpu_threshold_pct']
-            if self.name!='cpu-only':quiet=quiet and all(p[k]==0 for k in required if k not in ('cpu_pct','loss_count','mapping_valid'))
+            sock=p.get('socket_events') or 0
+            if sock>0:
+                self.socket_wait_start=b if self.socket_wait_start is None else None
+            elif self.socket_wait_start is not None and b-self.socket_wait_start>=c['socket_grace_ms']:
+                self.socket_wait_start=None
+            if self.name!='cpu-only':
+                quiet=quiet and all(p[k]==0 for k in required if k not in ('cpu_pct','loss_count','mapping_valid'))
+                if self.socket_wait_start is not None:quiet=False
             if not quiet:
                 self.quiet_start=None;self.quiet_end=None;continue
             if self.quiet_end!=a:self.quiet_start=a
@@ -96,6 +105,8 @@ class Policy:
             self.quiet_end=b
         if self.name=='interaction-aware' and t-recent<c['interaction_grace_ms']:
             return 'RETAIN','recent_interaction'
+        if self.name in ('resource-multi','interaction-aware') and self.socket_wait_start is not None:
+            return 'RETAIN','awaiting_socket_response'
         if self.quiet_start is None or self.quiet_end is None:return 'RETAIN','activity_or_recovery'
         elapsed=self.quiet_end-self.quiet_start
         if elapsed>=c['quiet_ms']+c['hysteresis_ms']:return 'IDLE_CANDIDATE','quiet_hysteresis_complete'
