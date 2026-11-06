@@ -8,7 +8,7 @@ A reproducible framework for evaluating idle-container reclamation policies acro
 
 - **Socket Inactivity Grace Period (`socket_grace_ms = 160000`)**: Eliminates False Positives during long-silent network requests (e.g. database queries, external API calls, or long-polling).
 - **100% Precision on Benchmark**: On the development benchmark (seed 42), False Positives in `interaction-aware` drop from 23 to **0**, achieving **1.000000 Precision** (0.848 F1).
-- **Zombie Socket Expiration**: If an open socket remains completely silent for $\ge \text{socket\_grace\_ms}$, the policy treats the connection as leaked/zombie and begins standard quiet-window observation to safely reclaim the container.
+- **Zombie Socket Expiration**: If an open socket remains completely silent for `>= socket_grace_ms`, the policy treats the connection as leaked/zombie and begins standard quiet-window observation to safely reclaim the container.
 
 ---
 
