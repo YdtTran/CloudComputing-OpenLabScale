@@ -15,6 +15,10 @@ This repository provides:
 
 ---
 
+## OpenLabScale workspace demo
+
+The separate FastAPI backend provisions real Docker workspaces with a resource-aware FIFO queue and an ownership-checked terminal. See the [local setup, API, and verification guide](docs/06-openlabscale-backend.md).
+
 ## Repository Structure
 
 ```text

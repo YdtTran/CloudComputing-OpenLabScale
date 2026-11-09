@@ -1,18 +1,18 @@
 ## 1. Session backend ([#4](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/4))
 
-- [ ] 1.1 Define demo service configuration, server-derived identities, API payloads, lifecycle transitions, and timeout defaults.
-- [ ] 1.2 Implement the FIFO reservation ledger and test contention, impossible requests, expiry, and capacity return.
-- [ ] 1.3 Add bounded Docker provisioning and release, with isolation and ownership labels. Test cancellation during creation, ambiguous errors, restart cleanup, and isolation from unrelated containers.
-- [ ] 1.4 Verify request, status, and release against a real local Linux Docker host.
+- [x] 1.1 Define demo service configuration, server-derived identities, API payloads, lifecycle transitions, and timeout defaults.
+- [x] 1.2 Implement the FIFO reservation ledger and test contention, impossible requests, expiry, and capacity return.
+- [x] 1.3 Add bounded Docker provisioning and release, with isolation and ownership labels. Test cancellation during creation, ambiguous errors, restart cleanup, and isolation from unrelated containers.
+- [x] 1.4 Verify request, status, and release against a real local Linux Docker host.
 
 ## 2. Student portal ([#5](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/5), after 1)
 
-- [ ] 2.1 Bridge an owned running session's Docker PTY over WebSocket. Verify cross-user denial and terminal closure on release.
+- [x] 2.1 Bridge an owned running session's Docker PTY over WebSocket. Verify cross-user denial and terminal closure on release.
 - [ ] 2.2 Build the student request, waiting, terminal, and release screens. Verify a browser command executes inside the assigned container and releases capacity.
 
 ## 3. Administrator dashboard ([#6](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/6), after 1)
 
-- [ ] 3.1 Expose an admin-only snapshot with lifecycle counts, queue, capacity, and real host and owned-container CPU and memory samples.
+- [x] 3.1 Expose an admin-only snapshot with lifecycle counts, queue, capacity, and real host and owned-container CPU and memory samples.
 - [ ] 3.2 Render the snapshot and verify queue changes under load, correct units, stale and unavailable indicators, and denial of student access.
 
 ## 4. Request-load experiment ([#7](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/7), after 1 and 3)
