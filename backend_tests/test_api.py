@@ -194,6 +194,34 @@ class API(unittest.TestCase):
         self.wait(first, "RUNNING")
         self.assertEqual(self.wait(second, "FAILED", "b")["failure"], "Queue deadline exceeded")
 
+    def test_admin_stats_telemetry_and_access_control(self):
+        self.assertEqual(self.client.get("/stats").status_code, 401)
+        self.assertEqual(self.request("GET", "/stats", "a").status_code, 403)
+        self.assertEqual(self.request("GET", "/stats", "b").status_code, 403)
+        samples = [
+            {
+                "host": {"available": True, "cpu_total_ticks": 1000, "cpu_idle_ticks": 800,
+                         "memory_total_bytes": 1024, "memory_used_bytes": 512, "sampled_at": "2026-11-09T06:00:00Z"},
+                "active_containers": 1,
+                "containers": {"s1": {"available": True, "cpu_usage_ns": 500_000_000,
+                                      "memory_usage_bytes": 64 * 1024**2, "sampled_at": "2026-11-09T06:00:00Z"}},
+            },
+            {
+                "host": {"available": True, "cpu_total_ticks": 1200, "cpu_idle_ticks": 950,
+                         "memory_total_bytes": 1024, "memory_used_bytes": 512, "sampled_at": "2026-11-09T06:00:02Z"},
+                "active_containers": None,
+                "containers": None,
+            },
+        ]
+        self.docker.telemetry = lambda: samples.pop(0)
+        first = self.request("GET", "/stats", "c").json()
+        self.assertIsNone(first["host"]["cpu_utilization_pct"])
+        self.assertEqual(first["containers"]["s1"]["memory_usage_bytes"], 64 * 1024**2)
+        second = self.request("GET", "/stats", "c").json()
+        self.assertAlmostEqual(second["host"]["cpu_utilization_pct"], 25.0)
+        self.assertIsNone(second["active_containers"])
+        self.assertIsNone(second["containers"])
+
 
 class TerminalCancellation(unittest.IsolatedAsyncioTestCase):
     async def test_cancel_waiting_for_docker_attach(self):

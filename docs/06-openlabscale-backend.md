@@ -125,7 +125,7 @@ Supply a JSON object in `OPENLABSCALE_CONFIG`. The values below are demonstratio
 
 `/stats` distinguishes configured capacity from observations. Docker metrics are cumulative CPU nanoseconds and current memory bytes, keyed by session. Host memory comes from Linux `/proc/meminfo`. Host CPU utilization comes from the difference between successive `/proc/stat` reads. The first sample has a null CPU percentage. Unavailable measurements use null or `available: false`, and samples carry timestamps. Docker and ledger snapshots can differ briefly during state changes.
 
-The ledger and history are process-local and are reset on restart. Startup locking protects a deployment ID under the same operator account. Operate the demo with a single backend instance and one Docker host. Terminal cleanup and scheduling can be delayed by Docker faults. The student portal, administrator UI, load evidence, and EC2 deployment are later phases.
+The ledger and history are process-local and are reset on restart. Startup locking protects a deployment ID under the same operator account. Operate the demo with a single backend instance and one Docker host. Terminal cleanup and scheduling can be delayed by Docker faults. Run the React/Vite frontend (`cd frontend && npm run dev`) on loopback (`127.0.0.1:5173`) to access the Student Portal (`/#student`) and Administrator Dashboard (`/#admin`); both proxy to the loopback backend and require bearer tokens (`GET /stats` is restricted to the configured `admin` identity). Load evidence and EC2 deployment are later phases.
 
 ## Tests
 
