@@ -1,5 +1,6 @@
 .git
-frontend
+frontend/*
+!frontend/dist
 data
 measured/evidence
 __pycache__

@@ -86,6 +86,9 @@ class API(unittest.TestCase):
         self.request("DELETE", f"/sessions/{third}")
         self.wait(third, "CANCELLED")
         self.assertEqual(self.client.get("/health").status_code, 200)
+        from pathlib import Path
+        if (Path(__file__).resolve().parent.parent / "frontend" / "dist" / "index.html").is_file():
+            self.assertEqual(self.client.get("/").status_code, 200)
         for cpu in (-1, 9):
             self.assertEqual(self.request("POST", "/sessions", json={"cpu_millis": cpu}).status_code, 422)
 
