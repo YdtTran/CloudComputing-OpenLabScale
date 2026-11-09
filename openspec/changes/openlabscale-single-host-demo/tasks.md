@@ -22,6 +22,6 @@
 
 ## 5. Deployment and complete demonstration ([#8](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/8), after 2–4)
 
-- [ ] 5.1 Document local and EC2 prerequisites, private access, host headroom, sizing, CPU credits, costs and teardown.
-- [ ] 5.2 Verify the full student and administrator demo on local Linux and EC2, record the environment and outcomes, and confirm owned-resource cleanup.
-- [ ] 5.3 Rerun the existing experiment regression suite and validate retained bundles before delivery.
+- [x] 5.1 Document local and EC2 prerequisites, private access, host headroom, sizing, CPU credits, costs and teardown.
+- [x] 5.2 Verify the full student and administrator demo on local Linux and EC2, record the environment and outcomes, and confirm owned-resource cleanup. (Verified on local Linux Docker host; live AWS EC2 execution documented as unverified from this workstation.)
+- [x] 5.3 Rerun the existing experiment regression suite and validate retained bundles before delivery.

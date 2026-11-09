@@ -11,6 +11,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException, Request as HTTPRequest, WebSocket
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .engine import Engine
 from .models import Request, Session, Settings, State, now
@@ -156,5 +157,9 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             return
         entry.terminal_attached = True
         await bridge(websocket, entry, scheduler.docker)
+
+    dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
+    if (dist / "index.html").is_file():
+        app.mount("/", StaticFiles(directory=dist, html=True), name="frontend")
 
     return app
