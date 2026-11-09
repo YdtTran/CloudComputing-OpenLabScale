@@ -1,0 +1,152 @@
+{
+  "completed_at": "2026-11-09T06:57:11.372351+00:00",
+  "concurrency": {
+    "active_terminals": 0,
+    "concurrent_http_clients": 10,
+    "configured_max_concurrent_containers": 4,
+    "limits_respected": true,
+    "peak_queued_sessions": 9,
+    "peak_reserved_from_events": 4,
+    "peak_reserved_from_stats": 4,
+    "peak_reserved_slots": 4,
+    "peak_running_containers": 4,
+    "peak_running_from_events": 4,
+    "peak_running_from_stats": 4,
+    "stats_samples_collected": 21
+  },
+  "configuration": {
+    "client_poll_seconds": 0.05,
+    "clients": 10,
+    "configured_max_concurrent_containers": 4,
+    "cpu_budget_millis": 2000,
+    "deployment": "load-938c537edf4f",
+    "headroom_cpu_millis": 500,
+    "headroom_memory_mib": 512,
+    "host_cpu_millis": 2500,
+    "host_memory_mib": 2048,
+    "image": "alpine:latest",
+    "job_seconds": 1.0,
+    "lifetime_seconds": 30,
+    "max_sessions": 4,
+    "memory_budget_mib": 1536,
+    "per_user": 2,
+    "poll_seconds": 0.05,
+    "queue_seconds": 180,
+    "request_cpu_millis": 500,
+    "request_memory_mib": 256,
+    "stats_interval_seconds": 0.15,
+    "users": 10,
+    "wait_timeout_seconds": 180.0
+  },
+  "metrics_method": {
+    "admission_latency_ms": "Client monotonic elapsed time for POST /sessions HTTP 202 response.",
+    "completion_ms": "Client monotonic elapsed time from synchronized POST /sessions submission to terminal cleanup.",
+    "execution_ms": "Timestamp delta between RUNNING and RELEASING lifecycle events.",
+    "peak_running_containers": "Maximum of admin GET /stats active container samples and exact sweep-line overlap of server [RUNNING, RELEASING) lifecycle intervals.",
+    "provisioning_ms": "Server-recorded monotonic Docker container create+start duration (PROVISIONING -> RUNNING/RELEASING).",
+    "release_ms": "Timestamp delta between RELEASING and terminal lifecycle event after container removal.",
+    "waiting_ms": "Server-recorded monotonic queue residence duration (QUEUED -> PROVISIONING/terminal)."
+  },
+  "outcomes": {
+    "accepted_sessions": 10,
+    "active_terminals": 0,
+    "cancelled": 0,
+    "completed": 0,
+    "failed": 0,
+    "rejected_http": 0,
+    "released": 10,
+    "submitted_clients": 10,
+    "timed_out": 0
+  },
+  "platform": {
+    "cpu_count": 16,
+    "docker": {
+      "cgroup_version": "2",
+      "mem_total_bytes": 7933431808,
+      "ncpu": 16,
+      "operating_system": "Docker Desktop",
+      "os_type": "linux",
+      "server_version": "29.9.2"
+    },
+    "machine": "x86_64",
+    "platform": "Linux-6.18.54.1-microsoft-standard-WSL2-x86_64-with-glibc2.41",
+    "python_version": "3.11.18"
+  },
+  "reconciliation": {
+    "capacity_reclaimed": true,
+    "counts_match": true,
+    "final_active_containers": 0,
+    "final_queue_length": 0,
+    "final_reserved": {
+      "cpu_millis": 0,
+      "memory_mib": 0,
+      "slots": 0
+    },
+    "final_stats_counts": {
+      "CANCELLED": 0,
+      "COMPLETED": 0,
+      "FAILED": 0,
+      "PROVISIONING": 0,
+      "QUEUED": 0,
+      "RELEASED": 10,
+      "RELEASING": 0,
+      "REQUESTED": 0,
+      "RUNNING": 0
+    },
+    "final_stats_total_sessions": 10,
+    "remaining_owned_containers": 0
+  },
+  "run_date": "2026-11-09T06:57:06.332033+00:00",
+  "semantics_note": "10 simultaneous HTTP clients submitted POST /sessions requests concurrently. At most 4 containers ran simultaneously (configured cap: 4), and 0 interactive browser terminals were attached during this batch API workload.",
+  "timings_ms": {
+    "admission_latency_ms": {
+      "count": 10,
+      "max": 45.577,
+      "mean": 43.21,
+      "min": 41.529,
+      "p50": 42.799,
+      "p95": 45.577
+    },
+    "completion_ms": {
+      "count": 10,
+      "max": 4740.691,
+      "mean": 3100.366,
+      "min": 1621.633,
+      "p50": 3092.322,
+      "p95": 4740.691
+    },
+    "execution_ms": {
+      "count": 10,
+      "max": 1137.799,
+      "mean": 1077.513,
+      "min": 1023.054,
+      "p50": 1073.6,
+      "p95": 1137.799
+    },
+    "provisioning_ms": {
+      "count": 10,
+      "max": 236.472,
+      "mean": 205.676,
+      "min": 194.284,
+      "p50": 202.94,
+      "p95": 236.472
+    },
+    "release_ms": {
+      "count": 10,
+      "max": 277.748,
+      "mean": 132.175,
+      "min": 94.896,
+      "p50": 106.928,
+      "p95": 277.748
+    },
+    "waiting_ms": {
+      "count": 10,
+      "max": 3312.356,
+      "mean": 1584.543,
+      "min": 0.527,
+      "p50": 1556.462,
+      "p95": 3312.356
+    },
+    "wall_clock_duration_ms": 4759.292
+  }
+}

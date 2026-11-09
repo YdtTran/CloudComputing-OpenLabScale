@@ -161,6 +161,7 @@ class Scheduler:
                             else:
                                 entry.session.failure = "Container stopped unexpectedly"
                                 self.begin_cleanup(entry, State.FAILED)
+        for sid, entry in list(self.reserved.items()):
             if entry.session.state == State.RELEASING:
                 try:
                     await asyncio.to_thread(self.docker.remove, entry.session)

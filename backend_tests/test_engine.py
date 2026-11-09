@@ -70,3 +70,17 @@ class DockerLifecycle(unittest.TestCase):
             restarted.reconcile()
             self.assertEqual(list(pending.iterdir()), [])
             self.container.remove.assert_called_once_with(force=True)
+
+    def test_telemetry_skips_removed_container(self):
+        removed = Mock(labels={LABEL: "unit", "openlabscale.session": "gone"}, status="running")
+        removed.stats.side_effect = NotFound("gone")
+        self.container.stats.return_value = {
+            "cpu_stats": {"cpu_usage": {"total_usage": 100}},
+            "memory_stats": {"usage": 200},
+            "read": "2026-11-09T06:00:00Z",
+        }
+        self.client.containers.list.return_value = [removed, self.container]
+        telemetry = self.engine.telemetry()
+        self.assertTrue(self.client.containers.list.call_args.kwargs.get("ignore_removed"))
+        self.assertEqual(telemetry["active_containers"], 1)
+        self.assertEqual(list(telemetry["containers"]), ["test"])

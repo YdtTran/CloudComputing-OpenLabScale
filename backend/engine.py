@@ -41,7 +41,7 @@ class Engine:
         return f"openlabscale-{self.settings.deployment}-{session.id}"
 
     def owned(self) -> list:
-        containers = self.client.containers.list(all=True, filters={
+        containers = self.client.containers.list(all=True, ignore_removed=True, filters={
             "label": [f"{LABEL}={self.settings.deployment}", SESSION_LABEL],
         })
         return [container for container in containers if
@@ -159,6 +159,8 @@ class Engine:
                 memory = data.get("memory_stats", {}).get("usage")
                 sample = {"available": cpu is not None or memory is not None, "cpu_usage_ns": cpu,
                           "memory_usage_bytes": memory, "sampled_at": data.get("read") or now()}
+            except NotFound:
+                continue
             except Exception:
                 log.exception("Metrics unavailable for %s", container.id)
             samples[container.labels[SESSION_LABEL]] = sample
