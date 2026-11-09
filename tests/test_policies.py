@@ -87,3 +87,21 @@ class PolicyTests(unittest.TestCase):
         # A delayed old window cannot displace a newer one or bridge a missing gap.
         p=Policy('cpu-only');obs=[window(a,a+5000) for a in (0,5000,10000,20000,25000,30000,35000)]
         self.assertEqual(p.decide({},40000,obs)[0],'RETAIN')
+
+    def test_socket_grace_and_zombie_expiration(self):
+        p=Policy('interaction-aware',{'socket_grace_ms':20000,'quiet_ms':10000,'hysteresis_ms':5000,'interaction_grace_ms':5000})
+        # At 5000, a socket request window arrives
+        obs=visible(5000,extra={'socket_events':1})
+        d,r=p.decide({},5000,obs)
+        self.assertEqual(d,'RETAIN')
+        # At 15000, silent wait is within socket_grace_ms (15000-5000 = 10000 < 20000)
+        obs=[dict(kind='connection',at_ms=0,payload={'action':'CONNECT'}),dict(kind='interaction_health',at_ms=15000,status='OK',payload={'healthy':True}),window(0,5000,socket_events=1),window(5000,10000),window(10000,15000)]
+        d,r=p.decide({},15000,obs)
+        self.assertEqual(d,'RETAIN')
+        self.assertEqual(r,'awaiting_socket_response')
+        # At 35000, silence exceeds socket_grace_ms (35000-5000 = 30000 >= 20000) -> zombie socket expires
+        windows=[window(0,5000,socket_events=1)]+[window(a,a+5000) for a in range(5000,35000,5000)]
+        obs=[dict(kind='connection',at_ms=0,payload={'action':'CONNECT'}),dict(kind='interaction_health',at_ms=35000,status='OK',payload={'healthy':True})]+windows
+        d,r=p.decide({},35000,obs)
+        self.assertEqual(d,'IDLE_CANDIDATE')
+        self.assertEqual(r,'quiet_hysteresis_complete')
