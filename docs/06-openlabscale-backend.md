@@ -125,7 +125,24 @@ Supply a JSON object in `OPENLABSCALE_CONFIG`. The values below are demonstratio
 
 `/stats` distinguishes configured capacity from observations. Docker metrics are cumulative CPU nanoseconds and current memory bytes, keyed by session. Host memory comes from Linux `/proc/meminfo`. Host CPU utilization comes from the difference between successive `/proc/stat` reads. The first sample has a null CPU percentage. Unavailable measurements use null or `available: false`, and samples carry timestamps. Docker and ledger snapshots can differ briefly during state changes.
 
-The ledger and history are process-local and are reset on restart. Startup locking protects a deployment ID under the same operator account. Operate the demo with a single backend instance and one Docker host. Terminal cleanup and scheduling can be delayed by Docker faults. Run the React/Vite frontend (`cd frontend && npm run dev`) on loopback (`127.0.0.1:5173`) to access the Student Portal (`/#student`) and Administrator Dashboard (`/#admin`); both proxy to the loopback backend and require bearer tokens (`GET /stats` is restricted to the configured `admin` identity). Load evidence and EC2 deployment are later phases.
+The ledger and history are process-local and are reset on restart. Startup locking protects a deployment ID under the same operator account. Operate the demo with a single backend instance and one Docker host. Terminal cleanup and scheduling can be delayed by Docker faults. Run the React/Vite frontend (`cd frontend && npm run dev`) on loopback (`127.0.0.1:5173`) to access the Student Portal (`/#student`) and Administrator Dashboard (`/#admin`); both proxy to the loopback backend and require bearer tokens (`GET /stats` is restricted to the configured `admin` identity). EC2 deployment is a later phase.
+
+## Concurrent request-load experiment
+
+`backend/load.py` runs synchronized `asyncio` + `httpx` clients that submit `POST /sessions` concurrently, poll `GET /sessions/{id}` until `RUNNING`, hold each disposable container for a bounded `job_seconds` duration, and call `DELETE /sessions/{id}` with automatic cleanup on timeout or error so the FIFO queue drains completely. An administrator sampler polls `GET /stats` concurrently and reconciles client outcomes against server lifecycle counts and remaining owned Docker containers.
+
+```sh
+python -m backend.load suite /tmp/load-run --smoke-clients 10 --load-clients 100 --max-sessions 4 --job-seconds 1.0
+```
+
+Each run writes `sessions.csv` and `summary.json` into a fresh output directory (refusing nonempty directories). Retained evidence from the local Linux Docker run (`2026-11-09`, Linux `6.18.54.1-microsoft-standard-WSL2`, Docker Engine `29.9.2`, cgroup v2, 16 vCPU, 7.39 GiB RAM, `alpine:latest`, `host_cpu_millis=2500`, `headroom_cpu_millis=500`, `host_memory_mib=2048`, `headroom_memory_mib=512`, `500` CPU millis and `256` MiB per session, `max_sessions=4`, `job_seconds=1.0`) is stored under `data/load-v1/`:
+
+| Run | Concurrent HTTP clients | Active terminals | Configured container cap | Peak running containers | Released / Failed / Timed out | Admission latency p50 / p95 (ms) | Queue wait p50 / p95 (ms) | Provisioning p50 / p95 (ms) | Completion p50 / p95 (ms) | Cleanup verified |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| `data/load-v1/smoke-10` | 10 | 0 | 4 | 4 | 10 / 0 / 0 | 42.80 / 45.58 | 1556.46 / 3312.36 | 202.94 / 236.47 | 3092.32 / 4740.69 | Yes (`0` remaining) |
+| `data/load-v1/concurrent-100` | 100 | 0 | 4 | 4 | 100 / 0 / 0 | 285.41 / 315.93 | 34569.21 / 60682.52 | 270.23 / 341.24 | 37326.47 / 62582.87 | Yes (`0` remaining) |
+
+**Important distinction:** `concurrent-100` measures **100 simultaneous HTTP clients** submitting `POST /sessions` requests against a cap of **4 concurrently running containers** (with **0 active browser terminals**). Excess requests remain `QUEUED` and advance in FIFO order as bounded jobs release capacity.
 
 ## Tests
 

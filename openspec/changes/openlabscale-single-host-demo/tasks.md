@@ -17,8 +17,8 @@
 
 ## 4. Request-load experiment ([#7](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/7), after 1 and 3)
 
-- [ ] 4.1 Implement the bounded client workflow and CSV/JSON export with reproducible configuration, timing, errors, timeouts, and peak running count.
-- [ ] 4.2 Run the 5–10 client smoke test, then 100 synchronized submissions. Reconcile outcomes with service counts and verify cleanup.
+- [x] 4.1 Implement the bounded client workflow and CSV/JSON export with reproducible configuration, timing, errors, timeouts, and peak running count.
+- [x] 4.2 Run the 5–10 client smoke test, then 100 synchronized submissions. Reconcile outcomes with service counts and verify cleanup.
 
 ## 5. Deployment and complete demonstration ([#8](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/8), after 2–4)
 
