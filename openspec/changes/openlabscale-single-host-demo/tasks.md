@@ -13,7 +13,7 @@
 ## 3. Administrator dashboard ([#6](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/6), after 1)
 
 - [x] 3.1 Expose an admin-only snapshot with lifecycle counts, queue, capacity, and real host and owned-container CPU and memory samples.
-- [ ] 3.2 Render the snapshot and verify queue changes under load, correct units, stale and unavailable indicators, and denial of student access.
+- [x] 3.2 Render the snapshot and verify queue changes under load, correct units, stale and unavailable indicators, and denial of student access.
 
 ## 4. Request-load experiment ([#7](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/7), after 1 and 3)
 

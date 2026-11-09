@@ -17,14 +17,21 @@ import {
 import { submitSession, getSession, listSessions, releaseSession } from './api';
 import type { Session, SessionState } from './types';
 import { TerminalView } from './components/TerminalView';
+import { AdminDashboard } from './components/AdminDashboard';
 
 const DEMO_IDENTITIES = [
   { id: 'alice', label: 'Alice (Student 1)', token: 'token-alice' },
   { id: 'bob', label: 'Bob (Student 2)', token: 'token-bob' },
+  { id: 'admin', label: 'Operator (Admin)', token: 'token-admin' },
 ];
 
 export function App() {
-  const [selectedIdentity, setSelectedIdentity] = useState(DEMO_IDENTITIES[0]);
+  const [activeView, setActiveView] = useState<'student' | 'admin'>(() =>
+    window.location.hash === '#admin' ? 'admin' : 'student',
+  );
+  const [selectedIdentity, setSelectedIdentity] = useState(
+    window.location.hash === '#admin' ? DEMO_IDENTITIES[2] : DEMO_IDENTITIES[0],
+  );
   const [customToken, setCustomToken] = useState('');
   const [isCustom, setIsCustom] = useState(false);
 
@@ -41,6 +48,11 @@ export function App() {
   const [cpuMillis, setCpuMillis] = useState<number>(500);
   const [memoryMib, setMemoryMib] = useState<number>(256);
   const [uptimeSeconds, setUptimeSeconds] = useState<number>(0);
+
+  const switchView = (view: 'student' | 'admin') => {
+    setActiveView(view);
+    window.history.replaceState(null, '', view === 'admin' ? '#admin' : '#student');
+  };
 
   const switchIdentity = (nextCustom: boolean, nextIdentity = selectedIdentity) => {
     setIsCustom(nextCustom);
@@ -244,11 +256,34 @@ export function App() {
               <h1 className="font-bold text-base tracking-tight text-white flex items-center gap-2">
                 OpenLabScale
                 <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-sky-500/20 text-sky-300 rounded border border-sky-500/30">
-                  Student Portal
+                  {activeView === 'admin' ? 'Admin Dashboard' : 'Student Portal'}
                 </span>
               </h1>
               <p className="text-xs text-slate-400">Isolated Linux Containers on Single-Host Scheduler</p>
             </div>
+          </div>
+
+          <div className="flex items-center gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+            <button
+              onClick={() => switchView('student')}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                activeView === 'student'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Student Portal
+            </button>
+            <button
+              onClick={() => switchView('admin')}
+              className={`px-3 py-1 rounded-md text-xs font-semibold transition cursor-pointer ${
+                activeView === 'admin'
+                  ? 'bg-sky-600 text-white shadow-sm'
+                  : 'text-slate-400 hover:text-slate-200'
+              }`}
+            >
+              Admin Dashboard
+            </button>
           </div>
 
           <div className="flex items-center gap-2 bg-slate-800/80 p-1.5 rounded-lg border border-slate-700">
@@ -299,6 +334,14 @@ export function App() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
+        {activeView === 'admin' ? (
+          <AdminDashboard
+            token={activeToken}
+            identityLabel={isCustom ? `Custom (${activeToken || 'empty'})` : selectedIdentity.label}
+            onSelectAdmin={() => switchIdentity(false, DEMO_IDENTITIES[2])}
+          />
+        ) : (
+          <>
         {error && (
           <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -650,6 +693,8 @@ export function App() {
             )}
           </div>
         </div>
+          </>
+        )}
       </main>
     </div>
   );

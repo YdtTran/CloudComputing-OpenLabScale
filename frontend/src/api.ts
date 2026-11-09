@@ -1,4 +1,4 @@
-import type { RequestPayload, Session } from './types';
+import type { AdminStats, RequestPayload, Session } from './types';
 
 function headers(token: string): HeadersInit {
   return {
@@ -53,3 +53,15 @@ export async function releaseSession(token: string, sessionId: string): Promise<
   }
   return res.json();
 }
+
+export async function getStats(token: string): Promise<AdminStats> {
+  const res = await fetch('/stats', {
+    headers: headers(token),
+  });
+  if (!res.ok) {
+    const errorData = await res.json().catch(() => ({ detail: res.statusText }));
+    throw new Error(`HTTP ${res.status}: ${errorData.detail || res.statusText}`);
+  }
+  return res.json();
+}
+
