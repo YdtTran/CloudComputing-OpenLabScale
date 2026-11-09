@@ -8,7 +8,7 @@
 ## 2. Student portal ([#5](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/5), after 1)
 
 - [x] 2.1 Bridge an owned running session's Docker PTY over WebSocket. Verify cross-user denial and terminal closure on release.
-- [ ] 2.2 Build the student request, waiting, terminal, and release screens. Verify a browser command executes inside the assigned container and releases capacity.
+- [x] 2.2 Build the student request, waiting, terminal, and release screens. Verify a browser command executes inside the assigned container and releases capacity.
 
 ## 3. Administrator dashboard ([#6](https://github.com/YdtTran/CloudComputing-OpenLabScale/issues/6), after 1)
 
