@@ -5,6 +5,7 @@ import os
 from datetime import datetime, timezone
 from enum import Enum
 from typing import Optional
+from urllib.parse import urlsplit
 
 from pydantic import BaseModel, ConfigDict, Field, PositiveInt, model_validator
 
@@ -29,8 +30,8 @@ class Settings(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     deployment: str = Field(pattern=r"^[a-z0-9][a-z0-9-]{0,39}$")
-    tokens: dict[str, str]
-    admin: str
+    identity_database: str = Field(min_length=1)
+    secure_cookie: bool = True
     image: str = "alpine:latest"
     host_cpu_millis: PositiveInt = 2000
     host_memory_mib: PositiveInt = 2048
@@ -57,11 +58,14 @@ class Settings(BaseModel):
 
     @model_validator(mode="after")
     def validate_settings(self) -> Settings:
-        if self.admin not in self.tokens.values() or not self.admin:
-            raise ValueError("admin must identify a configured user")
-        for token, owner in self.tokens.items():
-            if not token or not owner or any(c not in "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-_" for c in token):
-                raise ValueError("tokens must be nonempty URL-safe strings mapped to nonempty identities")
+        origin = urlsplit(self.terminal_origin)
+        if (origin.scheme not in ('http', 'https') or not origin.hostname or origin.path or origin.query
+                or origin.fragment or origin.username or origin.password):
+            raise ValueError('terminal_origin must be an HTTP(S) origin')
+        if not self.secure_cookie and (origin.scheme != 'http' or origin.hostname not in ('localhost', '127.0.0.1', '::1')):
+            raise ValueError('Insecure cookies are allowed only for loopback HTTP')
+        if self.secure_cookie and origin.scheme != 'https':
+            raise ValueError('Secure cookies require an HTTPS origin')
         if self.default_cpu_millis > self.cpu_budget or self.default_memory_mib > self.memory_budget:
             raise ValueError("default request must fit after host headroom")
         return self

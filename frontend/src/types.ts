@@ -60,6 +60,9 @@ export interface ContainerSample {
 
 export interface AdminStats {
   sampled_at: string;
+  accounts: { total: number; active: number };
+  owner_names: Record<string, string>;
+  queue_reasons: Record<string, string[]>;
   total_sessions: number;
   counts: Record<SessionState, number>;
   queue: string[];

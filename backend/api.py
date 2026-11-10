@@ -10,10 +10,12 @@ from typing import Optional
 
 from fastapi import FastAPI, HTTPException, Request as HTTPRequest, WebSocket
 from fastapi.exceptions import RequestValidationError
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
+from .auth import COOKIE, auth_router, current_user
 from .engine import Engine
+from .identity import IdentityStore
 from .models import Request, Session, Settings, State, now
 from .scheduler import Entry, Scheduler
 from .terminal import bridge
@@ -21,12 +23,14 @@ from .terminal import bridge
 
 def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
     settings = settings or Settings.from_env()
+    store = IdentityStore(Path(settings.identity_database))
 
     @asynccontextmanager
     async def lifespan(app: FastAPI):
         lock = None
         manager = engine
         try:
+            await asyncio.to_thread(store.migrate)
             if manager is None:
                 if not os.environ.get("DOCKER_HOST", "unix:///var/run/docker.sock").startswith("unix://"):
                     raise RuntimeError("OpenLabScale requires a local Unix Docker socket")
@@ -59,6 +63,7 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
                 lock.close()
 
     app = FastAPI(title="OpenLabScale", lifespan=lifespan)
+    app.include_router(auth_router(store, settings.terminal_origin, settings.secure_cookie))
 
     @app.exception_handler(RequestValidationError)
     async def invalid_request(_: HTTPRequest, error: RequestValidationError):
@@ -67,11 +72,10 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
         ]})
 
     def identity(request: HTTPRequest) -> str:
-        scheme, _, token = request.headers.get("authorization", "").partition(" ")
-        owner = settings.tokens.get(token) if scheme.lower() == "bearer" else None
-        if owner is None:
-            raise HTTPException(401, "Valid demo bearer token required", headers={"WWW-Authenticate": "Bearer"})
-        return owner
+        user = current_user(store, settings.terminal_origin, request, mutate=request.method not in ('GET', 'HEAD', 'OPTIONS'))
+        if user['role'] != 'student':
+            raise HTTPException(403, 'Student required')
+        return user['id']
 
     def owned(request: HTTPRequest, session_id: str) -> Entry:
         owner = identity(request)
@@ -114,10 +118,31 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             raise HTTPException(503, "Scheduler unavailable")
         return {"status": "ok"}
 
+    @app.get('/workspace/summary')
+    async def workspace_summary(request: HTTPRequest):
+        owner = identity(request)
+        scheduler = app.state.scheduler
+        owned = [entry for entry in scheduler.sessions.values() if entry.session.owner == owner]
+        reserved = sum(entry.session.owner == owner for entry in scheduler.reserved.values())
+        return {
+            'active': sum(entry.session.state in (State.PROVISIONING, State.RUNNING, State.RELEASING) for entry in owned),
+            'queued': sum(entry.session.state in (State.REQUESTED, State.QUEUED) for entry in owned),
+            'available_slots': max(0, settings.per_user - reserved),
+            'per_user_limit': settings.per_user,
+        }
+
+    @app.get('/settings')
+    async def operational_settings(request: HTTPRequest):
+        current_user(store, settings.terminal_origin, request, admin=True)
+        return settings.model_dump(include={
+            'host_cpu_millis', 'host_memory_mib', 'headroom_cpu_millis', 'headroom_memory_mib',
+            'default_cpu_millis', 'default_memory_mib', 'max_sessions', 'per_user', 'pids',
+            'lifetime_seconds', 'queue_seconds', 'poll_seconds', 'docker_timeout_seconds', 'image',
+        })
+
     @app.get("/stats")
     async def stats(request: HTTPRequest):
-        if identity(request) != settings.admin:
-            raise HTTPException(403, "Administrator required")
+        current_user(store, settings.terminal_origin, request, admin=True)
         scheduler = app.state.scheduler
         async with app.state.stats_lock:
             telemetry = await asyncio.to_thread(scheduler.docker.telemetry)
@@ -133,8 +158,29 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
                     if 0 <= idle <= total:
                         host["cpu_utilization_pct"] = 100 * (total - idle) / total
         counts = Counter(e.session.state for e in scheduler.sessions.values())
+        users = await asyncio.to_thread(store.users)
+        names = {user['id']: user['username'] for user in users}
+        available = scheduler.capacity()['available']
+        queue_reasons = {}
+        for position, session_id in enumerate(scheduler.queue):
+            session = scheduler.sessions[session_id].session
+            if position:
+                queue_reasons[session_id] = ['Earlier request in FIFO queue']
+                continue
+            reasons = []
+            if available['slots'] < 1:
+                reasons.append('Global workspace limit')
+            if available['cpu_millis'] < session.cpu_millis:
+                reasons.append('CPU capacity')
+            if available['memory_mib'] < session.memory_mib:
+                reasons.append('Memory capacity')
+            if sum(entry.session.owner == session.owner for entry in scheduler.reserved.values()) >= settings.per_user:
+                reasons.append('Personal workspace limit')
+            queue_reasons[session_id] = reasons
         return {
             "sampled_at": now(), "total_sessions": len(scheduler.sessions),
+            'accounts': {'total': len(users), 'active': sum(bool(user['is_active']) for user in users)},
+            'owner_names': names, 'queue_reasons': queue_reasons,
             "counts": {state.value: counts[state] for state in State},
             "queue": list(scheduler.queue),
             "sessions": [scheduler.snapshot(entry) for entry in scheduler.sessions.values()],
@@ -146,20 +192,27 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
     async def terminal(websocket: WebSocket, session_id: str):
         scheduler = app.state.scheduler
         protocols = websocket.scope["subprotocols"]
-        credential = next((p.removeprefix("auth.") for p in protocols if p.startswith("auth.")), "")
-        owner = settings.tokens.get(credential)
+        credential = websocket.cookies.get(COOKIE, '')
+        user = store.session(credential) if credential else None
         entry = scheduler.sessions.get(session_id)
         origin = websocket.headers.get("origin")
-        if ("openlabscale" not in protocols or owner is None or entry is None
-                or owner != entry.session.owner or entry.session.state != State.RUNNING
-                or entry.terminal_attached or (origin is not None and origin != settings.terminal_origin)):
+        if (protocols != ['openlabscale'] or websocket.query_params
+                or user is None or user['role'] != 'student' or entry is None
+                or user['id'] != entry.session.owner or entry.session.state != State.RUNNING
+                or entry.terminal_attached or origin != settings.terminal_origin):
             await websocket.close(code=1008)
             return
         entry.terminal_attached = True
-        await bridge(websocket, entry, scheduler.docker)
+        await bridge(websocket, entry, scheduler.docker, lambda: store.session(credential) is not None)
 
     dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
     if (dist / "index.html").is_file():
+        @app.get('/login', include_in_schema=False)
+        @app.get('/student', include_in_schema=False)
+        @app.get('/admin', include_in_schema=False)
+        async def portal():
+            return FileResponse(dist / 'index.html')
+
         app.mount("/", StaticFiles(directory=dist, html=True), name="frontend")
 
     return app
