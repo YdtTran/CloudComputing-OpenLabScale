@@ -10,7 +10,7 @@ from backend.models import Session, Settings
 
 class DockerLifecycle(unittest.TestCase):
     def setUp(self):
-        self.settings = Settings(deployment="unit", tokens={"t": "admin"}, admin="admin")
+        self.settings = Settings(deployment="unit", identity_database="unused.db", terminal_origin="https://localhost")
         self.client = Mock()
         self.engine = Engine(self.settings, self.client)
         self.session = Session(id="test", owner="admin", cpu_millis=500, memory_mib=256)

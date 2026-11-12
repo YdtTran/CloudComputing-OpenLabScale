@@ -8,6 +8,8 @@ import json
 import os
 import platform
 import socket
+import secrets
+import tempfile
 import time
 from collections import Counter
 from datetime import datetime, timezone
@@ -20,6 +22,8 @@ import uvicorn
 
 from .api import create_app
 from .engine import Engine
+from .identity import IdentityStore
+from .auth import COOKIE
 from .models import Settings, State, now
 
 TERMINAL = {State.COMPLETED.value, State.CANCELLED.value, State.RELEASED.value, State.FAILED.value}
@@ -113,7 +117,7 @@ def host_platform_info(docker_client=None) -> dict:
 
 async def _run_client(
     idx: int,
-    token: str,
+    headers: dict[str, str],
     owner: str,
     client: httpx.AsyncClient,
     barrier: asyncio.Barrier,
@@ -131,7 +135,7 @@ async def _run_client(
     t0 = time.monotonic()
     response = await client.post(
         "/sessions",
-        headers={"Authorization": f"Bearer {token}"},
+        headers=headers,
         json={"cpu_millis": cpu_millis, "memory_mib": memory_mib},
     )
     admission_ms = round((time.monotonic() - t0) * 1000.0, 3)
@@ -151,7 +155,6 @@ async def _run_client(
 
     session = response.json()
     session_id = session["id"]
-    headers = {"Authorization": f"Bearer {token}"}
     initial_q = session.get("queue_position")
     max_q = initial_q
     timed_out = False
@@ -275,14 +278,19 @@ async def execute_load(
 ) -> dict:
     root = reserve_output(output_dir) if output_dir is not None else None
     user_count = users or clients
-    tokens = {f"token-{i:03d}": f"student-{i:03d}" for i in range(1, user_count + 1)}
-    admin_token = "token-admin"
-    tokens[admin_token] = "admin"
+    identity_directory = tempfile.TemporaryDirectory(prefix='openlabscale-load-')
+    database = Path(identity_directory.name) / 'identities.db'
+    store = IdentityStore(database)
+    await asyncio.to_thread(store.migrate)
+    password = secrets.token_urlsafe(24)
+    await asyncio.to_thread(store.bootstrap, 'admin', password)
+    for index in range(1, user_count + 1):
+        await asyncio.to_thread(store.create_student, f'student-{index:03d}', password)
     deployment_id = deployment or f"load-{uuid4().hex[:12]}"
     settings = Settings(
         deployment=deployment_id,
-        tokens=tokens,
-        admin="admin",
+        identity_database=str(database),
+        secure_cookie=False,
         image=image,
         host_cpu_millis=host_cpu_millis,
         headroom_cpu_millis=headroom_cpu_millis,
@@ -332,11 +340,25 @@ async def execute_load(
 
         limits = httpx.Limits(max_connections=max(200, clients + 20), max_keepalive_connections=max(100, clients + 10))
         async with httpx.AsyncClient(base_url=base_url, transport=transport, limits=limits, timeout=30.0) as http:
+            async def authenticate(username: str) -> tuple[dict[str, str], str]:
+                response = await http.post('/auth/login', headers={'origin': settings.terminal_origin},
+                                           json={'username': username, 'password': password})
+                response.raise_for_status()
+                cookie = response.cookies.get(COOKIE)
+                headers = {'cookie': f'{COOKIE}={cookie}', 'origin': settings.terminal_origin}
+                identity = await http.get('/auth/me', headers=headers)
+                identity.raise_for_status()
+                user = identity.json()
+                headers['x-csrf-token'] = user['csrf']
+                return headers, user['id']
+
+            admin_headers, _ = await authenticate('admin')
+            users_by_index = [await authenticate(f'student-{index:03d}') for index in range(1, user_count + 1)]
             stats_samples: list[dict] = []
             stop_sampling = asyncio.Event()
 
             async def sample_stats() -> None:
-                headers = {"Authorization": f"Bearer {admin_token}"}
+                headers = admin_headers
                 while not stop_sampling.is_set():
                     try:
                         resp = await http.get("/stats", headers=headers)
@@ -357,12 +379,11 @@ async def execute_load(
             tasks = []
             for idx in range(1, clients + 1):
                 user_idx = ((idx - 1) % user_count) + 1
-                token = f"token-{user_idx:03d}"
-                owner = tokens[token]
+                headers, owner = users_by_index[user_idx - 1]
                 tasks.append(
                     asyncio.create_task(
                         _run_client(
-                            idx, token, owner, http, barrier,
+                            idx, headers, owner, http, barrier,
                             cpu_millis=cpu_millis, memory_mib=memory_mib,
                             job_seconds=job_seconds,
                             wait_timeout_seconds=wait_timeout_seconds,
@@ -378,7 +399,7 @@ async def execute_load(
             stop_sampling.set()
             await sampler_task
 
-            final_resp = await http.get("/stats", headers={"Authorization": f"Bearer {admin_token}"})
+            final_resp = await http.get("/stats", headers=admin_headers)
             final_stats = final_resp.json()
             stats_samples.append(final_stats)
 
@@ -397,6 +418,7 @@ async def execute_load(
             await server_task
         if sock is not None:
             sock.close()
+        identity_directory.cleanup()
 
     rows.sort(key=lambda r: r["client_id"])
     state_counts = Counter(r["final_state"] for r in rows)

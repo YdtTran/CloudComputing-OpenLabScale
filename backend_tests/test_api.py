@@ -1,4 +1,6 @@
 import time
+import tempfile
+from pathlib import Path
 import unittest
 from concurrent.futures import ThreadPoolExecutor
 from threading import Event
@@ -7,6 +9,8 @@ from fastapi.testclient import TestClient
 
 from backend.api import create_app
 from backend.models import Settings
+from backend.identity import IdentityStore
+from backend.auth import COOKIE
 
 
 class Docker:
@@ -47,15 +51,31 @@ class Docker:
 class API(unittest.TestCase):
     def setUp(self):
         self.docker = Docker()
-        self.settings = Settings(deployment="mock", tokens={"a": "alice", "b": "bob", "c": "admin"},
-                                 admin="admin", max_sessions=1, poll_seconds=0.02)
+        self.directory = tempfile.TemporaryDirectory()
+        self.addCleanup(self.directory.cleanup)
+        path = Path(self.directory.name) / 'users.db'
+        store = IdentityStore(path)
+        self.store = store
+        store.migrate()
+        store.bootstrap('admin', 'password')
+        store.create_student('alice', 'password')
+        store.create_student('bob', 'password')
+        self.credentials = {key: store.login(name, 'password') for key, name in
+                            [('a', 'alice'), ('b', 'bob'), ('c', 'admin')]}
+        self.settings = Settings(deployment='mock', identity_database=str(path), secure_cookie=False,
+                                 max_sessions=1, poll_seconds=0.02)
         self.client = TestClient(create_app(self.settings, self.docker))
         self.client.__enter__()
         self.addCleanup(self.client.__exit__, None, None, None)
         self.addCleanup(self.docker.unblock.set)
 
     def request(self, method, path, token="a", **kwargs):
-        return self.client.request(method, path, headers={"Authorization": f"Bearer {token}"}, **kwargs)
+        secret, csrf = self.credentials[token]
+        return self.client.request(method, path, headers={'cookie': f'{COOKIE}={secret}',
+            'origin': self.settings.terminal_origin, 'x-csrf-token': csrf}, **kwargs)
+
+    def ws_headers(self, token):
+        return {'cookie': f'{COOKIE}={self.credentials[token][0]}', 'origin': self.settings.terminal_origin}
 
     def submit(self, token="a", **body):
         response = self.request("POST", "/sessions", token, json=body)
@@ -130,6 +150,10 @@ class API(unittest.TestCase):
         later = self.submit("b")
         self.wait(blocked, "QUEUED")
         self.wait(later, "QUEUED", "b")
+        stats = self.request('GET', '/stats', 'c').json()
+        self.assertIn('Personal workspace limit', stats['queue_reasons'][blocked])
+        self.assertEqual(stats['queue_reasons'][later], ['Earlier request in FIFO queue'])
+        self.assertEqual(stats['owner_names'][self.store.session(self.credentials['a'][0])['id']], 'alice')
         self.assertEqual(self.request("POST", "/sessions", json={"cpu_millis": 2000}).status_code, 422)
         self.request("DELETE", f"/sessions/{blocked}")
         self.wait(later, "RUNNING", "b")
@@ -145,21 +169,30 @@ class API(unittest.TestCase):
     def test_terminal_ownership_and_disconnect(self):
         import socket
         from fastapi import WebSocketDisconnect
+        from unittest.mock import Mock
 
         session = self.submit()
         self.wait(session, "RUNNING")
         path = f"/sessions/{session}/terminal"
+        self.docker.open_terminal = Mock()
         for protocols, headers in [
-            (["openlabscale", "auth.b"], {}),
-            (["openlabscale", "auth.a"], {"Origin": "https://elsewhere.test"}),
+            (["openlabscale"], self.ws_headers("b")),
+            (["openlabscale"], {**self.ws_headers("a"), "origin": "https://elsewhere.test"}),
+            (["openlabscale", "auth.a"], self.ws_headers("a")),
+            (["openlabscale", "bearer.secret"], self.ws_headers("a")),
+            (["openlabscale"], {'cookie': self.ws_headers('a')['cookie']}),
         ]:
             with self.assertRaises(WebSocketDisconnect):
                 with self.client.websocket_connect(path, subprotocols=protocols, headers=headers):
                     self.fail("terminal access was granted")
+        with self.assertRaises(WebSocketDisconnect):
+            with self.client.websocket_connect(path + '?token=secret', subprotocols=['openlabscale'], headers=self.ws_headers('a')):
+                self.fail('terminal accepted URL credentials')
+        self.docker.open_terminal.assert_not_called()
         queued = self.submit("b")
         with self.assertRaises(WebSocketDisconnect):
             with self.client.websocket_connect(f"/sessions/{queued}/terminal",
-                                               subprotocols=["openlabscale", "auth.b"]):
+                                               subprotocols=["openlabscale"], headers=self.ws_headers("b")):
                 self.fail("queued session allowed terminal access")
         local, remote = socket.socketpair()
         self.addCleanup(local.close)
@@ -167,7 +200,7 @@ class API(unittest.TestCase):
         self.docker.open_terminal = lambda session: ("terminal", "marker", local, b"")
         self.docker.resize = lambda terminal, rows, cols: None
         remote.settimeout(2)
-        with self.client.websocket_connect(path, subprotocols=["openlabscale", "auth.a"]) as ws:
+        with self.client.websocket_connect(path, subprotocols=["openlabscale"], headers=self.ws_headers("a")) as ws:
             ws.send_bytes(b"command")
             self.assertEqual(remote.recv(7), b"command")
             remote.sendall(b"output")
@@ -175,6 +208,54 @@ class API(unittest.TestCase):
             self.request("DELETE", f"/sessions/{session}")
             self.assertEqual(ws.receive()["type"], "websocket.close")
         self.assertEqual(remote.recv(1), b"")
+
+    def test_terminal_closes_when_login_is_revoked(self):
+        import socket
+
+        session = self.submit()
+        self.wait(session, "RUNNING")
+        local, remote = socket.socketpair()
+        self.addCleanup(local.close)
+        self.addCleanup(remote.close)
+        self.docker.open_terminal = lambda session: ("terminal", "marker", local, b"")
+        self.docker.close_terminal = lambda session, marker: None
+        with self.client.websocket_connect(f'/sessions/{session}/terminal',
+                                           subprotocols=['openlabscale'], headers=self.ws_headers('a')) as ws:
+            self.assertEqual(self.request('POST', '/auth/logout').status_code, 204)
+            self.assertEqual(ws.receive()['type'], 'websocket.close')
+        self.assertFalse(self.client.app.state.scheduler.sessions[session].terminal_attached)
+
+    def test_terminal_closes_on_expiry_deactivation_and_password_reset(self):
+        import hashlib
+        import socket
+        from contextlib import closing
+        import sqlite3
+
+        session = self.submit()
+        self.wait(session, 'RUNNING')
+        user_id = self.store.session(self.credentials['a'][0])['id']
+        for action in ('expire', 'deactivate', 'reset'):
+            with self.subTest(action=action):
+                local, remote = socket.socketpair()
+                self.addCleanup(local.close)
+                self.addCleanup(remote.close)
+                self.docker.open_terminal = lambda session: ('terminal', 'marker', local, b'')
+                self.docker.close_terminal = lambda session, marker: None
+                with self.client.websocket_connect(f'/sessions/{session}/terminal',
+                                                   subprotocols=['openlabscale'], headers=self.ws_headers('a')) as ws:
+                    if action == 'expire':
+                        token_hash = hashlib.sha256(self.credentials['a'][0].encode()).hexdigest()
+                        with closing(sqlite3.connect(self.store.path)) as connection, connection:
+                            connection.execute('UPDATE auth_sessions SET expires_at = 0 WHERE token_hash = ?', (token_hash,))
+                    elif action == 'deactivate':
+                        self.store.set_active(user_id, False)
+                    else:
+                        self.store.reset_password(user_id, 'password')
+                    self.assertEqual(ws.receive()['type'], 'websocket.close')
+                self.assertFalse(self.client.app.state.scheduler.sessions[session].terminal_attached)
+                if action == 'deactivate':
+                    self.store.set_active(user_id, True)
+                self.credentials['a'] = self.store.login('alice', 'password')
 
     def test_cpu_and_memory_budget(self):
         self.settings.max_sessions = 10

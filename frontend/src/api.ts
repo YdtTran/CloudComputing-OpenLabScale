@@ -1,9 +1,9 @@
 import type { AdminStats, RequestPayload, Session } from './types';
 
-function headers(token: string): HeadersInit {
+function headers(csrf: string): HeadersInit {
   return {
     'Content-Type': 'application/json',
-    Authorization: `Bearer ${token}`,
+    'X-CSRF-Token': csrf,
   };
 }
 
@@ -14,6 +14,7 @@ export async function submitSession(token: string, payload: RequestPayload = {})
     body: JSON.stringify(payload),
   });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(errorData.detail || `Failed to submit session (${res.status})`);
   }
@@ -25,6 +26,7 @@ export async function getSession(token: string, sessionId: string): Promise<Sess
     headers: headers(token),
   });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(errorData.detail || `Failed to get session (${res.status})`);
   }
@@ -36,6 +38,7 @@ export async function listSessions(token: string): Promise<Session[]> {
     headers: headers(token),
   });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(errorData.detail || `Failed to list sessions (${res.status})`);
   }
@@ -48,6 +51,7 @@ export async function releaseSession(token: string, sessionId: string): Promise<
     headers: headers(token),
   });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(errorData.detail || `Failed to release session (${res.status})`);
   }
@@ -59,6 +63,7 @@ export async function getStats(token: string): Promise<AdminStats> {
     headers: headers(token),
   });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
     throw new Error(`HTTP ${res.status}: ${errorData.detail || res.statusText}`);
   }

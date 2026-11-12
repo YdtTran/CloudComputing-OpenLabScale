@@ -6,10 +6,9 @@ import { AlertCircle, Terminal as TerminalIcon, RefreshCw } from 'lucide-react';
 
 interface TerminalViewProps {
   sessionId: string;
-  token: string;
 }
 
-export const TerminalView: React.FC<TerminalViewProps> = ({ sessionId, token }) => {
+export const TerminalView: React.FC<TerminalViewProps> = ({ sessionId }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const termRef = useRef<Terminal | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -51,7 +50,7 @@ export const TerminalView: React.FC<TerminalViewProps> = ({ sessionId, token }) 
 
     const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
     const wsUrl = `${protocol}//${window.location.host}/sessions/${encodeURIComponent(sessionId)}/terminal`;
-    const ws = new WebSocket(wsUrl, ['openlabscale', `auth.${token}`]);
+    const ws = new WebSocket(wsUrl, ['openlabscale']);
     ws.binaryType = 'arraybuffer';
 
     ws.onopen = () => {
@@ -77,7 +76,7 @@ export const TerminalView: React.FC<TerminalViewProps> = ({ sessionId, token }) 
       if (!isMounted) return;
       setConnected(false);
       if (event.code === 1008) {
-        setError('Access denied (not session owner, invalid token, session not running, or terminal already attached).');
+        setError('Terminal access denied. Check the workspace status and sign in again.');
       } else if (event.code !== 1000) {
         setError(`Connection closed (code: ${event.code}). Click Reconnect to retry.`);
       }
@@ -120,7 +119,7 @@ export const TerminalView: React.FC<TerminalViewProps> = ({ sessionId, token }) 
       term.dispose();
       termRef.current = null;
     };
-  }, [sessionId, token, reconnectKey]);
+  }, [sessionId, reconnectKey]);
 
   return (
     <div className="flex flex-col h-full bg-slate-900 border border-slate-700 rounded-lg overflow-hidden shadow-xl">

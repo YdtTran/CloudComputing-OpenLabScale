@@ -12,7 +12,7 @@ This repository provides:
 1. **`simulation/`** — A zero-dependency Python 3.9+ offline simulation engine that generates deterministic synthetic session bundles, validates schema contracts, executes causal idle-detection policies (`no-reclaim`, `interaction-timeout`, `cpu-only`, `resource-multi`, `interaction-aware`), and scores recommendations against ground truth.
 2. **`measured/` & `collector/`** — A live Docker Compose + cgroup v2 + libbpf (`sched:sched_process_exec`) experiment runner that replays selected workload schedules in isolated containers, collects real kernel/cgroup telemetry, exports `v1`-compliant bundles, and evaluates the exact same policy and scoring pipeline.
 3. **`data/`** — Versioned synthetic benchmark datasets (`data/simulation-v1/`), retained real-host Debian measured evidence (`data/measured-v1/`), and 100-client concurrent request-load measurements (`data/load-v1/`).
-4. **`backend/` & `frontend/`** — Single-host **OpenLabScale workspace demonstration** combining a FastAPI + Docker SDK FIFO session scheduler (`backend/`), a React/Vite + `xterm.js` Student Portal (`/#student`) and Administrator Dashboard (`/#admin`) (`frontend/`), and an `asyncio` + `httpx` concurrent load generator (`backend/load.py`).
+4. **`backend/` & `frontend/`** — Single-host **OpenLabScale workspace demonstration** combining a FastAPI + Docker SDK FIFO session scheduler (`backend/`), a React/Vite + `xterm.js` Student Portal (`/student`) and Administrator Dashboard (`/admin`) (`frontend/`), and an `asyncio` + `httpx` concurrent load generator (`backend/load.py`).
 
 ---
 
@@ -24,7 +24,7 @@ The OpenLabScale workspace service (`backend/` + `frontend/`) provisions real, r
 - **Reproducible 100-Request Load Evidence**: `python -m backend.load suite <output_dir>` runs a 10-client smoke test and 100 synchronized HTTP clients (`concurrent_http_clients = 100`, `active_terminals = 0`) against a bounded container cap (`peak_running_containers = 4` in `data/load-v1/concurrent-100`), exporting per-session latencies (`sessions.csv`) and reconciled server/Docker cleanup counts (`summary.json`).
 - **Assumptions & Known Limitations**:
   - **Single-host, in-memory state**: Session history and queue state reside in memory (`--workers 1`) and reset on restart; startup `Engine.reconcile()` removes deployment-labeled leftovers before opening admission.
-  - **Demo-only authentication & shared kernel**: Static bearer tokens in `OPENLABSCALE_CONFIG` and standard Docker containers are intended for private classroom demos over loopback / SSH port forwarding (`ssh -L 8000:127.0.0.1:8000`), not hostile public multi-tenant exposure.
+  - **Authentication & shared kernel**: SQLite-backed accounts use server-managed cookie sessions. Run the service on a trusted host and use loopback / SSH port forwarding or a trusted HTTPS proxy. Docker workspaces share the host kernel.
   - **AWS EC2 verification boundary**: Local Linux Docker (`Linux 6.18.54.1-microsoft-standard-WSL2`, Docker `29.9.2`, cgroup v2) is fully verified in `data/load-v1/` and `backend_tests/test_live.py`. Live AWS EC2 execution has not been run from this workstation (no cloud credentials attached) and is documented as unverified on cloud hardware alongside full Ubuntu 24.04 LTS + `t3.xlarge` (`4 vCPU`, `16 GiB`, burstable CPU-credit) sizing, security group, and teardown instructions in [`docs/06-openlabscale-backend.md`](docs/06-openlabscale-backend.md).
 
 ## Repository Structure
@@ -205,6 +205,11 @@ To run the OpenLabScale workspace backend unit, load-workflow, and live Linux Do
 python3 -m unittest discover -s backend_tests -v
 OPENLABSCALE_LIVE=1 python3 -m unittest discover -s backend_tests -p test_live.py -v
 ```
+
+The `python -m backend.load suite /tmp/load-run` workload provisions temporary
+student and administrator identities, signs in before starting the timed
+submissions, and removes its temporary identity database after the run. Use a
+fresh output directory for each run.
 
 ---
 

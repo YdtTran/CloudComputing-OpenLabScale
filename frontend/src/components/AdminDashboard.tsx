@@ -39,7 +39,6 @@ interface PrevContainerCpu {
 interface AdminDashboardProps {
   token: string;
   identityLabel: string;
-  onSelectAdmin: () => void;
 }
 
 function formatBytesToMib(bytes?: number | null): string {
@@ -69,7 +68,7 @@ function sampleAgeSeconds(isoTimestamp: string | undefined | null, nowMs: number
   return `${sec.toFixed(1)}s ago`;
 }
 
-export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDashboardProps) {
+export function AdminDashboard({ token, identityLabel }: AdminDashboardProps) {
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [authDenied, setAuthDenied] = useState<string | null>(null);
@@ -82,7 +81,7 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
 
   const fetchSnapshot = useCallback(async () => {
     if (!token) {
-      setAuthDenied('HTTP 401: Valid demo bearer token required');
+      setAuthDenied('HTTP 401: Sign in required');
       return;
     }
     setLoading(true);
@@ -178,15 +177,8 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
           GET /stats &rarr; {authDenied}
         </p>
         <p className="text-xs text-slate-400 max-w-lg mb-5">
-          Current identity <span className="text-slate-200 font-semibold">{identityLabel}</span> is not authorized to read operational telemetry. The backend restricts <code className="text-sky-300">/stats</code> to the configured administrator identity and rejects student or unauthenticated tokens.
+          {identityLabel} cannot access this dashboard. Please sign in again.
         </p>
-        <button
-          onClick={onSelectAdmin}
-          className="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold rounded-lg transition cursor-pointer flex items-center gap-2"
-        >
-          <ShieldAlert className="w-4 h-4" />
-          Switch to Operator (Admin) Identity
-        </button>
       </div>
     );
   }
@@ -388,6 +380,8 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
           </div>
         </div>
       )}
+
+      <p className="text-sm text-slate-300">Registered users <strong>{stats.accounts.total}</strong> · Active accounts <strong>{stats.accounts.active}</strong></p>
 
       {/* Lifecycle Summary Cards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
@@ -818,11 +812,12 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
                     </span>
                   </div>
                   <div className="text-slate-400">
-                    Owner: <span className="text-slate-200 font-medium">{session?.owner ?? '—'}</span> &middot;{' '}
+                    Owner: <span className="text-slate-200 font-medium">{session ? (stats.owner_names[session.owner] ?? session.owner) : '—'}</span> &middot;{' '}
                     <span className="font-mono">
                       {session?.cpu_millis ?? '?'} mCPU / {session?.memory_mib ?? '?'} MiB
                     </span>
                   </div>
+                  <div className="text-slate-400">{stats.queue_reasons[id]?.join(', ') || 'Awaiting scheduler'}</div>
                 </div>
                 <div className="text-right font-mono text-amber-300">
                   {session?.queue_seconds != null ? `${session.queue_seconds.toFixed(1)}s` : '—'}
@@ -856,13 +851,14 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
               <thead>
                 <tr className="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400">
                   <th className="py-2.5 px-3">Session ID</th>
-                  <th className="py-2.5 px-3">Demo Owner</th>
+                  <th className="py-2.5 px-3">Owner</th>
                   <th className="py-2.5 px-3">Workload Type</th>
                   <th className="py-2.5 px-3">State</th>
                   <th className="py-2.5 px-3">Container ID</th>
                   <th className="py-2.5 px-3">Allocated Limits</th>
                   <th className="py-2.5 px-3">Measured Container Resource Usage</th>
                   <th className="py-2.5 px-3">Created (UTC)</th>
+                  <th className="py-2.5 px-3">Running time</th>
                   <th className="py-2.5 px-3">Queue / Provision Time</th>
                 </tr>
               </thead>
@@ -879,7 +875,7 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
                       <td className="py-2.5 px-3 font-mono text-slate-200 select-all" title={s.id}>
                         {s.id.slice(0, 12)}
                       </td>
-                      <td className="py-2.5 px-3 font-medium text-slate-200">{s.owner}</td>
+                      <td className="py-2.5 px-3 font-medium text-slate-200">{stats.owner_names[s.owner] ?? s.owner}</td>
                       <td className="py-2.5 px-3 text-slate-400 font-mono text-[11px]">
                         linux-shell (/bin/sleep + PTY)
                       </td>
@@ -949,6 +945,9 @@ export function AdminDashboard({ token, identityLabel, onSelectAdmin }: AdminDas
                       </td>
                       <td className="py-2.5 px-3 font-mono text-slate-400" title={s.created_at}>
                         {formatUtcTime(s.created_at)}
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-slate-400">
+                        {s.state === 'RUNNING' ? `${Math.max(0, Math.floor((nowMs - new Date(s.events.find(event => event.state === 'RUNNING')?.at ?? s.created_at).getTime()) / 1000))}s` : '—'}
                       </td>
                       <td className="py-2.5 px-3 font-mono text-slate-300">
                         <div>

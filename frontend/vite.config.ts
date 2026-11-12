@@ -15,7 +15,6 @@ export default defineConfig({
         target: apiTarget,
         ws: true,
         changeOrigin: true,
-        rewriteWsOrigin: true,
       },
       '/health': {
         target: apiTarget,
@@ -25,6 +24,10 @@ export default defineConfig({
         target: apiTarget,
         changeOrigin: true,
       },
+      '/auth': { target: apiTarget, changeOrigin: true },
+      '/admin/users': { target: apiTarget, changeOrigin: true },
+      '/workspace': { target: apiTarget, changeOrigin: true },
+      '/settings': { target: apiTarget, changeOrigin: true },
     },
   },
 })

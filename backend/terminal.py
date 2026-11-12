@@ -13,7 +13,7 @@ from .scheduler import Entry
 log = logging.getLogger(__name__)
 
 
-async def bridge(websocket: WebSocket, entry: Entry, engine) -> None:
+async def bridge(websocket: WebSocket, entry: Entry, engine, session_valid=None) -> None:
     sock = None
     marker = None
     tasks = []
@@ -28,7 +28,7 @@ async def bridge(websocket: WebSocket, entry: Entry, engine) -> None:
             if isinstance(outcome, tuple):
                 terminal, marker, sock, _ = outcome
             raise
-        if entry.terminal_closed.is_set():
+        if entry.terminal_closed.is_set() or (session_valid is not None and not await asyncio.to_thread(session_valid)):
             return
         await websocket.accept(subprotocol="openlabscale")
         sock.setblocking(False)
@@ -59,7 +59,13 @@ async def bridge(websocket: WebSocket, entry: Entry, engine) -> None:
                     return
                 await asyncio.to_thread(engine.resize, terminal, rows, cols)
 
+        async def watch_session() -> None:
+            while await asyncio.to_thread(session_valid):
+                await asyncio.sleep(1)
+
         tasks = [asyncio.create_task(coro) for coro in (output(), input_frames(), entry.terminal_closed.wait())]
+        if session_valid is not None:
+            tasks.append(asyncio.create_task(watch_session()))
         done, _ = await asyncio.wait(tasks, return_when=asyncio.FIRST_COMPLETED)
         for task in done:
             task.result()
