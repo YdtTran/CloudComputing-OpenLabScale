@@ -1,0 +1,194 @@
+\documentclass[aspectratio=169]{beamer}
+\usetheme{Madrid}
+\usefonttheme{structurebold}
+\usefonttheme[onlymath]{serif}
+
+\definecolor{BKTemplate}{rgb}{0.11765, 0.30588, 0.47451}
+\usecolortheme[named=BKTemplate]{structure}
+\setbeamercolor{title}{fg=BKTemplate,bg=}
+\setbeamertemplate{caption}[numbered]
+
+% Engine-adaptive font configuration
+\usepackage{iftex}
+\ifLuaTeX
+  \usepackage{fontspec}
+  \setmainfont{Noto Sans}
+  \setsansfont{Noto Sans}
+  \setmonofont{Noto Sans Mono}
+\else\ifXeTeX
+  \usepackage{fontspec}
+  \setmainfont{Noto Sans}
+  \setsansfont{Noto Sans}
+  \setmonofont{Noto Sans Mono}
+\else
+  \usepackage[utf8]{inputenc}
+  \usepackage[T5,T1]{fontenc}
+\fi\fi
+
+\usepackage[english,vietnamese]{babel}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{colortbl}
+\usepackage{graphicx}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,decorations.pathreplacing}
+\usepackage{listings}
+
+\newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
+
+% Code listing configuration
+\lstset{
+  basicstyle=\ttfamily\fontsize{6.8}{8.2}\selectfont,
+  keywordstyle=\color{blue}\bfseries,
+  commentstyle=\color{gray!70!black},
+  stringstyle=\color{red!70!black},
+  breaklines=true,
+  frame=single,
+  backgroundcolor=\color{BKTemplate!5},
+  rulecolor=\color{BKTemplate!40},
+  tabsize=2,
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true
+}
+\lstdefinestyle{dense}{basicstyle=\ttfamily\fontsize{6.2}{7.2}\selectfont}
+
+% HCMUT backgrounds (skipped silently if the image files are missing)
+\newcommand{\setHCMUTFrontBackground}{%
+  \setbeamertemplate{background canvas}{%
+    \IfFileExists{images/FrontBackground.pdf}{%
+      \includegraphics[width=\paperwidth,height=\paperheight]{images/FrontBackground.pdf}%
+    }{}%
+  }%
+}
+\newcommand{\setHCMUTInnerBackground}{%
+  \setbeamertemplate{background canvas}{%
+    \IfFileExists{images/Background.pdf}{%
+      \includegraphics[width=\paperwidth,height=\paperheight]{images/Background.pdf}%
+    }{}%
+  }%
+}
+
+% Common TikZ styles
+\tikzset{
+  arr/.style={->, >=stealth, line width=1.2pt},
+  lbl/.style={font=\tiny, align=center, inner sep=1pt},
+  hw/.style={rectangle, draw=BKTemplate, fill=blue!10, rounded corners=2pt, align=center, line width=1pt, font=\scriptsize},
+  hwred/.style={hw, draw=red!80!black, fill=red!10},
+  hwgreen/.style={hw, draw=green!50!black, fill=green!10},
+  hworange/.style={hw, draw=orange!80!black, fill=orange!10}
+}
+
+
+%------------------------------------------------------------
+% Shared slide helpers
+%------------------------------------------------------------
+\tikzset{
+  key/.style={rectangle, rounded corners=3pt, draw=BKTemplate, fill=BKTemplate!8, line width=0.8pt, align=center, font=\small, inner sep=5pt},
+  big/.style={font=\Huge\bfseries, text=red!75!black}
+}
+
+% Shared styles used by the eBPF diagrams in chapters/.
+\tikzset{
+  ebpfuser/.style={key, fill=BKTemplate!8},
+  ebpfkernel/.style={key, draw=gray!65!black, fill=gray!7},
+  ebpfprogram/.style={key, draw=green!50!black, fill=green!10},
+  ebpfmap/.style={key, draw=orange!80!black, fill=orange!10}
+}
+
+\newcommand{\cue}[2]{%
+  \par\noindent\begin{tikzpicture}[baseline=-0.65ex]\node[circle, fill=BKTemplate, text=white, font=\scriptsize\bfseries, inner sep=0pt, minimum size=0.42cm]{#1};\end{tikzpicture}\hspace{0.18cm}{\small #2}\par\vspace{0.16cm}}
+
+
+% Chapter divider
+\newcommand{\ChapterDivider}[3]{%
+  \begin{frame}[plain]
+    \centering\vspace{1.4cm}
+    {\Large\textcolor{gray}{#1}}\\[0.25cm]
+    {\Huge\textbf{\textcolor{BKTemplate}{#2}}}\\[0.5cm]
+    {\normalsize #3}
+  \end{frame}}
+
+%------------------------------------------------------------
+% Title: edit the course, topic, subtitle, author and date below.
+% Thay các placeholder trong dấu ngoặc vuông bằng thông tin bài mới.
+%------------------------------------------------------------
+\title[eBPF]
+{%
+  \texorpdfstring{%
+    \vspace*{0.8cm}\\
+    \textbf{SEMINAR}\\[0.22cm]
+    \Large\textbf{eBPF -- Extended Berkeley Packet Filter}%
+  }{eBPF -- Extended Berkeley Packet Filter}%
+}
+\subtitle{Quan sát và xử lý sự kiện trong Linux kernel}
+\author[Tác giả]
+{%
+  \texorpdfstring{%
+    \textbf{[Họ và tên tác giả / nhóm]}\\
+    \textbf{Giảng viên: [Họ và tên]}%
+  }{[Họ và tên tác giả / nhóm], Giảng viên: [Họ và tên]}%
+}
+\date{[Ngày trình bày]}
+
+\begin{document}
+
+{
+\setHCMUTFrontBackground
+\begin{frame}[plain]
+  \titlepage
+\end{frame}
+}
+\setHCMUTInnerBackground
+
+\begin{frame}{Nội dung trình bày và thành viên}
+  \begin{center}
+    \begin{tikzpicture}[r/.style={rectangle, rounded corners=4pt, minimum width=4.2cm, minimum height=3.2cm, align=left, line width=1pt, text width=3.9cm, inner sep=5pt}]
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (a) at (0,0) {{\small\bfseries\color{BKTemplate} 1. Giới thiệu eBPF}\\[0.08cm]\footnotesize Nhu cầu quan sát Linux\\Khái niệm eBPF\\[0.18cm]{\small\bfseries\color{BKTemplate} 2. Kiến trúc eBPF}\\[0.08cm]\footnotesize Thành phần và luồng\\xử lý sự kiện};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (b) at (4.7,0) {{\small\bfseries\color{BKTemplate} 3. Phát triển\\và công cụ}\\[0.12cm]\footnotesize Quy trình triển khai\\Các công cụ eBPF\\Ví dụ \texttt{openat()}};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (c) at (9.4,0) {{\small\bfseries\color{BKTemplate} 4. Thực hành}\\[0.12cm]\footnotesize Kiểm tra môi trường\\Theo dõi \texttt{execve()}\\Đếm \texttt{openat()} theo \texttt{comm}};
+      \draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.2cm}
+  \begin{table}
+    \centering
+    \small
+    \renewcommand{\arraystretch}{1.25}
+    \begin{tabular}{l l l}
+      \toprule
+      \textbf{Phần phụ trách} & \textbf{MSSV} & \textbf{Họ và tên} \\
+      \midrule
+      Giới thiệu và kiến trúc & [MSSV] & [Họ và tên] \\
+      Phát triển và công cụ & [MSSV] & [Họ và tên] \\
+      Thực hành & [MSSV] & [Họ và tên] \\
+      \bottomrule
+    \end{tabular}
+  \end{table}
+\end{frame}
+
+% Bốn chương lấy nội dung từ chaptersnew/ và dùng layout trong chapters/.
+% Chapter 5 không nằm trong bản trình chiếu này.
+\input{chapters/chapter01}
+\input{chapters/chapter02}
+\input{chapters/chapter03}
+\input{chapters/chapter04}
+
+{
+\setHCMUTFrontBackground
+\begin{frame}[plain]
+  \centering
+  \vspace{1.5cm}
+  {\Huge\textbf{\textcolor{BKTemplate}{CẢM ƠN THẦY VÀ CÁC BẠN}}}\\[0.4cm]
+  {\Large\textbf{\textcolor{BKTemplate}{ĐÃ LẮNG NGHE}}}\\[1.2cm]
+  \textbf{Hỏi đáp \& Thảo luận (Q\&A)}\\[0.3cm]
+  \textsl{[Đơn vị / lớp / nhóm thực hiện]}
+\end{frame}
+}
+
+\end{document}

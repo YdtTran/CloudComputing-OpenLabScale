@@ -1,0 +1,26 @@
+{
+    "latex-workshop.latex.autoBuild.run": "onSave",
+    "latex-workshop.latex.option.maxPrintLine.enabled": false,
+    "latex-workshop.latex.recipe.default": "latexmk (pdfLaTeX)",
+    "latex-workshop.latex.recipes": [
+        {
+            "name": "latexmk (pdfLaTeX)",
+            "tools": ["latexmk-pdflatex"]
+        }
+    ],
+    "latex-workshop.latex.tools": [
+        {
+            "name": "latexmk-pdflatex",
+            "command": "latexmk",
+            "args": [
+                "-pdf",
+                "-synctex=1",
+                "-interaction=nonstopmode",
+                "-file-line-error",
+                "-halt-on-error",
+                "-outdir=%OUTDIR%",
+                "%DOC%"
+            ]
+        }
+    ]
+}

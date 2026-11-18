@@ -1,0 +1,46 @@
+# LaTeX intermediate files
+*.aux
+*.fdb_latexmk
+*.fls
+*.log
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
+*.xdv
+*.dvi
+*.synctex
+*.synctex(busy)
+*.synctex.gz(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.lof
+*.lot
+*.lol
+*.loa
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.glsdefs
+*.idx
+*.ilg
+*.ind
+*.nlo
+*.nls
+*.thm
+*.tdo
+*.spl
+
+# Only the compiled document PDF; keep PDF assets in images/.
+/main.pdf
+
+# Generated build directories.
+build/
+.template-work/

@@ -1,0 +1,93 @@
+% Chapter 01 — Introduction: Why eBPF?
+% Yêu cầu từ main: \ChapterDivider{...}{...}{...}; không cần khai báo lại macro.
+\section{Chương 1: Giới thiệu eBPF}
+\ChapterDivider{Chương 1}{Giới thiệu eBPF}{Từ nhu cầu quan sát Linux đến công nghệ eBPF}
+
+\begin{frame}{Vì sao cần quan sát hoạt động bên trong Linux?}
+  \begin{block}{Một tình huống quen thuộc}
+    Một máy chủ Linux chạy nhiều dịch vụ cùng lúc. Khi có sự cố, log ứng dụng
+    không phải lúc nào cũng cho biết điều gì diễn ra trong kernel.
+  \end{block}
+  \vspace{0.13cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Ta muốn biết điều gì?}
+        \begin{itemize}
+          \item Tiến trình nào đang mở tệp hoặc giao tiếp mạng?
+          \item Những system call nào được thực hiện?
+          \item CPU và I/O đang được sử dụng như thế nào?
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Vấn đề thực tế}
+        \centering
+        \textbf{Nhiều tiến trình}\\[0.14cm]
+        $\downarrow$\\[0.14cm]
+        \textbf{Linux kernel}\\[0.14cm]
+        \footnotesize{File system \quad Network \quad Scheduler}
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.10cm}
+  \centering\textbf{Câu hỏi:} Làm sao theo dõi các sự kiện này\ mà không cần sửa mã nguồn ứng dụng?
+\end{frame}
+
+\begin{frame}{Linux đã có những cách quan sát nào?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Application logging}
+        Ghi những thông tin mà ứng dụng chủ động cung cấp.
+        Muốn thêm một sự kiện vào log có thể phải sửa ứng dụng.
+      \end{block}
+      \begin{block}{\texttt{strace}}
+        Theo dõi các system call của tiến trình; hữu ích khi cần xem
+        một chương trình tương tác với kernel ra sao.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{\texttt{perf}}
+        Thu thập và phân tích dữ liệu hoạt động, hiệu năng; cách lấy mẫu
+        và chi phí quan sát phụ thuộc phép đo.
+      \end{block}
+      \begin{block}{Kernel module}
+        Có thể bổ sung chức năng cho kernel, nhưng mã chạy với đặc quyền cao;
+        sai sót có thể ảnh hưởng toàn hệ thống.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.02cm}
+  \begin{alertblock}{eBPF nằm ở đâu trong bức tranh này?}
+    eBPF là \textbf{một lựa chọn bổ sung} để xử lý sự kiện tại các hook được kernel hỗ trợ.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{eBPF là gì?}
+  \begin{block}{Khái niệm}
+    \textbf{eBPF} cho phép nạp và chạy những chương trình đã được kernel kiểm tra,
+    nhằm theo dõi hoặc xử lý sự kiện tại các \textit{hook} tương thích.
+  \end{block}
+  \vspace{0.16cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Theo sự kiện}
+        Một sự kiện phù hợp kích hoạt chương trình eBPF được gắn vào hook.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Xử lý tại kernel}
+        Có thể lọc hoặc tổng hợp dữ liệu trước khi gửi ra User Space.
+      \end{block}
+    \end{column}
+    \begin{column}{0.32\textwidth}
+      \begin{block}{Chia sẻ kết quả}
+        Ứng dụng ở User Space nhận sự kiện hoặc đọc dữ liệu từ map.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.16cm}
+  \begin{alertblock}{Điều cần nhớ}
+    eBPF không chỉ dùng để lọc gói tin: nó còn phục vụ quan sát hệ thống,
+    xử lý mạng và một số cơ chế bảo mật.
+  \end{alertblock}
+\end{frame}

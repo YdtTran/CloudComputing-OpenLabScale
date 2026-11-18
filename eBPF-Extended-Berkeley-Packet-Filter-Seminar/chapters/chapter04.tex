@@ -1,0 +1,48 @@
+% Chapter 04: chỉ bổ sung kết quả từ môi trường demo thật.
+\section{Chương 4: Thực hành}
+\ChapterDivider{Chương 4}{Thực hành}{Kiểm tra môi trường, theo dõi system call và thống kê sự kiện}
+
+% Giữ khung nét đứt và màu của bộ slide hiện có.
+\newcommand{\DemoPlaceholder}[5][Mục tiêu]{%
+  \begin{frame}{#2}
+    \begin{block}{#1}
+      \small #3
+    \end{block}
+    \vspace{0.12cm}
+    \begin{center}
+      \begin{tikzpicture}
+        \node[rectangle, draw=BKTemplate!60, dashed, line width=0.8pt,
+          text width=12.5cm, minimum height=#5,
+          text=gray, align=center, font=\small, inner sep=0.25cm] {#4};
+      \end{tikzpicture}
+    \end{center}
+    {\small\textcolor{BKTemplate}{\textbf{TODO: Demo content will be added later}}}
+  \end{frame}%
+}
+
+\DemoPlaceholder[Ba nội dung thực hành]{Thực hành: từ sơ đồ đến sự kiện thật}
+  {\cue{1}{\textbf{Kiểm tra môi trường}: kernel, công cụ và quyền sử dụng BPF.}
+   \cue{2}{\textbf{Theo dõi \texttt{execve()}}: tiến trình và chương trình được yêu cầu thực thi.}
+   \cue{3}{\textbf{Đếm \texttt{openat()}}: nhóm theo \texttt{comm} bằng map, đọc ở User Space.}}
+  {Sơ đồ tổng quan hoặc ảnh môi trường demo\\[0.20cm]
+   \footnotesize Bổ sung sau khi chạy thử trên máy của nhóm.}
+  {2.7cm}
+
+\DemoPlaceholder{Demo 1: Kiểm tra môi trường eBPF}
+  {Xác nhận phiên bản Linux kernel, công cụ, quyền chạy và các tính năng eBPF được máy demo hỗ trợ.}
+  {Terminal hoặc ảnh chụp kết quả kiểm tra\\[0.20cm]
+   \footnotesize Sử dụng kết quả từ chính môi trường demo của nhóm.}
+  {3.15cm}
+
+\DemoPlaceholder{Demo 2: Theo dõi system call \texttt{execve()}}
+  {Ghi nhận PID và đường dẫn chương trình được yêu cầu thực thi khi tiến trình gọi \texttt{execve()}.}
+  {Câu lệnh, terminal và kết quả tracing\\[0.20cm]
+   \footnotesize Sự kiện tại entry ghi nhận yêu cầu, chưa xác nhận lời gọi thành công.}
+  {3.15cm}
+
+\DemoPlaceholder{Demo 3: Thống kê \texttt{openat()} bằng map}
+  {Đếm \texttt{openat()} theo \texttt{comm} (tên tác vụ/tiến trình), lưu trong map và xem thống kê từ User Space.}
+  {Câu lệnh, bảng đếm và phân tích đầu ra\\[0.20cm]
+   \footnotesize \texttt{comm} không phải PID và có thể trùng giữa các tiến trình.\\[0.12cm]
+   Số liệu chỉ được bổ sung sau khi thực hiện demo thật.}
+  {3.15cm}

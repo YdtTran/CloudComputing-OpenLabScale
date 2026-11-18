@@ -1,0 +1,56 @@
+% Chapter 04 — Practice placeholders only (no fabricated outputs)
+\section{Chương 4: Thực hành}
+\ChapterDivider{Chương 4}{Thực hành}{Kiểm tra môi trường, theo dõi system call và thống kê sự kiện}
+
+\begin{frame}{Thực hành: từ sơ đồ đến sự kiện thật}
+  \begin{block}{Ba nội dung sẽ thực hiện}
+    \cue{1}{\textbf{Kiểm tra môi trường}: kernel, công cụ và quyền sử dụng BPF.}
+    \cue{2}{\textbf{Theo dõi \texttt{execve()}}: quan sát khi tiến trình yêu cầu chạy chương trình.}
+    \cue{3}{\textbf{Đếm \texttt{openat()}}: nhóm các lời gọi theo tên chương trình bằng map.}
+  \end{block}
+  \vspace{0.25cm}
+  \begin{center}
+    \fbox{\parbox[c][2.5cm][c]{0.86\textwidth}{\centering
+      \textit{PLACEHOLDER — Sơ đồ tổng quan hoặc ảnh môi trường demo}\\[0.2cm]
+      \footnotesize{Bổ sung sau khi chạy thử trên máy của nhóm.}}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Demo 1 — Kiểm tra môi trường eBPF}
+  \begin{block}{Mục tiêu}
+    Xác nhận phiên bản Linux kernel, các công cụ cần thiết, quyền chạy và
+    những tính năng eBPF mà máy demo hỗ trợ.
+  \end{block}
+  \vspace{0.22cm}
+  \begin{center}
+    \fbox{\parbox[c][4.0cm][c]{0.88\textwidth}{\centering
+      \textit{PLACEHOLDER — Terminal / ảnh chụp kết quả kiểm tra}\\[0.2cm]
+      \footnotesize{Không chèn kết quả của môi trường khác.}}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Demo 2 — Theo dõi system call \texttt{execve()}}
+  \begin{block}{Mục tiêu}
+    Quan sát một tiến trình gọi \texttt{execve()} và hiển thị thông tin
+    nhận dạng tiến trình, đường dẫn chương trình được yêu cầu thực thi.
+  \end{block}
+  \vspace{0.22cm}
+  \begin{center}
+    \fbox{\parbox[c][4.0cm][c]{0.88\textwidth}{\centering
+      \textit{PLACEHOLDER — Câu lệnh, terminal và kết quả tracing}\\[0.2cm]
+      \footnotesize{Đây là sự kiện tại entry; không tự suy ra lời gọi đã thành công.}}}
+  \end{center}
+\end{frame}
+
+\begin{frame}{Demo 3 — Thống kê \texttt{openat()} bằng map}
+  \begin{block}{Mục tiêu}
+    Đếm số lần gọi \texttt{openat()} theo \texttt{comm} (tên tác vụ/tiến trình)
+    và xem thống kê từ User Space.
+  \end{block}
+  \vspace{0.22cm}
+  \begin{center}
+    \fbox{\parbox[c][4.0cm][c]{0.88\textwidth}{\centering
+      \textit{PLACEHOLDER — Câu lệnh, bảng đếm và phân tích đầu ra}\\[0.2cm]
+      \footnotesize{Số liệu chỉ được đưa vào sau khi thực hiện demo thật.}}}
+  \end{center}
+\end{frame}

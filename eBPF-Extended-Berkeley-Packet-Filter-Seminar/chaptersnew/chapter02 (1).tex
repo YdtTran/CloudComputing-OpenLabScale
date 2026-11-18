@@ -1,0 +1,103 @@
+% Chapter 02 — eBPF Architecture
+\section{Chương 2: Kiến trúc eBPF}
+\ChapterDivider{Chương 2}{Kiến trúc eBPF}{Chương trình chạy ở đâu và các thành phần phối hợp thế nào?}
+
+\begin{frame}{eBPF nằm ở đâu trong Linux?}
+  \begin{block}{USER SPACE}
+    Ứng dụng thông thường chạy ở đây. Công cụ như \texttt{bpftrace} hoặc
+    ứng dụng sử dụng \texttt{libbpf} nạp chương trình và thu thập kết quả.
+  \end{block}
+  \vspace{-0.08cm}
+  \begin{center}
+    $\Big\downarrow\ \text{system call / BPF API}\ \Big\downarrow$
+  \end{center}
+  \vspace{-0.08cm}
+  \begin{block}{KERNEL SPACE}
+    Linux kernel quản lý tiến trình, bộ nhớ, tệp và mạng. Chương trình
+    eBPF hoạt động tại những \textbf{hook được hỗ trợ} trong ngữ cảnh phù hợp.
+  \end{block}
+  \vspace{-0.08cm}
+  \begin{center}
+    $\Big\downarrow\ \text{quản lý thiết bị}\ \Big\downarrow$
+  \end{center}
+  \vspace{-0.08cm}
+  \begin{block}{HARDWARE}
+    CPU \quad | \quad RAM \quad | \quad Thiết bị I/O
+  \end{block}
+\end{frame}
+
+\begin{frame}{Kiến trúc eBPF: hai giai đoạn khác nhau}
+  \begin{block}{A. Chuẩn bị chương trình (trước khi xử lý sự kiện)}
+    \centering
+    \textbf{Userspace loader} $\longrightarrow$ \textbf{Load + Verifier}
+    $\longrightarrow$ \textbf{eBPF Program} $\longrightarrow$ \textbf{Attach vào hook}
+    \\[0.1cm]
+    \footnotesize{JIT (nếu được hỗ trợ/bật) có thể dịch bytecode sang mã máy; không phải hook.}
+  \end{block}
+  \vspace{0.15cm}
+  \begin{block}{B. Khi sự kiện xảy ra (thời điểm chạy)}
+    \centering
+    \textbf{Kernel event} $\longrightarrow$ \textbf{Hook}
+    $\longrightarrow$ \textbf{eBPF Program} $\longrightarrow$ \textbf{Map / event output}
+    \\[0.1cm]
+    \textbf{Userspace application} $\longleftarrow$ \textbf{Kết quả}
+  \end{block}
+  \vspace{0.13cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Trong kernel}
+        Program truy cập map qua helper hoặc cơ chế phù hợp.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Ở User Space}
+        Ứng dụng truy cập map qua \texttt{bpf()} hoặc API như \texttt{libbpf}.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Bốn thành phần quan trọng nhất}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{eBPF Program}
+        Chứa logic xử lý; chạy trong ngữ cảnh phù hợp với loại chương trình.
+      \end{block}
+      \begin{block}{Hook}
+        Điểm gắn chương trình: ví dụ \textit{tracepoint}, \textit{kprobe}, XDP.
+        Không phải program nào cũng gắn được vào mọi hook.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{eBPF Map}
+        Cấu trúc dữ liệu lưu trạng thái, bộ đếm hoặc chia sẻ thông tin
+        với User Space.
+      \end{block}
+      \begin{block}{Verifier}
+        Kiểm tra luồng điều khiển, truy cập bộ nhớ và thao tác được phép
+        khi kernel nạp chương trình.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.16cm}
+  \begin{alertblock}{Một giới hạn cần nhớ}
+    Verifier kiểm tra các điều kiện an toàn, \textbf{không} bảo đảm chương trình
+    luôn đúng logic hoặc không gây chi phí xử lý.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Điều gì xảy ra khi một sự kiện được ghi nhận?}
+  \begin{block}{Ví dụ khái quát: một system call đi vào kernel}
+    \centering
+    \textbf{System call} $\longrightarrow$ \textbf{Tracepoint / Hook}
+    $\longrightarrow$ \textbf{eBPF Program}\\[0.15cm]
+    $\Big\downarrow$\\[0.12cm]
+    \textbf{Lọc / lấy thông tin / cập nhật bộ đếm}\\[0.15cm]
+    $\Big\downarrow$\\[0.12cm]
+    \textbf{Map hoặc cơ chế gửi sự kiện} $\longrightarrow$ \textbf{User Space}
+  \end{block}
+  \vspace{0.2cm}
+  \cue{1}{Chương trình phải được \textbf{nạp và gắn trước} khi sự kiện xảy ra.}
+  \cue{2}{Một hook chỉ kích hoạt các chương trình được gắn phù hợp.}
+  \cue{3}{Dữ liệu thu thập tùy vào program type, hook và logic được viết.}
+\end{frame}

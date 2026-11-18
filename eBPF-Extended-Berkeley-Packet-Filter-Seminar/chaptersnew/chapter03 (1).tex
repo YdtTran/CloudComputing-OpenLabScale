@@ -1,0 +1,78 @@
+% Chapter 03 — Development Workflow & Tools
+\section{Chương 3: Phát triển và công cụ}
+\ChapterDivider{Chương 3}{Phát triển và công cụ}{Từ mã nguồn đến quan sát được sự kiện thật}
+
+\begin{frame}{Quy trình phát triển eBPF (ví dụ bằng C)}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \cue{1}{\textbf{Write}: viết chương trình eBPF bằng C.}
+      \vspace{0.18cm}
+      \cue{2}{\textbf{Compile}: Clang/LLVM tạo eBPF bytecode trong tệp object.}
+      \vspace{0.18cm}
+      \cue{3}{\textbf{Load + Verify}: loader yêu cầu kernel nạp; Verifier kiểm tra.}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \cue{4}{\textbf{Attach}: gắn program vào hook tương thích.}
+      \vspace{0.18cm}
+      \cue{5}{\textbf{Execute}: sự kiện phù hợp kích hoạt program.}
+      \vspace{0.18cm}
+      \cue{6}{\textbf{Collect}: đọc map hoặc nhận các sự kiện ở User Space.}
+    \end{column}
+  \end{columns}
+  \vspace{0.15cm}
+  \begin{block}{Hai điểm dễ nhầm}
+    \textbf{Load} không đồng nghĩa với \textbf{Attach}. JIT là tùy chọn;
+    công cụ cấp cao có thể tự xử lý nhiều bước thay người dùng.
+  \end{block}
+\end{frame}
+
+\begin{frame}{Các công cụ eBPF dùng để làm gì?}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.49\textwidth}
+      \begin{block}{\texttt{bpftrace} — tracing nhanh}
+        Viết và chạy các phép theo dõi bằng cú pháp ngắn; phù hợp để
+        minh họa sự kiện trong demo.
+      \end{block}
+      \begin{block}{\texttt{bpftool} — kiểm tra hệ thống}
+        Xem tính năng BPF được kernel hỗ trợ, quản lý program, map, link.
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{\texttt{libbpf} — phát triển ứng dụng C}
+        Thư viện hỗ trợ nạp, gắn và quản lý chương trình eBPF.
+      \end{block}
+      \begin{block}{BCC — bộ công cụ tracing}
+        Công cụ và thư viện để quan sát, phân tích hành vi và hiệu năng hệ thống.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.12cm}
+  \begin{alertblock}{Lựa chọn cho phần thực hành}
+    \texttt{bpftool} để kiểm tra môi trường; \texttt{bpftrace} để quan sát
+    system call và đếm sự kiện mà chưa cần tự xây dựng loader bằng C.
+  \end{alertblock}
+\end{frame}
+
+\begin{frame}{Ví dụ xuyên suốt: theo dõi lời gọi \texttt{openat()}}
+  \begin{block}{Ta muốn quan sát điều gì?}
+    Đếm số lần các chương trình gọi \texttt{openat()} để yêu cầu mở tệp
+    hoặc thư mục, rồi xem thống kê theo tên chương trình.
+  \end{block}
+  \vspace{0.14cm}
+  \begin{center}
+    \small
+    \fbox{\parbox{0.16\textwidth}{\centering Application\\\texttt{openat()}}}
+    $\rightarrow$
+    \fbox{\parbox{0.24\textwidth}{\centering Tracepoint\\\texttt{sys\_enter\_openat}}}
+    $\rightarrow$
+    \fbox{\parbox{0.17\textwidth}{\centering eBPF\\Program}}
+    $\rightarrow$
+    \fbox{\parbox{0.12\textwidth}{\centering Map\\count}}
+  \end{center}
+  \begin{center}
+    $\longrightarrow$ \textbf{bpftrace đọc map và hiển thị thống kê theo \texttt{comm}}
+  \end{center}
+  \vspace{0.1cm}
+  \cue{1}{\texttt{comm} là tên tác vụ/tiến trình do kernel cung cấp, \textbf{không phải} PID.}
+  \cue{2}{Tracepoint ở \textit{entry} ghi nhận lời gọi, \textbf{không} xác nhận mở tệp thành công.}
+\end{frame}

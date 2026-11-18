@@ -1,0 +1,96 @@
+% Nội dung: chaptersnew/chapter01 (1).tex; trình bày theo các layout trong chapters/.
+\section{Chương 1: Giới thiệu eBPF}
+\ChapterDivider{Chương 1}{Giới thiệu eBPF}{Từ nhu cầu quan sát Linux đến công nghệ eBPF}
+
+\begin{frame}{Quan sát hoạt động bên trong Linux}
+  \small
+  \textbf{Bối cảnh:} Nhiều dịch vụ cùng chạy trên Linux. Log ứng dụng có thể
+  chưa phản ánh đầy đủ hoạt động trong kernel.
+  \vspace{0.18cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.36\textwidth}
+      \begin{block}{Cần quan sát}
+        \begin{itemize}
+          \item Tiến trình nào truy cập file hoặc mạng?
+          \item System call nào được gọi?
+          \item CPU, I/O được dùng ra sao?
+        \end{itemize}
+      \end{block}
+    \end{column}
+    \begin{column}{0.60\textwidth}
+      \centering
+      \begin{tikzpicture}
+        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (web) at (0,0) {Web Server};
+        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (db) at (2.9,0) {Database};
+        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (bg) at (5.8,0) {Tiến trình nền};
+        \node[ebpfkernel, text width=7.8cm, minimum height=1.8cm] (kernel) at (2.9,-1.95) {};
+        \node[font=\small\bfseries] at (2.9,-1.4) {Linux kernel};
+        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (0.15,-2.12) {File System};
+        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (2.9,-2.12) {Network Stack};
+        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (5.65,-2.12) {Scheduler};
+        \draw[arr] (web.south) -- (web.south |- kernel.north);
+        \draw[arr] (db.south) -- (db.south |- kernel.north);
+        \draw[arr] (bg.south) -- (bg.south |- kernel.north);
+      \end{tikzpicture}
+    \end{column}
+  \end{columns}
+  \vspace{0.22cm}
+  \centering\textbf{Quan sát các sự kiện này mà không sửa mã nguồn ứng dụng?}
+  \note{Các subsystem là chức năng dùng chung, không ghép một-một với các tiến trình. Sơ đồ mô tả quan hệ, không phải trình tự thực thi.}
+\end{frame}
+
+\begin{frame}{Các phương pháp truyền thống}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{Application logging}
+        Ứng dụng chủ động ghi sự kiện.\\
+        Thêm log có thể cần sửa mã.
+      \end{block}
+      \begin{block}{\texttt{strace}}
+        Theo dõi system calls và tương tác tiến trình với kernel.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\texttt{perf}}
+        Thu thập, phân tích hoạt động và hiệu năng.\\
+        Lấy mẫu, chi phí tùy phép đo.
+      \end{block}
+      \begin{block}{Kernel module}
+        Mở rộng kernel bằng mã đặc quyền cao.\\
+        Lỗi có thể ảnh hưởng toàn hệ thống.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.20cm}
+  \textbf{eBPF} bổ sung cách xử lý sự kiện tại hook được kernel hỗ trợ.
+\end{frame}
+
+\begin{frame}{eBPF là gì?}
+  \small
+  \textbf{eBPF} cho phép nạp, chạy chương trình đã được kernel kiểm tra
+  để quan sát hoặc xử lý sự kiện tại \textsl{hook} tương thích.
+  \vspace{0.22cm}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[ebpfuser, text width=3.8cm, minimum height=2.8cm, align=left] (event) at (0,0)
+        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
+          \textbf{1. Theo sự kiện}\\[0.18cm]
+          Sự kiện phù hợp tại hook kích hoạt chương trình eBPF.
+        \end{minipage}};
+      \node[ebpfprogram, text width=3.8cm, minimum height=2.8cm, align=left] (process) at (4.7,0)
+        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
+          \textbf{2. Xử lý tại kernel}\\[0.18cm]
+          Có thể lọc, tổng hợp trước khi gửi về \mbox{User Space}.
+        \end{minipage}};
+      \node[ebpfmap, text width=3.8cm, minimum height=2.8cm, align=left] (share) at (9.4,0)
+        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
+          \textbf{3. Chia sẻ kết quả}\\[0.18cm]
+          User Space nhận sự kiện hoặc đọc dữ liệu từ eBPF Map.
+        \end{minipage}};
+      \draw[arr] (event.east) -- (process.west);
+      \draw[arr] (process.east) -- (share.west);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.10cm}
+  \centering\textbf{Ngoài lọc gói tin:} quan sát hệ thống, xử lý mạng và bảo mật.
+\end{frame}
