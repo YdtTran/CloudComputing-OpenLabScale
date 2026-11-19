@@ -1,0 +1,26 @@
+BEGIN
+{
+    @slow[(uint64)$1] = sum(0);
+    @slow[(uint64)$2] = sum(0);
+    printf("READY\n");
+}
+
+tracepoint:syscalls:sys_enter_read
+/(cgroup == $1 || cgroup == $2) && args.fd == 99/
+{
+    @start[tid] = nsecs;
+}
+
+tracepoint:syscalls:sys_exit_read
+/@start[tid]/
+{
+    if (args.ret > 0 && nsecs - @start[tid] > 200000000) {
+        @slow[cgroup] = sum(1);
+    }
+    delete(@start[tid]);
+}
+
+interval:s:5
+{
+    print(@slow);
+}

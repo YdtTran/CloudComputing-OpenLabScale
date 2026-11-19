@@ -1,41 +1,46 @@
-# Kịch bản Part 1 - Introduction: Why eBPF?
+# Kịch bản seminar eBPF
 
-Phạm vi: slide 4, 5 và 6 (sau trang chia Chương 1). Thời lượng dự kiến khoảng **4 phút 30 giây**, gồm các khoảng dừng ngắn để chỉ sơ đồ. Chỉ đọc phần **Lời thuyết trình** và **Chuyển tiếp** khi trình bày. Phần thuật ngữ và nguồn dành cho người thuyết trình chuẩn bị trước.
+| Phần | Trang PDF | Thời lượng mục tiêu |
+| --- | --- | ---: |
+| Giới thiệu | 1–9 | 6 phút |
+| Kiến trúc eBPF | 10–15 | 9 phút |
+| Phát triển và công cụ | 16–20 | 6 phút |
+| eBPF trong hệ thống thật | 21–27 | 7 phút |
+| Demo và kết luận | 28–29 | 2 phút |
+| **Tổng** | | **30 phút** |
 
-## Slide 4 - Quan sát hoạt động bên trong Linux
+## Slide 4 - Container này có đang được sử dụng?
 
-**Thời lượng:** khoảng 1 phút 15 giây.
+**Thời lượng:** khoảng 1 phút.
 
 ### Mục tiêu
 
-Giúp người nghe thấy nhu cầu quan sát hoạt động của nhiều tiến trình trên máy chủ Linux mà không phải sửa mã nguồn các ứng dụng đang chạy.
+Giúp người nghe thấy vì sao cần quan sát I/O của từng container trước khi cân nhắc thu hồi tài nguyên.
 
 ### Lời thuyết trình
 
-Hãy hình dung một máy chủ Linux đang phục vụ website. Trên cùng máy đó có Web Server nhận yêu cầu từ người dùng, Database lưu dữ liệu và các chương trình chạy nền thực hiện công việc định kỳ. Những tiến trình này cùng sử dụng các dịch vụ mà kernel cung cấp.
+Trong một hệ thống tính toán dùng chung, mỗi phiên làm việc có thể chạy trong một container. Bảng giám sát cho thấy một container dùng rất ít CPU. Liệu số liệu đó có đủ để cân nhắc thu hồi tài nguyên?
 
-Nhìn vào sơ đồ, cả ba tiến trình đều tương tác với Linux kernel. Một tiến trình có thể mở, đọc hoặc ghi file, gửi và nhận dữ liệu mạng, đồng thời sử dụng CPU và bộ nhớ. Trong kernel, File System xử lý các thao tác liên quan đến file, Network Stack xử lý giao tiếp mạng, còn Scheduler phân phối thời gian CPU. Các khối này minh họa những chức năng dùng chung, không phải mỗi tiến trình chỉ dùng một chức năng riêng.
+Một ví dụ là người dùng đang tải một bộ dữ liệu lớn. Container có thể dùng ít CPU trong lúc vẫn nhận dữ liệu qua mạng và ghi xuống đĩa. Cả hai hoạt động đều là dấu hiệu container vẫn đang xử lý công việc.
 
-Giả sử website phản hồi chậm. Người quản trị cần biết tiến trình nào đang truy cập file nhiều, những system call nào đang diễn ra hoặc tài nguyên đang tập trung ở đâu. Chỉ nhìn kết quả mà ứng dụng trả về thường chưa đủ để trả lời. Ta cần theo dõi những hoạt động đó ngay khi hệ thống đang chạy, kể cả khi không thuận tiện sửa mã nguồn ứng dụng để bổ sung thông tin.
+Trước khi quyết định, ta muốn biết container đó có đang đọc hoặc ghi dữ liệu, gửi hoặc nhận dữ liệu qua mạng hay không. Đó là những hoạt động vào và ra, gọi tắt là I/O. Câu hỏi đặt ra là làm sao quan sát được các hoạt động này trên từng container?
 
 ### Thuật ngữ
 
-- **Tiến trình:** một chương trình đang thực thi. Web Server phục vụ yêu cầu web, Database quản lý dữ liệu, còn Background Process thực hiện công việc nền.
-- **Linux kernel:** phần lõi của hệ điều hành, quản lý tài nguyên và cung cấp các dịch vụ cho ứng dụng.
-- **System call:** giao diện để tiến trình yêu cầu dịch vụ của kernel, chẳng hạn đọc file hoặc gửi dữ liệu. Không phải mọi lần tiến trình dùng CPU hay truy cập bộ nhớ đều cần một system call riêng.
-- **File System, Network Stack, Scheduler:** lần lượt là các thành phần xử lý hệ thống file, giao tiếp mạng và lập lịch CPU. Sơ đồ thể hiện quan hệ giữa tiến trình với kernel, không mô tả trình tự đầy đủ của một lần thực thi.
+- **Container:** môi trường riêng để chạy các chương trình trong một phiên tính toán.
+- **I/O:** hoạt động vào và ra, chẳng hạn đọc, ghi dữ liệu hoặc gửi, nhận dữ liệu qua mạng. Xem I/O cùng với CPU khi đánh giá hoạt động của container.
 
 ### Chuyển tiếp
 
-Để quan sát những hoạt động này, trước hết ta xem các phương pháp đã có và những điều cần cân nhắc khi sử dụng.
+Khi thấy có hoạt động đọc, ghi hoặc truyền dữ liệu, câu hỏi tiếp theo là chương trình nào tạo ra hoạt động đó. Linux có nhiều công cụ quan sát cho câu hỏi này.
 
 ### Nguồn
 
-[Linux system calls](https://man7.org/linux/man-pages/man2/syscalls.2.html).
+[Phạm vi đo của dự án](../measured/README.md).
 
 ## Slide 5 - Các phương pháp truyền thống
 
-**Thời lượng:** khoảng 1 phút 35 giây.
+**Thời lượng:** khoảng 1 phút.
 
 ### Mục tiêu
 
@@ -61,45 +66,128 @@ Những phương pháp này đáp ứng các nhu cầu khác nhau và vẫn có 
 
 ### Chuyển tiếp
 
-Vậy eBPF cung cấp khả năng xử lý sự kiện đó như thế nào ở mức khái niệm?
+Các công cụ này cung cấp dữ liệu quan sát. Với eBPF, logic tổng hợp còn có thể chạy trong kernel.
 
 ### Nguồn
 
 [Python Logging HOWTO](https://docs.python.org/3/howto/logging.html), [strace](https://strace.io/), [Linux perf wiki](https://perfwiki.github.io/main/), [Linux kernel: External Modules](https://docs.kernel.org/kbuild/modules.html).
 
-## Slide 6 - eBPF là gì?
+## Slide 6 — eBPF mở rộng khả năng của Linux kernel
 
-**Thời lượng:** khoảng 1 phút 40 giây.
+**Thời lượng:** khoảng 1 phút.
 
-### Mục tiêu
+Sửa mã nguồn kernel và viết kernel module là hai cách bổ sung chức năng ở mức kernel. Với một phép đo tại hook có sẵn, eBPF cung cấp cách nạp logic vào kernel đang chạy. Kernel kiểm tra chương trình trước khi chấp nhận. Ví dụ, bộ đếm yêu cầu mở tệp có thể chạy mà không cần sửa ứng dụng hoặc khởi động lại máy chủ.
 
-Giới thiệu eBPF qua thực thi theo sự kiện, xử lý trong kernel và chia sẻ dữ liệu với User Space, đồng thời nêu ngắn gọn phạm vi ứng dụng.
+Phép thử đọc chậm sau đây cho thấy dữ liệu đầu ra thay đổi thế nào khi logic tổng hợp chạy ngay trong kernel.
+
+## Slide 7 — Phép thử đếm lượt đọc chậm theo container
+
+**Thời lượng:** khoảng 30 giây.
 
 ### Lời thuyết trình
 
-eBPF cho phép chạy các chương trình đã qua kiểm tra trong Linux kernel để theo dõi hoặc xử lý sự kiện tại những hook được hỗ trợ. Hook có thể hiểu là một điểm mà kernel cho phép gắn logic phù hợp. Ở đây, ta chỉ cần nắm ba ý chính.
+Giả sử đội vận hành muốn biết container nào thường xuyên phải chờ dữ liệu. Ta dùng hai container chạy cùng một chương trình. Mỗi bên đọc 20 lần từ một ống dữ liệu. Ở container A, dữ liệu có sẵn trước khi đọc. Ở container B, bên cấp dữ liệu chờ khoảng 320 ms ở bốn lượt. Hai công cụ quan sát chạy đồng thời và cùng dùng ngưỡng 200 ms.
 
-Thứ nhất là Event-driven Execution. Khi sự kiện phù hợp xảy ra tại hook tương ứng, kernel có thể thực thi chương trình eBPF đã gắn ở đó. Ví dụ, ta có thể theo dõi một sự kiện liên quan đến system call mà tiến trình thực hiện.
-
-Thứ hai là In-kernel Processing. Chương trình có thể lọc dữ liệu hoặc tổng hợp kết quả ngay trong kernel. Chẳng hạn, nếu chỉ cần số lần một sự kiện xảy ra, ta có thể cập nhật bộ đếm thay vì chuyển nguyên vẹn từng sự kiện về ứng dụng. Như vậy, lượng dữ liệu cần chuyển về User Space có thể giảm tùy cách thiết kế.
-
-Thứ ba là Data Collection & Sharing. Chương trình eBPF có thể lưu kết quả trong cấu trúc như eBPF Map. Ứng dụng ở User Space đọc dữ liệu qua API phù hợp rồi hiển thị hoặc phân tích tiếp. Với ví dụ bộ đếm, ứng dụng đọc giá trị đã tổng hợp để người quản trị xem.
-
-eBPF còn có phạm vi rộng hơn packet filtering. Công nghệ này được dùng trong Observability để quan sát hoạt động, Networking để xử lý mạng và Security để hỗ trợ bảo mật. Ở phần giới thiệu, ta chỉ cần nhận diện các lĩnh vực này. Khả năng cụ thể vẫn phụ thuộc vào hook, loại chương trình và kernel hỗ trợ.
-
-### Thuật ngữ
-
-- **eBPF Program:** chương trình được kernel kiểm tra trước khi chấp nhận nạp, thực hiện logic trong phạm vi mà loại chương trình và hook cho phép. Việc kiểm tra không bảo đảm mọi logic của ứng dụng đều đúng.
-- **Hook:** điểm gắn chương trình được hỗ trợ. Sự kiện và ngữ cảnh thực thi phải phù hợp với chương trình gắn tại đó.
-- **Event-driven Execution:** thực thi khi sự kiện tương ứng xảy ra. **In-kernel Processing:** thực hiện phần xử lý dữ liệu ngay trong kernel.
-- **eBPF Map:** cấu trúc lưu dữ liệu mà chương trình eBPF và ứng dụng có thể truy cập qua cơ chế phù hợp. Bộ đếm là một ví dụ đơn giản về dữ liệu có thể lưu.
-- **User Space:** môi trường chạy ứng dụng thông thường ngoài kernel. **API:** giao diện lập trình để ứng dụng yêu cầu thao tác, ví dụ đọc dữ liệu trong map. **Data Collection & Sharing:** thu thập, lưu và chia sẻ dữ liệu giữa các thành phần.
-- **Packet filtering:** lọc gói tin mạng theo điều kiện. **Observability:** quan sát và phân tích hoạt động hệ thống từ dữ liệu thu thập. **Networking:** các chức năng mạng. **Security:** các chức năng phục vụ bảo mật. Slide chỉ giới thiệu phạm vi, chưa phân tích ứng dụng cụ thể.
+Với `perf trace`, script bên ngoài kernel nhận các bản ghi lượt đọc rồi đếm theo container. Với eBPF, probe kiểm tra thời lượng và tăng bộ đếm ngay trong kernel. Ta đọc bộ đếm của mỗi container ở mốc 5 giây.
 
 ### Chuyển tiếp
 
-Từ ba ý này, phần tiếp theo sẽ làm rõ các thành phần eBPF nằm ở đâu và phối hợp với nhau ra sao.
+Terminal cho thấy số lượt đọc chậm và lượng bản ghi mỗi cách dùng để tính kết quả.
+
+## Slide 8 — Kết quả đo lượt đọc chậm theo container
+
+**Thời lượng:** khoảng 1 phút.
+
+### Lời thuyết trình
+
+Cả hai cách cho cùng kết quả trong lần chạy thật. Container A có 0 lượt chậm, container B có 4. Script phía `perf trace` dùng 40 bản ghi đọc mẫu. Phía eBPF đọc hai giá trị tổng, mỗi container một giá trị. Sau khi dừng bộ giám sát, script kích hoạt thêm một lượt đọc thành công ở cả hai container và kiểm tra PID của chương trình vẫn như ban đầu.
+
+40 là số bản ghi của các lượt đọc mẫu được script tổng hợp. 2 là số giá trị của bộ đếm eBPF ở lần đọc đầu tiên. Phép thử này đo dữ liệu mà chương trình giám sát cần xử lý. Thời gian của `read()` trong demo bao gồm chờ dữ liệu trên ống, không phải độ trễ đĩa.
+
+### Chạy lại demo
+
+Từ thư mục seminar trên Linux có Docker, cgroup v2, BTF và hai tracepoint `syscalls:sys_enter_read` và `syscalls:sys_exit_read`:
+
+```sh
+docker build -t ebpf-seminar-bpftrace:local demo
+sh demo/compare-slow-reads.sh
+```
+
+- [compare-slow-reads.sh](demo/compare-slow-reads.sh) tạo hai container, gắn các công cụ, đối chiếu kết quả với chương trình đọc và kiểm tra hai chương trình đọc tiếp sau khi gỡ.
+- [read-workload.py](demo/read-workload.py) tạo hai tải có cùng số lượt đọc và thời gian cấp dữ liệu khác nhau.
+- [slow-reads.bt](demo/slow-reads.bt) đo thời gian theo luồng và đếm lượt vượt ngưỡng theo cgroup trong kernel.
+- [Đầu ra terminal](demo/slow-reads-run.txt) và [ảnh chụp](images/demo-slow-reads-terminal.png) từ cùng lần chạy.
+
+Container chạy tác vụ không có quyền đặc biệt. Container giám sát dùng `SYS_ADMIN` và các mount kernel chỉ đọc.
+
+### Chuyển tiếp
+
+Hai công cụ cho cùng số lượt chậm dù quy tắc tính chỉ số chạy ở những nơi khác nhau.
+
+## Slide 9 — Phép đo eBPF trên kernel đang chạy
+
+**Thời lượng:** khoảng 1 phút.
+
+### Lời thuyết trình
+
+Ở bên trái, `perf trace` lấy sự kiện theo cgroup. Script đọc thời lượng trong từng dòng và đếm các lượt vượt 200 ms. Ở bên phải, đoạn mã bpftrace làm phép kiểm tra và cộng dồn trong kernel, khi lời gọi `read()` kết thúc. Map giữ bộ đếm của từng container. Đoạn mã còn lại trong probe lưu mốc bắt đầu và in các bộ đếm sau 5 giây.
+
+Đây là điểm có ích khi cloud đang phục vụ người dùng. Ta có thể nạp một quy tắc đo tùy chỉnh vào hệ thống đang chạy và gỡ nó khi đã thu đủ dữ liệu. Kernel kiểm tra probe khi nạp. Việc triển khai vẫn cần các hook được hỗ trợ và quyền phù hợp.
+
+### Thuật ngữ
+
+- **Hook:** điểm gắn chương trình. Demo dùng một hook khi `read()` bắt đầu và một hook khi nó kết thúc.
+- **Probe:** đoạn mã eBPF thực thi tại hook.
+- **eBPF Map:** cấu trúc lưu dữ liệu của probe. Demo dùng map để lưu thời điểm bắt đầu và các bộ đếm theo container.
+- **User Space:** nơi script tổng hợp của `perf trace` và công cụ đọc bộ đếm eBPF chạy.
+
+### Chuyển tiếp
+
+Vậy kernel kiểm tra probe như thế nào, và công cụ giám sát đọc bộ đếm từ đâu?
 
 ### Nguồn
 
-[eBPF Foundation: What is eBPF?](https://ebpf.io/what-is-ebpf/), [Linux kernel: BPF maps](https://docs.kernel.org/bpf/maps.html), [Linux kernel: BPF design Q&A](https://docs.kernel.org/bpf/bpf_design_QA.html).
+[eBPF Foundation: What is eBPF?](https://ebpf.io/what-is-ebpf/), [Linux kernel: BPF maps](https://docs.kernel.org/bpf/maps.html), [Linux kernel: eBPF verifier](https://docs.kernel.org/bpf/verifier.html).
+
+## Kiến trúc eBPF
+
+- **Trang 12, khoảng 90 giây.** Compiler tạo object chứa bytecode. Loader dùng BPF API để yêu cầu kernel nạp, verifier kiểm tra trong bước này. Khi kernel hỗ trợ và bật JIT, bytecode có thể chuyển thành mã máy. Attach liên kết chương trình đã nạp với hook để sự kiện kích hoạt chương trình.
+- **Trang 13, khoảng 1 phút.** Lookup trả về con trỏ đến bộ đếm hoặc NULL. Verifier theo dõi đường thực thi và kiểu con trỏ. Nhánh có bộ đếm hợp lệ tăng giá trị, nhánh kia thử tạo bộ đếm. Tính đúng của kết quả còn phụ thuộc logic đếm.
+- **Trang 14, khoảng 90 giây.** Tracepoint mở tệp và XDP nhận dữ liệu context khác nhau. Demo nhận tham số ctx nhưng lấy tên tác vụ bằng helper. XDP nhận thông tin về vùng dữ liệu gói tin và có thể quyết định cách xử lý gói.
+- **Trang 15, khoảng 80 giây.** Một lần gọi chương trình kết thúc nhanh. Map giữ số đếm tích lũy giữa các lần gọi. Loader đọc mỗi 5 giây. Bảng trình bày giá trị minh họa. Ring buffer phù hợp khi phân tích từng bản ghi sự kiện.
+
+## eBPF trong hệ thống thật
+
+- **Trang 22, khoảng 75 giây.** Các container trên cùng host dùng chung một Linux kernel và vẫn có ranh giới cách ly. Hook tại host quan sát sự kiện, còn dữ liệu cgroup hoặc metadata cho biết sự kiện thuộc workload nào. Hệ thống giám sát có thể kết hợp các sự kiện đó với số liệu tài nguyên theo container. Một lời gọi mở tệp đơn lẻ chưa đủ để suy ra người dùng đang tương tác.
+- **Trang 27, khoảng 90 giây.** Service cung cấp một địa chỉ logic ổn định. Cilium Agent đồng bộ trạng thái Service và backend vào BPF maps. Datapath chọn backend dựa trên thông tin này. Vị trí xử lý phụ thuộc chế độ. Hubble quan sát các kết nối mạng.
+
+## Demo openat() và kết luận
+
+Hai phút cuối dành cho kết quả bộ đếm (trang 28) và thông điệp kết luận (trang 29). Phần biên dịch có thể hoàn tất trước seminar. Mỗi lượt chạy cat có thể phát sinh nhiều lời gọi mở tệp, kể cả của trình nạp thư viện. Giá trị quan sát là số đếm tích lũy của các tác vụ cùng tên. Mô hình hook và map cũng xuất hiện trong giám sát và xử lý mạng, với dữ liệu và logic riêng của từng hệ thống.
+
+### Chuẩn bị demo openat()
+
+Từ thư mục `demo/` trên máy Linux có tracepoint, Clang và libbpf:
+
+~~~sh
+clang -O2 -g -target bpf -D__BPF__ \
+  -I/usr/include/$(gcc -dumpmachine) \
+  -c openat_demo.c -o openat_demo.bpf.o
+gcc -O2 openat_demo.c -o openat_demo -lbpf -lelf -lz
+~~~
+
+Phiên terminal của loader:
+
+~~~sh
+sudo ./openat_demo
+~~~
+
+Tải minh họa ở terminal thứ hai:
+
+~~~sh
+for i in $(seq 1 20); do
+  cat /etc/hostname > /dev/null
+done
+~~~
+
+Loader in cột `OPENAT CALLS` mỗi 5 giây và kết thúc khi nhận Ctrl+C.

@@ -1,48 +1,201 @@
-% Chapter 04: chỉ bổ sung kết quả từ môi trường demo thật.
-\section{Chương 4: Thực hành}
-\ChapterDivider{Chương 4}{Thực hành}{Kiểm tra môi trường, theo dõi system call và thống kê sự kiện}
+\section{Chương 4: eBPF trong hệ thống thật}
 
-% Giữ khung nét đứt và màu của bộ slide hiện có.
-\newcommand{\DemoPlaceholder}[5][Mục tiêu]{%
-  \begin{frame}{#2}
-    \begin{block}{#1}
-      \small #3
+\ChapterDivider{Chương 4}{eBPF trong hệ thống thật}
+  {Ứng dụng eBPF, Cilium và demo \texttt{openat()}}
+
+\begin{frame}{Các container trên cùng host dùng chung Linux kernel}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[ebpfuser, text width=2.5cm] (a) at (0,0) {Container A};
+      \node[ebpfuser, text width=2.5cm] (b) at (4.3,0) {Container B};
+      \node[ebpfuser, text width=2.5cm] (c) at (8.6,0) {Container C};
+      \node[ebpfkernel, minimum width=11.48cm, minimum height=0.7cm] (kernel) at (4.3,-1.35)
+        {\textbf{Linux kernel dùng chung} \quad Hook eBPF trên host};
+      \node[ebpfprogram, text width=4.1cm] (collector) at (4.3,-2.85)
+        {Collector đối chiếu dữ liệu cgroup};
+      \node[ebpfmap, text width=2.6cm] (metrics) at (8.8,-2.85) {Tín hiệu theo workload};
+      \foreach \container in {a,b,c}{
+        \draw[arr] (\container.south) -- (\container.south |- kernel.north);
+      }
+      \draw[arr] (kernel) -- (collector);
+      \draw[arr] (collector) -- (metrics);
+    \end{tikzpicture}
+  \end{center}
+  \small
+  Namespaces và cgroups hỗ trợ cách ly các container. Collector ở mức host có thể quan sát sự kiện từ nhiều container và đối chiếu cgroup hoặc metadata để gán chúng cho workload.
+
+  \medskip
+  \textbf{Ví dụ giám sát.} Số lời gọi \texttt{openat()} phản ánh yêu cầu mở tệp của cả tác vụ nền lẫn ứng dụng tương tác.
+
+  \smallskip
+  {\scriptsize Nguồn \href{https://docs.docker.com/learn/content/what-is-a-container/}{Docker: Containers}}
+  \note{Khoảng 75 giây. Container có các giới hạn và cách ly riêng nhưng tiến trình vẫn đi qua cùng Linux kernel trên một host. Hook ở host có thể thu thập sự kiện mà không thay đổi mã ứng dụng. Việc gán sự kiện theo workload dựa vào dữ liệu như cgroup hoặc metadata của container. Số lượt openat có thể đến từ tác vụ nền nên chưa đủ để suy ra mức tương tác của người dùng.}
+\end{frame}
+
+\begin{frame}{Từ Linux kernel đến ứng dụng eBPF}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.64\textwidth}
+    \centering
+    \includegraphics[width=\linewidth,height=5.5cm,keepaspectratio]{images/chapter04/ebpf-overview.png}\\[0.18cm]
+    {\scriptsize Hình: \href{https://ebpf.io/what-is-ebpf/}{eBPF.io}}
+
+    \column{0.33\textwidth}
+    \small
+    \textbf{Linux kernel.} Verifier kiểm tra chương trình trước khi chạy. BPF map lưu dữ liệu, chẳng hạn bộ đếm sự kiện.
+    \medskip
+
+    \textbf{User space.} SDK hỗ trợ nạp chương trình và đọc dữ liệu từ BPF map.
+    \medskip
+
+    \textbf{Ứng dụng.} Các dự án như Cilium và BCC dùng eBPF để xử lý mạng, bảo mật hoặc quan sát hệ thống.
+  \end{columns}
+\end{frame}
+
+\begin{frame}{eBPF được ứng dụng ở đâu?}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.31\textwidth}
+    \centering
+    \parbox[c][1.65cm][c]{\linewidth}{\centering \includegraphics[width=0.82\linewidth,height=1.55cm,keepaspectratio]{images/chapter04/bcc-logo.png}}
+    \begin{block}{Observability}
+      \small \textbf{BCC} theo dõi system call để chẩn đoán hành vi và hiệu năng ứng dụng.
     \end{block}
-    \vspace{0.12cm}
-    \begin{center}
-      \begin{tikzpicture}
-        \node[rectangle, draw=BKTemplate!60, dashed, line width=0.8pt,
-          text width=12.5cm, minimum height=#5,
-          text=gray, align=center, font=\small, inner sep=0.25cm] {#4};
-      \end{tikzpicture}
-    \end{center}
-    {\small\textcolor{BKTemplate}{\textbf{TODO: Demo content will be added later}}}
-  \end{frame}%
-}
 
-\DemoPlaceholder[Ba nội dung thực hành]{Thực hành: từ sơ đồ đến sự kiện thật}
-  {\cue{1}{\textbf{Kiểm tra môi trường}: kernel, công cụ và quyền sử dụng BPF.}
-   \cue{2}{\textbf{Theo dõi \texttt{execve()}}: tiến trình và chương trình được yêu cầu thực thi.}
-   \cue{3}{\textbf{Đếm \texttt{openat()}}: nhóm theo \texttt{comm} bằng map, đọc ở User Space.}}
-  {Sơ đồ tổng quan hoặc ảnh môi trường demo\\[0.20cm]
-   \footnotesize Bổ sung sau khi chạy thử trên máy của nhóm.}
-  {2.7cm}
+    \column{0.31\textwidth}
+    \centering
+    \parbox[c][1.65cm][c]{\linewidth}{\centering \includegraphics[width=0.82\linewidth,height=1.55cm,keepaspectratio]{images/chapter04/cilium-logo.png}}
+    \begin{block}{Networking}
+      \small \textbf{Cilium} kết nối các Pod và cân bằng tải cho Service trong Kubernetes.
+    \end{block}
 
-\DemoPlaceholder{Demo 1: Kiểm tra môi trường eBPF}
-  {Xác nhận phiên bản Linux kernel, công cụ, quyền chạy và các tính năng eBPF được máy demo hỗ trợ.}
-  {Terminal hoặc ảnh chụp kết quả kiểm tra\\[0.20cm]
-   \footnotesize Sử dụng kết quả từ chính môi trường demo của nhóm.}
-  {3.15cm}
+    \column{0.31\textwidth}
+    \centering
+    \parbox[c][1.65cm][c]{\linewidth}{\centering \includegraphics[width=0.82\linewidth,height=1.55cm,keepaspectratio]{images/chapter04/tetragon-logo.png}}
+    \begin{block}{Security}
+      \small \textbf{Tetragon} giám sát sự kiện và thực thi chính sách bảo mật khi workload đang chạy.
+    \end{block}
+  \end{columns}
+  \vspace{0.3cm}
+  {\scriptsize Logo: \href{https://ebpf.io/applications/}{eBPF Applications Landscape}}
+  \note{Ví dụ của BCC là công cụ opensnoop. Tetragon có thể giám sát thực thi tiến trình và truy cập tệp. Nguồn: \url{https://github.com/iovisor/bcc}; \url{https://tetragon.io/docs/overview/}.}
+\end{frame}
 
-\DemoPlaceholder{Demo 2: Theo dõi system call \texttt{execve()}}
-  {Ghi nhận PID và đường dẫn chương trình được yêu cầu thực thi khi tiến trình gọi \texttt{execve()}.}
-  {Câu lệnh, terminal và kết quả tracing\\[0.20cm]
-   \footnotesize Sự kiện tại entry ghi nhận yêu cầu, chưa xác nhận lời gọi thành công.}
-  {3.15cm}
+\begin{frame}{Cilium là gì?}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.38\textwidth}
+    \small
+    Cilium là dự án mã nguồn mở cung cấp plugin mạng CNI cho Kubernetes.
+    \medskip
 
-\DemoPlaceholder{Demo 3: Thống kê \texttt{openat()} bằng map}
-  {Đếm \texttt{openat()} theo \texttt{comm} (tên tác vụ/tiến trình), lưu trong map và xem thống kê từ User Space.}
-  {Câu lệnh, bảng đếm và phân tích đầu ra\\[0.20cm]
-   \footnotesize \texttt{comm} không phải PID và có thể trùng giữa các tiến trình.\\[0.12cm]
-   Số liệu chỉ được bổ sung sau khi thực hiện demo thật.}
-  {3.15cm}
+    \textbf{Kubernetes} gọi plugin CNI khi tạo hoặc xóa Pod.
+    \medskip
+
+    \textbf{Cilium} cấu hình kết nối mạng và chính sách cho Pod.
+    \medskip
+
+    \textbf{eBPF} chạy trong Linux kernel để xử lý lưu lượng.
+
+    \column{0.59\textwidth}
+    \centering
+    \includegraphics[width=\linewidth,height=5.1cm,keepaspectratio]{images/chapter04/cilium-overview.png}\\[0.16cm]
+    {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/overview/component-overview/}{Cilium Component Overview}}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Cilium hoạt động như thế nào?}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.43\textwidth}
+    \small
+    \textbf{Xử lý gói tin.} Cilium Agent trên mỗi node cấu hình các chương trình eBPF để chuyển tiếp và cân bằng tải.
+    \medskip
+
+    \textbf{Áp dụng chính sách.} Cilium dùng danh tính của workload để quyết định luồng nào được phép, chẳng hạn chỉ cho Pod frontend truy cập API.
+    \medskip
+
+    \textbf{Quan sát luồng mạng.} Hubble thu thập sự kiện luồng từ Cilium. Hubble UI hiển thị dịch vụ nào đang kết nối với nhau.
+
+    \column{0.54\textwidth}
+    \centering
+    \includegraphics[width=\linewidth,height=4.7cm,keepaspectratio]{images/chapter04/hubble-service-map.png}\\[0.16cm]
+    {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/gettingstarted/hubble/}{Hubble UI}
+    \hspace{0.3cm}
+    \href{https://docs.cilium.io/en/stable/network/kubernetes/policy/}{Tài liệu chính sách mạng}}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Cilium cân bằng tải cho Kubernetes Service}
+  \begin{center}
+    \begin{tikzpicture}
+      \node[ebpfuser, text width=2.0cm, minimum height=0.9cm] (client) at (0,0) {Client Pod};
+      \node[ebpfuser, text width=2.7cm, minimum height=0.9cm] (svc) at (3.05,0)
+        {Địa chỉ Service\\\footnotesize ClusterIP};
+      \node[ebpfprogram, text width=2.7cm, minimum height=0.9cm] (dp) at (6.65,0)
+        {Cilium eBPF\\datapath};
+      \node[ebpfkernel, text width=2.7cm] (a) at (11.1,0.85) {Backend Pod A};
+      \node[ebpfkernel, text width=2.7cm] (b) at (11.1,0) {Backend Pod B};
+      \node[ebpfkernel, text width=2.7cm] (c) at (11.1,-0.85) {Backend Pod C};
+      \node[ebpfuser, text width=2.7cm] (agent) at (3.05,1.75) {Cilium Agent};
+      \node[ebpfmap, text width=2.7cm] (map) at (6.65,1.75) {BPF maps\\\footnotesize Service và backend};
+      \draw[arr] (client) -- (svc);
+      \draw[arr] (svc) -- (dp);
+      \draw[arr,draw=gray!60,dashed] (dp.east) -- (a.west);
+      \draw[arr] (dp.east) -- (b.west);
+      \draw[arr,draw=gray!60,dashed] (dp.east) -- (c.west);
+      \draw[arr,dashed] (agent) -- (map);
+      \draw[arr,dashed] (map) -- (dp);
+    \end{tikzpicture}
+  \end{center}
+  \small
+  Agent cập nhật thông tin Service và backend khi trạng thái cluster thay đổi. Datapath tra cứu map để chọn backend, chẳng hạn Pod B trong sơ đồ.
+
+  \medskip
+  Điểm xử lý có thể nằm ở lớp socket hoặc đường đi của gói tin, tùy cấu hình. Hubble quan sát các luồng kết nối.
+
+  \smallskip
+  {\scriptsize Nguồn \href{https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/}{Cilium: Kubernetes Without kube-proxy}}
+  \note{Khoảng 90 giây. Service cung cấp một địa chỉ logic ổn định cho nhiều Pod. Cilium có thể xử lý Service bằng eBPF ở cấu hình phù hợp. Mũi tên liền chỉ một lựa chọn backend trong ví dụ, các đường nét đứt phía backend chỉ các đích khác có thể được chọn. Sơ đồ diễn tả quyết định logic, đường gói tin thực tế thay đổi theo chế độ. Cilium Agent đồng bộ trạng thái, datapath xử lý lưu lượng và Hubble mô tả luồng quan sát được.}
+\end{frame}
+
+\begin{frame}{Demo \texttt{openat()}: số đếm theo tên tác vụ}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.60\textwidth}
+    \begin{block}{Tải minh họa}
+      Các lần chạy \texttt{cat /etc/hostname} phát sinh yêu cầu mở tệp. Tracepoint kích hoạt cả khi yêu cầu sau đó thất bại.
+    \end{block}
+    \begin{block}{Đầu ra của loader}
+      Sau mỗi 5 giây, cột \texttt{OPENAT CALLS} hiển thị số đếm tích lũy theo \texttt{comm}. Dòng \texttt{cat} gộp các tác vụ cùng tên trên host.
+    \end{block}
+
+    \column{0.36\textwidth}
+    \centering
+    \begin{tikzpicture}
+      \node[ebpfuser, text width=3.6cm] (task) at (0,0) {\texttt{cat /etc/hostname}};
+      \node[ebpfkernel, text width=3.6cm] (hook) at (0,-1.1) {\texttt{sys\_enter\_openat}};
+      \node[ebpfmap, text width=3.6cm] (map) at (0,-2.2) {Bộ đếm trong map};
+      \node[ebpfuser, text width=3.6cm] (loader) at (0,-3.3) {\texttt{OPENAT CALLS}};
+      \draw[arr] (task) -- (hook);
+      \draw[arr] (hook) -- (map);
+      \draw[arr] (map) -- (loader);
+    \end{tikzpicture}
+  \end{columns}
+  \note{Lệnh biên dịch, tải minh họa và cách dừng loader nằm trong PRESENTER\_NOTES.md. Mỗi lượt chạy cat có thể phát sinh nhiều lời gọi openat do cả chương trình và thư viện. Tổng số lượt chạy cat không phải giá trị kỳ vọng của bộ đếm.}
+\end{frame}
+
+\begin{frame}{Kết luận}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.40\textwidth}
+    \small
+    eBPF cho phép gắn chương trình vào các điểm Linux kernel hỗ trợ để:
+    \begin{itemize}
+      \item Thu thập và tổng hợp sự kiện cho hệ thống giám sát.
+      \item Xử lý lưu lượng mạng cho workload.
+      \item Thực thi chính sách bảo mật tại các hook phù hợp.
+    \end{itemize}
+    \medskip
+    Hệ thống giám sát có thể kết hợp bộ đếm sự kiện với số liệu CPU và I/O để đánh giá hoạt động của từng container.
+
+    \column{0.57\textwidth}
+    \centering
+    \includegraphics[width=\linewidth,height=4.75cm,keepaspectratio]{images/chapter04/hubble-grafana-network.png}\\[0.16cm]
+    {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/observability/metrics/}{Cilium Monitoring \& Metrics}}
+  \end{columns}
+\end{frame}

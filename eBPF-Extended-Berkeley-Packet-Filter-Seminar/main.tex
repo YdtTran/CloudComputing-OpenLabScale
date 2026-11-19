@@ -151,7 +151,7 @@
     \begin{tikzpicture}[r/.style={rectangle, rounded corners=4pt, minimum width=4.2cm, minimum height=3.2cm, align=left, line width=1pt, text width=3.9cm, inner sep=5pt}]
       \node[r, draw=BKTemplate, fill=BKTemplate!8] (a) at (0,0) {{\small\bfseries\color{BKTemplate} 1. Giới thiệu eBPF}\\[0.08cm]\footnotesize Nhu cầu quan sát Linux\\Khái niệm eBPF\\[0.18cm]{\small\bfseries\color{BKTemplate} 2. Kiến trúc eBPF}\\[0.08cm]\footnotesize Thành phần và luồng\\xử lý sự kiện};
       \node[r, draw=BKTemplate, fill=BKTemplate!8] (b) at (4.7,0) {{\small\bfseries\color{BKTemplate} 3. Phát triển\\và công cụ}\\[0.12cm]\footnotesize Quy trình triển khai\\Các công cụ eBPF\\Ví dụ \texttt{openat()}};
-      \node[r, draw=BKTemplate, fill=BKTemplate!8] (c) at (9.4,0) {{\small\bfseries\color{BKTemplate} 4. Thực hành}\\[0.12cm]\footnotesize Kiểm tra môi trường\\Theo dõi \texttt{execve()}\\Đếm \texttt{openat()} theo \texttt{comm}};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (c) at (9.4,0) {{\small\bfseries\color{BKTemplate} 4. eBPF trong hệ thống thật}\\[0.12cm]\footnotesize Ứng dụng của eBPF\\Cilium và Hubble\\Demo đếm \texttt{openat()}};
       \draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
     \end{tikzpicture}
   \end{center}
@@ -166,7 +166,7 @@
       \midrule
       Giới thiệu và kiến trúc & [MSSV] & [Họ và tên] \\
       Phát triển và công cụ & [MSSV] & [Họ và tên] \\
-      Thực hành & [MSSV] & [Họ và tên] \\
+      eBPF trong hệ thống thật & [MSSV] & [Họ và tên] \\
       \bottomrule
     \end{tabular}
   \end{table}
@@ -178,17 +178,5 @@
 \input{chapters/chapter02}
 \input{chapters/chapter03}
 \input{chapters/chapter04}
-
-{
-\setHCMUTFrontBackground
-\begin{frame}[plain]
-  \centering
-  \vspace{1.5cm}
-  {\Huge\textbf{\textcolor{BKTemplate}{CẢM ƠN THẦY VÀ CÁC BẠN}}}\\[0.4cm]
-  {\Large\textbf{\textcolor{BKTemplate}{ĐÃ LẮNG NGHE}}}\\[1.2cm]
-  \textbf{Hỏi đáp \& Thảo luận (Q\&A)}\\[0.3cm]
-  \textsl{[Đơn vị / lớp / nhóm thực hiện]}
-\end{frame}
-}
 
 \end{document}

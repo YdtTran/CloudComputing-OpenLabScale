@@ -2,41 +2,37 @@
 \section{Chương 1: Giới thiệu eBPF}
 \ChapterDivider{Chương 1}{Giới thiệu eBPF}{Từ nhu cầu quan sát Linux đến công nghệ eBPF}
 
-\begin{frame}{Quan sát hoạt động bên trong Linux}
+\begin{frame}{Container này có đang được sử dụng?}
   \small
-  \textbf{Bối cảnh:} Nhiều dịch vụ cùng chạy trên Linux. Log ứng dụng có thể
-  chưa phản ánh đầy đủ hoạt động trong kernel.
-  \vspace{0.18cm}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.36\textwidth}
-      \begin{block}{Cần quan sát}
+  Một hệ thống tính toán dùng chung có thể chạy mỗi phiên làm việc trong một container.
+  Mức sử dụng CPU thấp có thể xuất hiện ngay cả khi container đang tải dữ liệu.
+  \vspace{0.35cm}
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{Hoạt động cần quan sát (I/O)}
         \begin{itemize}
-          \item Tiến trình nào truy cập file hoặc mạng?
-          \item System call nào được gọi?
-          \item CPU, I/O được dùng ra sao?
+          \item Có đang đọc hoặc ghi dữ liệu?
+          \item Có đang gửi hoặc nhận dữ liệu qua mạng?
+          \item Có đang nhập gì không? Hay chỉ đang dùng để đọc tài liệu?
         \end{itemize}
       \end{block}
     \end{column}
-    \begin{column}{0.60\textwidth}
+    \begin{column}{0.49\textwidth}
       \centering
+      \textbf{Ví dụ: đang tải một bộ dữ liệu}\par\medskip
       \begin{tikzpicture}
-        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (web) at (0,0) {Web Server};
-        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (db) at (2.9,0) {Database};
-        \node[ebpfuser, text width=2.1cm, minimum height=0.8cm, font=\footnotesize] (bg) at (5.8,0) {Tiến trình nền};
-        \node[ebpfkernel, text width=7.8cm, minimum height=1.8cm] (kernel) at (2.9,-1.95) {};
-        \node[font=\small\bfseries] at (2.9,-1.4) {Linux kernel};
-        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (0.15,-2.12) {File System};
-        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (2.9,-2.12) {Network Stack};
-        \node[key, draw=gray!65!black, fill=white, text width=2.05cm, font=\footnotesize] at (5.65,-2.12) {Scheduler};
-        \draw[arr] (web.south) -- (web.south |- kernel.north);
-        \draw[arr] (db.south) -- (db.south |- kernel.north);
-        \draw[arr] (bg.south) -- (bg.south |- kernel.north);
+        \node[ebpfuser, text width=2.3cm, minimum height=1.0cm] (network)
+        {Nhận dữ liệu\\qua mạng};
+        \node[ebpfuser, text width=2.3cm, minimum height=1.0cm, right=0.7cm of network] (disk)
+        {Ghi dữ liệu\\xuống đĩa};
+        \draw[arr] (network) -- (disk);
       \end{tikzpicture}
     \end{column}
   \end{columns}
-  \vspace{0.22cm}
-  \centering\textbf{Quan sát các sự kiện này mà không sửa mã nguồn ứng dụng?}
-  \note{Các subsystem là chức năng dùng chung, không ghép một-một với các tiến trình. Sơ đồ mô tả quan hệ, không phải trình tự thực thi.}
+  \vspace{0.35cm}
+  \centering\textbf{Trước khi thu hồi tài nguyên, làm sao biết từng container\\
+    còn đọc, ghi hoặc truyền dữ liệu qua mạng?}
+  \note{Ví dụ giả định. CPU và I/O là các tín hiệu bổ sung cho nhau khi đánh giá hoạt động của container.}
 \end{frame}
 
 \begin{frame}{Các phương pháp truyền thống}
@@ -44,7 +40,7 @@
     \begin{column}{0.48\textwidth}
       \begin{block}{Application logging}
         Ứng dụng chủ động ghi sự kiện.\\
-        Thêm log có thể cần sửa mã.
+        Log mới có thể đòi hỏi thay đổi mã ứng dụng.
       \end{block}
       \begin{block}{\texttt{strace}}
         Theo dõi system calls và tương tác tiến trình với kernel.
@@ -62,35 +58,104 @@
     \end{column}
   \end{columns}
   \vspace{0.20cm}
-  \textbf{eBPF} bổ sung cách xử lý sự kiện tại hook được kernel hỗ trợ.
+  Trong phép so sánh tiếp theo, \texttt{perf trace} xuất từng lượt đọc để script tổng hợp.
+  Chương trình eBPF có thể tính cùng chỉ số ngay trong kernel.
 \end{frame}
 
-\begin{frame}{eBPF là gì?}
+\begin{frame}{eBPF mở rộng khả năng của Linux kernel}
   \small
-  \textbf{eBPF} cho phép nạp, chạy chương trình đã được kernel kiểm tra
-  để quan sát hoặc xử lý sự kiện tại \textsl{hook} tương thích.
+  \centering
+  \renewcommand{\arraystretch}{1.45}
+  \begin{tabular}{@{}L{0.44\textwidth}L{0.48\textwidth}@{}}
+    \toprule
+    \textbf{Mã nguồn kernel và kernel module} & \textbf{Chương trình eBPF} \\
+    \midrule
+    Mã nguồn kernel sửa đổi có thể cần build và khởi động lại.
+      & BPF API nạp chương trình vào kernel đang chạy. \\
+    Kernel module có quyền truy cập rộng. Lỗi có thể ảnh hưởng toàn hệ thống.
+      & Verifier kiểm tra chương trình khi nạp. Phạm vi thực thi phụ thuộc program type và hook. \\
+    \bottomrule
+  \end{tabular}
+
+  \medskip
+  \textbf{Ví dụ.} Một tracepoint tại \texttt{openat()} cho phép đếm yêu cầu mở tệp ngay trên host.
+
+  \smallskip
+  {\scriptsize Nguồn \href{https://ebpf.io/what-is-ebpf/}{eBPF.io}}
+  \note{Khoảng 1 phút. eBPF đưa logic xử lý sự kiện vào các điểm kernel hỗ trợ. Bộ đếm mở tệp chạy mà không cần thay đổi mã ứng dụng hoặc khởi động lại máy. Sửa kernel và kernel module vẫn phục vụ các nhu cầu rộng hơn. Phép thử đọc chậm cho thấy khác biệt khi việc tổng hợp diễn ra trong kernel.}
+\end{frame}
+
+\begin{frame}{Phép thử đếm lượt đọc chậm theo container}
+  \small
+  Hai container đang chạy cùng một chương trình. Mỗi bên thực hiện \textbf{20 lượt đọc}.
+  Container B được cấp dữ liệu trễ khoảng 320 ms ở bốn lượt.
+  \vspace{0.25cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.48\textwidth}
+      \begin{block}{\texttt{perf trace} + script}
+        Kernel ghi nhận từng lượt đọc.\\[0.15cm]
+        $\downarrow$ Từng bản ghi đi ra ngoài kernel.\\[0.15cm]
+        Script lọc lượt trên 200 ms và đếm.
+      \end{block}
+    \end{column}
+    \begin{column}{0.48\textwidth}
+      \begin{block}{eBPF + bộ đếm}
+        Probe đo từng lượt đọc ngay trong kernel.\\[0.15cm]
+        Probe lọc lượt trên 200 ms và đếm.\\[0.15cm]
+        $\downarrow$ Công cụ giám sát lấy số tổng sau 5 giây.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.30cm}
+  \centering\textbf{Hai cách cho cùng số lượt đọc chậm? Bao nhiêu dữ liệu đi ra ngoài kernel?}
+\end{frame}
+
+\begin{frame}{Kết quả đo lượt đọc chậm theo container}
+  \small
+  \begin{columns}[c,onlytextwidth]
+    \begin{column}{0.68\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{images/demo-slow-reads-terminal.png}
+    \end{column}
+    \begin{column}{0.30\textwidth}
+      \begin{block}{Cùng kết quả}
+        A có \textbf{0}, B có \textbf{4} lượt đọc chậm.
+      \end{block}
+      \begin{block}{Dữ liệu nhận được}
+        \texttt{perf trace}: \textbf{40} bản ghi.\\
+        eBPF: \textbf{2} giá trị tổng.
+      \end{block}
+    \end{column}
+  \end{columns}
   \vspace{0.22cm}
+  \centering\textbf{Sau khi gỡ probe, cả hai tiến trình đọc tiếp với cùng PID.}
+  \note{Ảnh từ terminal khi chạy demo thật. 40 là số bản ghi của các lượt đọc mẫu mà script perf xử lý. 2 là số giá trị tổng theo container ở lần đọc map đầu tiên. Phép đo không đếm các gói nội bộ hay đo CPU.}
+\end{frame}
+
+\begin{frame}[fragile]{Phép đo eBPF trên kernel đang chạy}
+  \small
+  Hai tracepoint tại đầu và cuối \texttt{read()} cung cấp mốc thời gian cho phép đo.
+  \vspace{0.20cm}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.43\textwidth}
+      \begin{block}{Lọc và đếm bên ngoài kernel}
+        \begin{lstlisting}
+perf trace -a -G "$path_a" -e read
+\end{lstlisting}
+        Script đọc thời lượng từ từng dòng trace rồi đếm các lượt trên 200 ms.
+      \end{block}
+    \end{column}
+    \begin{column}{0.52\textwidth}
+      \begin{block}{Lọc và đếm trong kernel}
+        \lstinputlisting[firstline=17,lastline=19]{demo/slow-reads.bt}
+        Probe cộng vào bộ đếm của container. Sau 5 giây, công cụ giám sát đọc số tổng.
+      \end{block}
+    \end{column}
+  \end{columns}
+  \vspace{0.30cm}
   \begin{center}
-    \begin{tikzpicture}
-      \node[ebpfuser, text width=3.8cm, minimum height=2.8cm, align=left] (event) at (0,0)
-        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
-          \textbf{1. Theo sự kiện}\\[0.18cm]
-          Sự kiện phù hợp tại hook kích hoạt chương trình eBPF.
-        \end{minipage}};
-      \node[ebpfprogram, text width=3.8cm, minimum height=2.8cm, align=left] (process) at (4.7,0)
-        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
-          \textbf{2. Xử lý tại kernel}\\[0.18cm]
-          Có thể lọc, tổng hợp trước khi gửi về \mbox{User Space}.
-        \end{minipage}};
-      \node[ebpfmap, text width=3.8cm, minimum height=2.8cm, align=left] (share) at (9.4,0)
-        {\begin{minipage}[t][2.35cm][t]{3.8cm}\raggedright
-          \textbf{3. Chia sẻ kết quả}\\[0.18cm]
-          User Space nhận sự kiện hoặc đọc dữ liệu từ eBPF Map.
-        \end{minipage}};
-      \draw[arr] (event.east) -- (process.west);
-      \draw[arr] (process.east) -- (share.west);
-    \end{tikzpicture}
+    \textbf{Phép đo có thể bắt đầu và kết thúc trong khi máy chủ\\
+      tiếp tục phục vụ các container.}
   \end{center}
-  \vspace{0.10cm}
-  \centering\textbf{Ngoài lọc gói tin:} quan sát hệ thống, xử lý mạng và bảo mật.
+  \note{Trích mã thực thi. Probe được kernel kiểm tra khi nạp và cần hook cùng quyền phù hợp. Bản đầy đủ lưu thời điểm bắt đầu theo TID và xóa trạng thái khi lượt đọc kết thúc.}
 \end{frame}

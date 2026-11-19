@@ -8,108 +8,147 @@
       \draw[draw=BKTemplate, fill=BKTemplate!4, rounded corners=3pt] (0,3.45) rectangle (14.1,5.3);
       \node[anchor=west, font=\small\bfseries, text=BKTemplate] at (0.2,5.05) {User Space};
       \node[ebpfuser, text width=4.4cm, minimum height=0.9cm] (app) at (3.5,4.3)
-        {Ứng dụng thông thường\\Yêu cầu dịch vụ kernel};
+      {Ứng dụng thông thường\\Yêu cầu dịch vụ kernel};
       \node[ebpfuser, text width=5.0cm, minimum height=0.9cm] (tool) at (10.7,4.3)
-        {\textbf{bpftrace / libbpf}\\Nạp chương trình, thu thập kết quả};
+      {\textbf{bpftrace / libbpf}\\Nạp chương trình, thu thập kết quả};
       \draw[draw=gray!65!black, fill=gray!4, rounded corners=3pt] (0,0.8) rectangle (14.1,2.95);
       \node[anchor=west, font=\small\bfseries] at (0.2,2.7) {Kernel Space};
       \node[ebpfkernel, text width=6.0cm, minimum height=1.1cm] (services) at (3.8,1.7)
-        {\textbf{Quản lý hệ thống}\\Scheduler \quad File System\\Memory Management \quad Network Stack};
+      {\textbf{Quản lý hệ thống}\\Scheduler \quad File System\\Memory Management \quad Network Stack};
       \node[ebpfprogram, text width=4.7cm, minimum height=1.1cm] (prog) at (10.7,1.7)
-        {\textbf{Chương trình eBPF}\\Thực thi tại hook được hỗ trợ};
+      {\textbf{Chương trình eBPF}\\Thực thi tại hook được hỗ trợ};
       \draw[arr] (app.south) -- node[right, font=\footnotesize, fill=white, inner sep=2pt] {System calls} (services.north);
       \draw[arr, dashed] (tool.south) -- node[right, font=\footnotesize, fill=white, inner sep=2pt] {BPF API} (prog.north);
       \node[key, minimum width=14.1cm, minimum height=0.7cm] (hw) at (7.05,-0.05)
-        {\textbf{Hardware}\hspace{1cm} CPU\hspace{1cm}RAM\hspace{1cm}Thiết bị I/O};
+      {\textbf{Hardware}\hspace{1cm} CPU\hspace{1cm}RAM\hspace{1cm}Thiết bị I/O};
       \draw[arr] (7.05,0.8) -- (hw.north);
     \end{tikzpicture}
   \end{center}
   \note{Công cụ như bpftrace hoặc ứng dụng dùng libbpf hoạt động ở User Space. Các mũi tên biểu thị vai trò, không phải toàn bộ chuỗi nạp chương trình. Chương trình eBPF thực thi trong ngữ cảnh phù hợp với program type và hook. Nguồn: \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://docs.kernel.org/bpf/verifier.html}.}
 \end{frame}
 
-\begin{frame}{Kiến trúc eBPF: chuẩn bị và thực thi}
+\begin{frame}{Từ mã nguồn đến thực thi eBPF}
   \begin{center}
-    \begin{tikzpicture}[font=\small,
-      prep/.style={arr, draw=BKTemplate, dashed},
-      run/.style={arr, draw=green!45!black}]
-      \node[anchor=west, text=BKTemplate, font=\small\bfseries] at (-0.9,0.95) {A. Chuẩn bị chương trình};
-      \node[ebpfuser, text width=2.1cm, minimum height=1.0cm] (loader) at (0.3,-0.2) {Userspace\\Loader};
-      \node[ebpfkernel, text width=2.2cm, minimum height=1.0cm] (verifier) at (4.0,-0.2) {Verifier\\\footnotesize Kiểm tra khi nạp};
-      \node[ebpfprogram, text width=2.4cm, minimum height=1.0cm] (loaded) at (7.9,-0.2) {eBPF Program\\\footnotesize Được chấp nhận nạp};
-      \node[ebpfkernel, text width=2.1cm, minimum height=1.0cm] (attached) at (11.8,-0.2) {Hook\\\footnotesize Tương thích};
-      \draw[prep] (loader) -- node[above, font=\footnotesize] {Load} (verifier);
-      \draw[prep] (verifier) -- (loaded);
-      \draw[prep] (loaded) -- node[above, font=\footnotesize] {Attach} (attached);
-      \node[key, text width=12.7cm, font=\footnotesize, align=left, fill=white, minimum height=0.7cm] at (6.0,-1.53)
-        {\textbf{JIT (tùy chọn):} Dịch bytecode thành mã máy khi được hỗ trợ và bật. JIT không phải hook.};
-      \node[anchor=west, text=green!40!black, font=\small\bfseries] at (-0.9,-2.5) {B. Khi sự kiện xảy ra};
-      \node[ebpfkernel, text width=1.75cm, minimum height=1.1cm] (event) at (0.1,-3.4) {Kernel\\Event};
-      \node[ebpfkernel, text width=1.45cm, minimum height=1.1cm] (hook) at (2.85,-3.4) {Hook};
-      \node[ebpfprogram, text width=2.05cm, minimum height=1.1cm] (prog) at (5.7,-3.4) {eBPF\\Program};
-      \node[ebpfmap, text width=1.85cm, minimum height=1.1cm, font=\footnotesize] (data) at (9.0,-3.4) {Map /\\event output};
-      \node[ebpfuser, text width=2.05cm, minimum height=1.1cm] (user) at (12.3,-3.4) {Userspace\\Application};
-      \draw[run] (event) -- (hook);
-      \draw[run] (hook) -- (prog);
-      \draw[run] (prog) -- (data);
-      \draw[run] (data) -- (user);
-      \node[font=\footnotesize, align=left, text width=14.0cm, anchor=west] at (-0.9,-4.52)
-        {\textbf{Map:} Program dùng helper/cơ chế phù hợp. User Space đọc qua \texttt{bpf()} hoặc libbpf.};
-      \node[font=\footnotesize, text=gray!75!black, anchor=west] at (-0.9,-5.13)
-        {Verifier kiểm tra khi nạp, không kiểm tra lại mỗi lần có sự kiện.};
+    \begin{tikzpicture}
+      \node[font=\small\bfseries,text=BKTemplate] at (2.25,0.95) {User Space};
+      \node[font=\small\bfseries] at (9.4,0.95) {Kernel Space};
+      \node[ebpfuser, text width=2.05cm, minimum height=1cm] (src) at (0,0) {Mã nguồn\\C hoặc Rust};
+      \node[ebpfuser, text width=1.8cm, minimum height=1cm] (obj) at (3.05,0) {Object\\eBPF bytecode};
+      \node[ebpfkernel, text width=1.55cm, minimum height=1cm] (verify) at (7.0,0) {Verifier};
+      \node[ebpfprogram, text width=1.85cm, minimum height=1cm] (prog) at (10.0,0) {eBPF\\đã nạp};
+      \node[ebpfkernel, text width=1.4cm, minimum height=1cm] (hook) at (13.0,0) {Hook\\tương thích};
+      \node[ebpfkernel, text width=2.0cm] (reject) at (7.0,-1.7) {Từ chối nạp};
+      \draw[arr] (src) -- (obj);
+      \draw[arr] (obj) -- node[above,font=\scriptsize,align=center] {Loader\\BPF API} (verify);
+      \draw[arr] (verify) -- (prog);
+      \draw[arr] (prog) -- node[above,font=\scriptsize] {Attach} (hook);
+      \draw[arr] (verify) -- node[right,font=\scriptsize] {Vi phạm ràng buộc} (reject);
     \end{tikzpicture}
   \end{center}
-  \note{Luồng A nét đứt mô tả load, verify và attach. Luồng B nét liền mô tả sự kiện và dữ liệu. Map và cơ chế gửi sự kiện là các lựa chọn truyền kết quả, không phải mọi chương trình đều dùng cả hai. Với map, helper/cơ chế phù hợp dùng phía kernel, còn bpf()/libbpf dùng từ User Space. JIT là tùy chọn, không phải điều kiện bắt buộc để nạp. Nguồn: \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://docs.kernel.org/bpf/maps.html}; \url{https://docs.kernel.org/admin-guide/sysctl/net.html}.}
-\end{frame}
-
-\begin{frame}{Bốn thành phần cốt lõi của eBPF}
   \small
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{eBPF Program}
-        Logic xử lý, chạy trong ngữ cảnh do program type quy định.
-      \end{block}
-      \begin{block}{Hook}
-        Điểm gắn chương trình: tracepoint, kprobe, XDP.\\[0.1cm]
-        Phải tương thích với program type.
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{eBPF Map}
-        Lưu trạng thái, bộ đếm và chia sẻ dữ liệu với User Space.
-      \end{block}
-      \begin{block}{Verifier}
-        Kiểm tra luồng điều khiển, bộ nhớ và thao tác được phép khi nạp.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vspace{0.20cm}
-  \textcolor{BKTemplate}{Verifier không bảo đảm đúng logic. Chương trình vẫn có chi phí xử lý.}
-  \note{Mỗi program type có ngữ cảnh và các thao tác được phép riêng. Không phải chương trình nào cũng gắn vào mọi hook. Map có nhiều loại và API khác nhau. Verifier kiểm tra các điều kiện an toàn trước khi chấp nhận nạp, không chứng minh logic ứng dụng hoàn toàn đúng. Nguồn: \url{https://docs.kernel.org/bpf/verifier.html}; \url{https://docs.kernel.org/bpf/maps.html}; \url{https://docs.kernel.org/bpf/libbpf/program_types.html}.}
+  \begin{itemize}
+    \item Compiler tạo bytecode. Loader ở user space yêu cầu kernel nạp bytecode qua BPF API.
+    \item JIT có thể dịch bytecode sang mã máy trong quá trình nạp khi kernel hỗ trợ và bật JIT.
+    \item Sau khi attach, sự kiện tại hook kích hoạt chương trình.
+  \end{itemize}
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}{Linux kernel: libbpf}}
+  \note{Khoảng 90 giây. Compiler tạo object chứa tập lệnh eBPF. Loader yêu cầu nạp qua BPF API. Verifier phân tích chương trình, kernel từ chối yêu cầu nếu chương trình vi phạm ràng buộc. JIT có thể tạo mã máy trong bước nạp. Attach liên kết chương trình với một hook tương thích. Sự kiện sau đó mới kích hoạt chương trình. Tiếp theo là một nhánh cụ thể mà verifier phân tích trong ví dụ mở tệp.}
 \end{frame}
 
-\begin{frame}{Luồng xử lý một sự kiện}
-  \noindent{\small Ví dụ: một tiến trình thực hiện system call.}\par
-  \vspace{0.10cm}
+\begin{frame}[fragile]{Verifier phân tích các nhánh khi nạp chương trình}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.47\textwidth}
+    \begin{block}{Ràng buộc của kernel}
+      \small
+      \begin{itemize}
+        \item Kiểu con trỏ và phạm vi truy cập bộ nhớ
+        \item Luồng điều khiển và khả năng kết thúc
+        \item Trạng thái thanh ghi trên từng nhánh
+        \item Helper và thao tác theo program type
+      \end{itemize}
+    \end{block}
+    \column{0.49\textwidth}
+    \begin{block}{Tra cứu bộ đếm \texttt{openat()}}
+      \lstinputlisting[language=C,firstline=30,lastline=37,emptylines=0]{demo/openat_demo.c}
+      \small Nhánh có con trỏ hợp lệ tăng bộ đếm. Nhánh còn lại thử tạo mục mới.
+    \end{block}
+  \end{columns}
+  \medskip
+  {\small Tính đúng của phép đếm còn phụ thuộc vào logic xử lý sự kiện.}
+
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/verifier.html}{Linux kernel: eBPF verifier}}
+  \note{Khoảng 1 phút. Lookup có thể trả về NULL nếu key chưa tồn tại. Verifier theo dõi trạng thái con trỏ qua hai nhánh. Trong nhánh if, con trỏ trỏ đến một giá trị map và mã tăng số đếm. Nhánh else gọi helper để thử tạo bộ đếm ban đầu. Việc qua verifier xác nhận các ràng buộc mà kernel kiểm tra. Tính đúng của phép đếm vẫn phụ thuộc logic chương trình.}
+\end{frame}
+
+\begin{frame}{Khi sự kiện xảy ra, eBPF nhận dữ liệu gì?}
+  \small
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{@{}L{0.16\textwidth}L{0.40\textwidth}L{0.36\textwidth}@{}}
+    \toprule
+      & \textbf{Tracepoint \texttt{sys\_enter\_openat}} & \textbf{XDP} \\
+    \midrule
+    Sự kiện & Tiến trình yêu cầu mở tệp & Gói tin đi vào đường xử lý mạng \\
+    Context & Các trường của syscall tracepoint & \texttt{struct xdp\_md}: vùng dữ liệu gói và metadata \\
+    Xử lý & Helper lấy \texttt{comm}, chương trình cập nhật map & Chương trình phân tích gói, có thể trả về \texttt{XDP\_PASS} hoặc \texttt{XDP\_DROP} \\
+    \bottomrule
+  \end{tabular}
+  \medskip
+
+  \textbf{Hook} quyết định lúc chương trình chạy. \textbf{Program type} quy định giao diện context và tập thao tác được phép.
+
+  \smallskip
+  \textbf{Trong demo.} \texttt{count\_openat(void *ctx)} nhận context. Tên tác vụ đến từ helper \texttt{bpf\_get\_current\_comm()}.
+
+  \smallskip
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/libbpf/program_types.html}{Linux kernel: program types}
+  \quad \href{https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_XDP/}{eBPF Docs: XDP}}
+  \note{Khoảng 90 giây. Hai hook kích hoạt tại các sự kiện khác nhau. Kernel truyền context phù hợp với program type. Với XDP, xdp_md cung cấp thông tin để truy cập dữ liệu gói. Với bộ đếm mở tệp, mã demo nhận ctx nhưng không đọc trường nào trực tiếp. Helper bpf_get_current_comm trả tên tác vụ hiện tại. Tiếp theo, map giữ số đếm sau khi mỗi lần gọi kết thúc.}
+\end{frame}
+
+\begin{frame}{BPF map lưu số đếm giữa các lời gọi}
   \begin{center}
-    \begin{tikzpicture}[font=\small]
-      \node[ebpfkernel, text width=3.4cm, minimum height=0.85cm] (call) at (0,0) {System call};
-      \node[ebpfkernel, text width=3.4cm, minimum height=0.85cm] (hook) at (4.7,0) {Tracepoint / Hook};
-      \node[ebpfprogram, text width=3.4cm, minimum height=0.85cm] (prog) at (9.4,0) {eBPF Program};
-      \node[ebpfprogram, text width=3.4cm, minimum height=1.1cm] (process) at (9.4,-1.7)
-        {Lọc, lấy thông tin,\\cập nhật bộ đếm};
-      \node[ebpfmap, text width=3.4cm, minimum height=1.1cm] (data) at (4.7,-1.7)
-        {Map hoặc cơ chế\\gửi sự kiện};
-      \node[ebpfuser, text width=3.4cm, minimum height=1.1cm] (user) at (0,-1.7) {User Space};
-      \draw[arr] (call) -- (hook);
+    \begin{tikzpicture}
+      \node[ebpfkernel, text width=2.85cm, minimum height=1.55cm] (hook) at (0,0)
+        {\textbf{Tracepoint}\\\footnotesize \texttt{sys\_enter\_openat}};
+      \node[ebpfprogram, text width=2.55cm, minimum height=1.55cm] (prog) at (3.55,0)
+        {\textbf{eBPF program}\\\footnotesize Lấy \texttt{comm}, tăng số đếm};
+      \node[ebpfmap, text width=2.65cm, minimum height=1.55cm] (map) at (7.05,0)
+        {\textbf{BPF hash map}\\\footnotesize Tên tác vụ và số đếm};
+      \node[ebpfuser, text width=2.45cm, minimum height=1.55cm] (loader) at (10.55,0)
+        {\textbf{Loader}\\\footnotesize Đọc map mỗi 5 giây};
       \draw[arr] (hook) -- (prog);
-      \draw[arr] (prog) -- (process);
-      \draw[arr] (process) -- (data);
-      \draw[arr] (data) -- (user);
+      \draw[arr] (prog) -- (map);
+      \draw[arr] (map) -- (loader);
+      \draw[decorate,decoration={brace,amplitude=4pt}] (8.5,-1.00) -- (-1.55,-1.00)
+        node[midway,below=5pt,font=\scriptsize] {Kernel Space};
+      \node[font=\scriptsize] at (10.55,-1.25) {User Space};
     \end{tikzpicture}
   \end{center}
-  \vspace{0.08cm}
-  \cue{1}{Chương trình được \textbf{nạp và gắn trước} khi sự kiện xảy ra.}
-  \cue{2}{Hook chỉ kích hoạt các chương trình được gắn phù hợp.}
-  \cue{3}{Dữ liệu thu thập phụ thuộc program type, hook và logic xử lý.}
-  \note{Sơ đồ khái quát cho sự kiện tại thời điểm system call đi vào kernel, không xác nhận lời gọi đã thành công. Các mũi tên chỉ mô tả luồng xử lý và dữ liệu. Những thao tác và dữ liệu được phép phụ thuộc program type, hook và kernel.}
+
+  \begin{columns}[c,onlytextwidth]
+    \column{0.41\textwidth}
+    \centering
+    {\footnotesize Giá trị minh họa}\par\smallskip
+    \small
+    \begin{tabular}{lr}
+      \toprule
+      \textbf{Tác vụ (\texttt{comm})} & \textbf{Lượt gọi} \\
+      \midrule
+      \texttt{cat} & 620 \\
+      \texttt{docker} & 85 \\
+      \texttt{postgres} & 30 \\
+      \bottomrule
+    \end{tabular}
+
+    \column{0.55\textwidth}
+    \small
+    Nhiều tiến trình hoặc container có thể có cùng tên tác vụ. Bộ đếm gộp các lời gọi có chung tên.
+
+    \medskip
+    Hash map giữ số đếm khi map còn tồn tại. Ring buffer là một lựa chọn khi ứng dụng cần nhận từng sự kiện.
+
+    \smallskip
+    {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/maps.html}{Linux kernel: BPF maps}}
+  \end{columns}
+  \note{Khoảng 80 giây. Mỗi lượt vào openat kích hoạt chương trình. Chương trình tìm tên tác vụ và cập nhật map. Loader đọc số đếm tích lũy mỗi 5 giây. Bảng chỉ minh họa cấu trúc dữ liệu, không phải số đo mới. Khi cần truyền bản ghi riêng lẻ, ring buffer phù hợp hơn bộ đếm.}
 \end{frame}

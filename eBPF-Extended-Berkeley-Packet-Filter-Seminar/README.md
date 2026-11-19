@@ -1,48 +1,33 @@
 # Seminar eBPF trên template LaTeX Beamer HCMUT
 
 Bộ slide tiếng Việt về **eBPF – Extended Berkeley Packet Filter**, kết hợp
-Theory + Practice. Giữ các layout bìa, mục lục và thành viên, trang chia chương,
-block, bảng và trang kết thúc của template. Theme Madrid, tỉ lệ 16:9, màu,
+lý thuyết, demo và ứng dụng thực tế. Giữ các layout bìa, mục lục và thành viên,
+trang chia chương, block và bảng của template. Theme Madrid, tỉ lệ 16:9, màu,
 font, header/footer, logo và hai file nền trong `images/` giữ nguyên.
 
 ## Cấu trúc nội dung
 
 Entry point: `main.tex`. Bốn chương lấy nội dung từ `chaptersnew/` và được
 trình bày bằng các layout, sơ đồ TikZ trong `chapters/`.
-Tổng cộng **21 trang PDF**, gồm bìa, mục lục, bốn trang chia chương, nội dung
-và trang kết thúc. Bốn slide thực hành vẫn là placeholder.
+Tổng cộng **29 trang PDF**, gồm bìa, mục lục, bốn phần nội dung và kết luận.
 Chapter 5 không được nạp vào bản trình chiếu. Các file nguồn trong `chaptersnew/`
 được giữ nguyên để đối chiếu.
 
 | Phần | File | Nội dung | Trang PDF |
 | --- | --- | --- | --- |
 | Mở đầu | `main.tex` | Bìa, mục lục và thành viên | 1–2 |
-| Giới thiệu | `chapters/chapter01.tex` | Chia chương, nhu cầu quan sát Linux, các phương pháp, khái niệm eBPF | 3–6 |
-| Kiến trúc eBPF | `chapters/chapter02.tex` | Chia chương, User/kernel/hardware, chuẩn bị và thực thi, bốn thành phần, luồng sự kiện | 7–11 |
-| Phát triển và công cụ | `chapters/chapter03.tex` | Chia chương, quy trình C/Clang/LLVM/libbpf, công cụ và ví dụ openat | 12–15 |
-| Thực hành | `chapters/chapter04.tex` | Chia chương, bốn placeholder: tổng quan, môi trường, execve, đếm openat theo comm | 16–20 |
-| Kết thúc | `main.tex` | Cảm ơn và Q&A | 21 |
+| Giới thiệu | `chapters/chapter01.tex` | Chia chương, nhu cầu quan sát Linux, các phương pháp, mở rộng kernel, demo đếm lượt đọc chậm bằng perf trace và eBPF, khái niệm eBPF | 3–9 |
+| Kiến trúc eBPF | `chapters/chapter02.tex` | Chia chương, user/kernel space, nạp và gắn chương trình, verifier, context, maps | 10–15 |
+| Phát triển và công cụ | `chapters/chapter03.tex` | Chia chương, quy trình C/Clang/LLVM/libbpf, công cụ, ví dụ và demo openat | 16–20 |
+| eBPF trong hệ thống thật | `chapters/chapter04.tex` | Mở chương, kernel dùng chung, ứng dụng, Cilium Service load balancing, Hubble, demo `openat()` và kết luận | 21–29 |
 
-Sơ đồ được vẽ trực tiếp bằng TikZ, có thể chỉnh sửa trong source. Không thêm
-ảnh ngoài hoặc đường dẫn ảnh tuyệt đối. `images/` tiếp tục chứa các PDF nền.
+Các sơ đồ TikZ có thể chỉnh sửa trong source. Hình từ tài liệu bên ngoài cho
+Chương 4 nằm trong `images/chapter04/` và được chèn bằng đường dẫn tương đối.
+Mỗi slide có liên kết nguồn hình. Các logo BCC, Cilium và Tetragon được chuyển
+từ SVG sang PNG để dùng với pdfLaTeX.
 
-## TODO cho phần thực hành
-
-Chỉ có tiêu đề, mục tiêu, các nội dung thực hành dự kiến, vùng trống và dòng
-`TODO: Demo content will be added later`. Không có script, lệnh demo hay output giả.
-
-- **Hands-on Practice:** bổ sung kịch bản và sơ đồ/ảnh tổng quan khi đã chuẩn bị demo.
-- **Demo 1:** bổ sung thông tin môi trường thật và screenshot kiểm tra capability.
-- **Demo 2:** bổ sung nội dung theo dõi `execve()`, PID và chương trình được yêu cầu thực thi.
-- **Demo 3:** bổ sung nội dung đếm `openat()` theo tên chương trình (`comm`) bằng map và kết quả chạy thật. Các tiến trình có thể trùng tên; đây không phải phép đếm theo PID.
-
-Các placeholder dùng macro `\DemoPlaceholder` trong `chapters/chapter04.tex`.
-Đối số cuối là chiều cao vùng trống, ví dụ `{3.15cm}`.
-Khi cần chèn terminal hoặc ảnh, thay riêng lời gọi tương ứng bằng frame thông thường.
-Ảnh bổ sung đặt trong `images/` và dùng đường dẫn tương đối.
-
-Thông tin tác giả/nhóm, giảng viên, MSSV, ngày trình bày và đơn vị vẫn là `[...]`
-để người trình bày điền, vì chưa có dữ liệu cá nhân trong yêu cầu.
+Thông tin tác giả/nhóm, giảng viên, MSSV và ngày trình bày dùng các mục `[...]`
+để người trình bày điền.
 
 ## Cài đặt và build
 
@@ -66,17 +51,11 @@ latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error
 Kết quả là `main.pdf`. PDF đầu ra và file build phụ được bỏ qua bởi Git;
 PDF nền trong `images/` và cấu hình `.vscode/` vẫn được giữ.
 
-Bản hiện tại đã build bằng lệnh trên thành PDF 21 trang và được render để
-kiểm tra trực quan. Không có cảnh báo overfull/underfull hoặc ký tự thiếu;
-toàn bộ font được nhúng. MiKTeX hiện còn cảnh báo chưa nạp mẫu ngắt từ tiếng Việt
-và dùng mẫu dự phòng. Không thay đổi cấu hình hệ thống để xử lý cảnh báo này.
-
 ## Sửa bài thuyết trình
 
 - **Thông tin bìa:** sửa `\title` (tên ngắn và tên đầy đủ), `\subtitle`,
   `\author` (tên ngắn ở footer và nội dung đầy đủ), `\date` trong `main.tex`.
-  Sửa bảng thành viên và mô tả mục lục tại cùng file. Dòng đơn vị ở trang kết thúc
-  nằm trong `main.tex`.
+  Sửa bảng thành viên và mô tả mục lục tại cùng file.
 - **Nội dung:** sửa `chapters/chapter01.tex` đến `chapter04.tex`.
   Mỗi chương có một trang chia chương. Bản trình chiếu chỉ nạp `chapter01.tex`–`chapter04.tex`.
 - **Thêm slide:** chèn vào file chương:
@@ -89,7 +68,7 @@ và dùng mẫu dự phòng. Không thay đổi cấu hình hệ thống để x
 
 - **Thêm chương:** sao chép một file chương thành `chapters/chapter07.tex`,
   sửa `\section` và `\ChapterDivider`, thêm `\input{chapters/chapter07}`
-  trong `main.tex` trước trang kết thúc. Cập nhật slide mục lục tương ứng.
+  trong `main.tex` theo thứ tự trình bày. Cập nhật slide mục lục tương ứng.
 - **Ảnh:** thêm ảnh vào `images/` và dùng `\includegraphics`.
   Giữ `Background.pdf` và `FrontBackground.pdf` để bảo toàn thiết kế.
 - Slide chứa `lstlisting` cần `\begin{frame}[fragile]{...}`.
@@ -99,13 +78,10 @@ XeLaTeX/LuaLaTeX, cần cài Noto Sans và Noto Sans Mono theo cấu hình font.
 
 ## Kịch bản thuyết trình và nguồn kỹ thuật
 
-`PRESENTER_NOTES.md` hiện chỉ chứa lời thuyết trình Part 1, tương ứng slide 4–6,
-thời lượng khoảng 4 phút 30 giây. Mỗi slide có mục tiêu, lời nói, thuật ngữ,
-câu chuyển tiếp và nguồn. Slide 17–20 là placeholder thực hành, chờ bổ sung
-từ môi trường demo thật.
+Kịch bản thuyết trình phân bổ 30 phút theo từng phần. Ghi chú có lệnh chuẩn bị và chạy lại hai demo. [Kịch bản seminar](PRESENTER_NOTES.md)
 
-Nguồn theo từng slide nằm trong kịch bản và `\note{...}` của Beamer, không hiển thị
-ở bản trình chiếu mặc định. Có thể bật chế độ notes khi cần đọc cùng source.
+Nguồn hình của Chương 4 hiển thị trực tiếp trên slide. Nguồn kỹ thuật bổ sung
+nằm trong kịch bản và các phần `\note{...}` của Beamer.
 
 - [eBPF Foundation: What is eBPF?](https://ebpf.io/what-is-ebpf/)
 - [Linux BPF documentation](https://docs.kernel.org/bpf/)

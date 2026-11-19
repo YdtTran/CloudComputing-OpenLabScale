@@ -7,35 +7,35 @@
   \begin{center}
     \begin{tikzpicture}
       \node[ebpfuser, text width=3.7cm, minimum height=1.9cm, align=left] (write) at (0,0)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{1. Write}\\[0.13cm]
-         Viết chương trình eBPF bằng C.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{1. Mã nguồn}\\[0.13cm]
+          Mã C mô tả logic xử lý sự kiện.
+        \end{minipage}};
       \node[ebpfuser, text width=3.7cm, minimum height=1.9cm, align=left] (compile) at (4.7,0)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{2. Compile}\\[0.13cm]
-         Clang/LLVM tạo object chứa bytecode.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{2. Compile}\\[0.13cm]
+          Clang/LLVM tạo object chứa bytecode.
+        \end{minipage}};
       \node[ebpfkernel, text width=3.7cm, minimum height=1.9cm, align=left] (load) at (9.4,0)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{3. Load \& Verify}\\[0.13cm]
-         Loader yêu cầu nạp, Verifier kiểm tra.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{3. Load \& Verify}\\[0.13cm]
+          Loader yêu cầu nạp, Verifier kiểm tra.
+        \end{minipage}};
       \node[ebpfkernel, text width=3.7cm, minimum height=1.9cm, align=left] (attach) at (9.4,-2.5)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{4. Attach}\\[0.13cm]
-         Gắn program vào hook tương thích.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{4. Attach}\\[0.13cm]
+          Loader gắn chương trình vào hook.
+        \end{minipage}};
       \node[ebpfprogram, text width=3.7cm, minimum height=1.9cm, align=left] (execute) at (4.7,-2.5)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{5. Execute}\\[0.13cm]
-         Sự kiện phù hợp kích hoạt program.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{5. Execute}\\[0.13cm]
+          Sự kiện phù hợp kích hoạt program.
+        \end{minipage}};
       \node[ebpfmap, text width=3.7cm, minimum height=1.9cm, align=left] (collect) at (0,-2.5)
-        {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-         \textbf{6. Collect}\\[0.13cm]
-         User Space đọc map hoặc nhận sự kiện.
-         \end{minipage}};
+      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
+          \textbf{6. Collect}\\[0.13cm]
+          User Space đọc map hoặc nhận sự kiện.
+        \end{minipage}};
       \draw[arr] (write) -- (compile);
       \draw[arr] (compile) -- (load);
       \draw[arr] (load) -- (attach);
@@ -51,28 +51,28 @@
   \begin{center}
     \begin{tikzpicture}
       \node[ebpfuser, text width=6.0cm, minimum height=1.95cm, align=left] at (0,0)
-        {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
-         \textbf{bpftrace}\\[0.13cm]
-         Tracing nhanh bằng cú pháp ngắn, phù hợp minh họa sự kiện.
-         \end{minipage}};
+      {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
+          \textbf{bpftrace}\\[0.13cm]
+          Tracing nhanh bằng cú pháp ngắn, phù hợp minh họa sự kiện.
+        \end{minipage}};
       \node[ebpfuser, text width=6.0cm, minimum height=1.95cm, align=left] at (7.3,0)
-        {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
-         \textbf{bpftool}\\[0.13cm]
-         Kiểm tra tính năng BPF của kernel. Quản lý program, map và link.
-         \end{minipage}};
+      {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
+          \textbf{bpftool}\\[0.13cm]
+          Kiểm tra tính năng BPF của kernel. Quản lý program, map và link.
+        \end{minipage}};
       \node[ebpfuser, text width=6.0cm, minimum height=1.95cm, align=left] at (0,-2.5)
-        {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
-         \textbf{libbpf}\\[0.13cm]
-         Thư viện C hỗ trợ nạp, gắn và quản lý chương trình eBPF.
-         \end{minipage}};
+      {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
+          \textbf{libbpf}\\[0.13cm]
+          Thư viện C hỗ trợ nạp, gắn và quản lý chương trình eBPF.
+        \end{minipage}};
       \node[ebpfuser, text width=6.0cm, minimum height=1.95cm, align=left] at (7.3,-2.5)
-        {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
-         \textbf{BCC}\\[0.13cm]
-         Thư viện và công cụ tracing để phân tích hành vi, hiệu năng hệ thống.
-         \end{minipage}};
+      {\begin{minipage}[t][1.55cm][t]{6.0cm}\raggedright
+          \textbf{BCC}\\[0.13cm]
+          Thư viện và công cụ tracing để phân tích hành vi, hiệu năng hệ thống.
+        \end{minipage}};
     \end{tikzpicture}
   \end{center}
-  {\small \textbf{Thực hành:} Dùng \texttt{bpftool} kiểm tra môi trường và \texttt{bpftrace} theo dõi system calls, đếm sự kiện. Chưa cần tự viết loader bằng C.}
+  {\small \texttt{bpftool} cho biết tính năng BPF của kernel. \texttt{bpftrace} hỗ trợ khảo sát sự kiện bằng script ngắn.}
   \note{Vai trò và lựa chọn cho phần thực hành theo nội dung chaptersnew. Nguồn: \url{https://bpftrace.org/about}; \url{https://github.com/libbpf/bpftool/blob/main/docs/bpftool.rst}; \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://github.com/iovisor/bcc}.}
 \end{frame}
 
@@ -82,22 +82,41 @@
   \begin{center}
     \begin{tikzpicture}
       \node[ebpfuser, text width=2.05cm, minimum height=2.4cm] (app) at (0,0)
-        {\textbf{Application}\\[0.15cm]Gọi\\\texttt{openat()}};
+      {\textbf{Application}\\[0.15cm]Gọi\\\texttt{openat()}};
       \node[ebpfkernel, text width=2.7cm, minimum height=2.4cm] (hook) at (3.0,0)
-        {\textbf{Tracepoint}\\[0.15cm]\footnotesize\texttt{syscalls:}\\\texttt{sys\_enter\_openat}};
+      {\textbf{Tracepoint}\\[0.15cm]\footnotesize\texttt{syscalls:}\\\texttt{sys\_enter\_openat}};
       \node[ebpfprogram, text width=2.15cm, minimum height=2.4cm] (prog) at (6.1,0)
-        {\textbf{eBPF Program}\\[0.15cm]Lấy \texttt{comm}, cập nhật bộ đếm};
+      {\textbf{eBPF Program}\\[0.15cm]Lấy \texttt{comm}, cập nhật bộ đếm};
       \node[ebpfmap, text width=2.0cm, minimum height=2.4cm] (map) at (9.0,0)
-        {\textbf{eBPF Map}\\[0.15cm]Số lần gọi theo\\\texttt{comm}};
+      {\textbf{eBPF Map}\\[0.15cm]Số lần gọi theo\\\texttt{comm}};
       \node[ebpfuser, text width=2.15cm, minimum height=2.4cm] (user) at (11.9,0)
-        {\textbf{bpftrace}\\[0.15cm]Đọc map, hiển thị thống kê};
+      {\textbf{Loader}\\[0.15cm]Hiển thị số đếm tích lũy};
       \draw[arr] (app) -- (hook);
       \draw[arr] (hook) -- (prog);
       \draw[arr] (prog) -- (map);
       \draw[arr] (map) -- (user);
     \end{tikzpicture}
   \end{center}
-  \cue{1}{\texttt{comm} là tên tác vụ/tiến trình, không phải PID. Nhiều tiến trình có thể trùng tên.}
+  \cue{1}{Bộ đếm gộp các tác vụ có cùng \texttt{comm}, kể cả khi PID khác nhau.}
   \cue{2}{Sự kiện tại \textsl{entry} ghi nhận yêu cầu, chưa xác nhận mở tệp thành công.}
-  \note{Sơ đồ minh họa cách bpftrace thu thập và hiển thị bộ đếm theo comm, không phải mã hay kết quả demo đã chạy. Tên tác vụ do kernel cung cấp có thể thay đổi và bị giới hạn độ dài. Tracepoint sys_enter_openat xảy ra khi bắt đầu lời gọi. Nguồn: \url{https://bpftrace.org/docs/release_024/language}; \url{https://man7.org/linux/man-pages/man5/proc_pid_comm.5.html}; \url{https://man7.org/linux/man-pages/man2/openat.2.html}.}
+  \note{Ví dụ này dùng loader C với libbpf. Tên tác vụ do kernel cung cấp và có giới hạn độ dài. Tracepoint sys_enter_openat ghi nhận lúc bắt đầu lời gọi, bao gồm những lượt sau đó thất bại. Nguồn \url{https://man7.org/linux/man-pages/man5/proc_pid_comm.5.html}.}
+\end{frame}
+
+\begin{frame}[fragile]{Logic của bộ đếm \texttt{openat()}}
+  \begin{columns}[c,onlytextwidth]
+    \column{0.53\textwidth}
+    \lstinputlisting[language=C,firstline=21,lastline=40,emptylines=0,
+      basicstyle=\ttfamily\fontsize{8}{9.4}\selectfont]{demo/openat_demo.c}
+
+    \column{0.43\textwidth}
+    \small
+    \begin{block}{Điểm gắn}
+      ELF section nhận diện chương trình tracepoint. Loader gắn nó vào \texttt{sys\_enter\_openat}.
+    \end{block}
+
+    \begin{block}{Bộ đếm theo tên tác vụ}
+      Helper lấy \texttt{comm}. Nếu key đã có, phép cộng nguyên tử tăng bộ đếm. Với key mới, chương trình thử khởi tạo số đếm bằng 1.
+    \end{block}
+  \end{columns}
+  \note{Mã trích từ demo/openat\_demo.c. Clang tạo object eBPF. Một chương trình C riêng dùng libbpf để nạp object, gắn tracepoint và đọc map. Phần chuẩn bị demo nằm trong PRESENTER\_NOTES.md.}
 \end{frame}
