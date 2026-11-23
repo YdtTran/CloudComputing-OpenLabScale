@@ -127,12 +127,12 @@
   }{eBPF -- Extended Berkeley Packet Filter}%
 }
 \subtitle{Quan sát và xử lý sự kiện trong Linux kernel}
-\author[Tác giả]
+\author[Nhóm VYT]
 {%
   \texorpdfstring{%
-    \textbf{[Họ và tên tác giả / nhóm]}\\
-    \textbf{Giảng viên: [Họ và tên]}%
-  }{[Họ và tên tác giả / nhóm], Giảng viên: [Họ và tên]}%
+    \textbf{Nhóm VYT: Trần Đình Ý -- Nguyễn Phúc Vĩnh -- Trần Văn Minh Triết}\\
+    \textbf{Giảng viên hướng dẫn: PGS. Thoại Nam}%
+  }{Nhóm VYT: Trần Đình Ý, Nguyễn Phúc Vĩnh, Trần Văn Minh Triết -- Giảng viên: PGS. Thoại Nam}%
 }
 \date{[Ngày trình bày]}
 
@@ -149,9 +149,9 @@
 \begin{frame}{Nội dung trình bày và thành viên}
   \begin{center}
     \begin{tikzpicture}[r/.style={rectangle, rounded corners=4pt, minimum width=4.2cm, minimum height=3.2cm, align=left, line width=1pt, text width=3.9cm, inner sep=5pt}]
-      \node[r, draw=BKTemplate, fill=BKTemplate!8] (a) at (0,0) {{\small\bfseries\color{BKTemplate} 1. Giới thiệu eBPF}\\[0.08cm]\footnotesize Nhu cầu quan sát Linux\\Khái niệm eBPF\\[0.18cm]{\small\bfseries\color{BKTemplate} 2. Kiến trúc eBPF}\\[0.08cm]\footnotesize Thành phần và luồng\\xử lý sự kiện};
-      \node[r, draw=BKTemplate, fill=BKTemplate!8] (b) at (4.7,0) {{\small\bfseries\color{BKTemplate} 3. Phát triển\\và công cụ}\\[0.12cm]\footnotesize Quy trình triển khai\\Các công cụ eBPF\\Ví dụ \texttt{openat()}};
-      \node[r, draw=BKTemplate, fill=BKTemplate!8] (c) at (9.4,0) {{\small\bfseries\color{BKTemplate} 4. eBPF trong hệ thống thật}\\[0.12cm]\footnotesize Ứng dụng của eBPF\\Cilium và Hubble\\Demo đếm \texttt{openat()}};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (a) at (0,0) {{\small\bfseries\color{BKTemplate} 1. Giới thiệu eBPF}\\[0.06cm]\footnotesize Nhu cầu quan sát Linux\\Khái niệm eBPF\\[0.14cm]{\small\bfseries\color{BKTemplate} 2. Kiến trúc eBPF}\\[0.06cm]\footnotesize Verifier, JIT, Hook \& Map};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (b) at (4.7,0) {{\small\bfseries\color{BKTemplate} 3. Phát triển\\và công cụ}\\[0.10cm]\footnotesize Quy trình, BTF \& CO-RE\\\texttt{bpftool}, \texttt{bpftrace}, \texttt{libbpf}\\Ví dụ \texttt{openat()}};
+      \node[r, draw=BKTemplate, fill=BKTemplate!8] (c) at (9.4,0) {{\small\bfseries\color{BKTemplate} 4. eBPF trong hệ thống thật}\\[0.10cm]\footnotesize Cilium, Hubble, Tetragon\\Demo so sánh overhead\\Giới hạn vận hành};
       \draw[arr] (a) -- (b); \draw[arr] (b) -- (c);
     \end{tikzpicture}
   \end{center}
@@ -164,9 +164,9 @@
       \toprule
       \textbf{Phần phụ trách} & \textbf{MSSV} & \textbf{Họ và tên} \\
       \midrule
-      Giới thiệu và kiến trúc & [MSSV] & [Họ và tên] \\
-      Phát triển và công cụ & [MSSV] & [Họ và tên] \\
-      eBPF trong hệ thống thật & [MSSV] & [Họ và tên] \\
+      Giới thiệu và kiến trúc & 2414100 & Trần Đình Ý \\
+      Phát triển và công cụ & 2414001 & Nguyễn Phúc Vĩnh \\
+      eBPF trong hệ thống thật & 2413603 & Trần Văn Minh Triết \\
       \bottomrule
     \end{tabular}
   \end{table}
