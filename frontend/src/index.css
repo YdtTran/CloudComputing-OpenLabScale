@@ -5,4 +5,25 @@ html, body, #root {
   height: 100%;
   margin: 0;
   padding: 0;
+  background-color: #1e1e2f;
+  color: #ffffff;
+  font-family: "Poppins", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1e1e2f;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #3b3e5a;
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #1d8cf8;
 }

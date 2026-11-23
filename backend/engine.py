@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import logging
+import platform
 from pathlib import Path
 from typing import Optional
 from uuid import uuid4
@@ -17,14 +18,55 @@ SESSION_LABEL = "openlabscale.session"
 
 def host_counters() -> dict:
     try:
-        cpu = list(map(int, Path("/proc/stat").read_text().splitlines()[0].split()[1:9]))
+        stat_lines = Path("/proc/stat").read_text().splitlines()
+        cpu = list(map(int, stat_lines[0].split()[1:9]))
         memory = {line.split(":")[0]: int(line.split()[1]) * 1024
                   for line in Path("/proc/meminfo").read_text().splitlines()
                   if line.startswith(("MemTotal:", "MemAvailable:"))}
-        return {"available": True, "cpu_total_ticks": sum(cpu), "cpu_idle_ticks": cpu[3] + cpu[4],
-                "memory_total_bytes": memory["MemTotal"],
-                "memory_used_bytes": memory["MemTotal"] - memory["MemAvailable"],
-                "sampled_at": now()}
+        cpu_model: Optional[str] = None
+        mhz_values: list[float] = []
+        logical_cpus = 0
+        try:
+            for line in Path("/proc/cpuinfo").read_text().splitlines():
+                if line.startswith("processor"):
+                    logical_cpus += 1
+                elif cpu_model is None and line.startswith("model name") and ":" in line:
+                    cpu_model = line.split(":", 1)[1].strip()
+                elif line.startswith("cpu MHz") and ":" in line:
+                    mhz_values.append(float(line.split(":", 1)[1].strip()))
+        except (OSError, ValueError):
+            pass
+        uptime_seconds: Optional[float] = None
+        try:
+            uptime_seconds = float(Path("/proc/uptime").read_text().split()[0])
+        except (OSError, ValueError, IndexError):
+            pass
+        procs_running: Optional[int] = None
+        procs_total: Optional[int] = None
+        try:
+            for line in stat_lines:
+                if line.startswith("procs_running "):
+                    procs_running = int(line.split()[1])
+            loadavg_tasks = Path("/proc/loadavg").read_text().split()[3]
+            if "/" in loadavg_tasks:
+                procs_total = int(loadavg_tasks.split("/", 1)[1])
+        except (OSError, ValueError, IndexError):
+            pass
+        return {
+            "available": True,
+            "cpu_total_ticks": sum(cpu),
+            "cpu_idle_ticks": cpu[3] + cpu[4],
+            "memory_total_bytes": memory["MemTotal"],
+            "memory_used_bytes": memory["MemTotal"] - memory["MemAvailable"],
+            "cpu_model": cpu_model,
+            "cpu_mhz": round(sum(mhz_values) / len(mhz_values), 0) if mhz_values else None,
+            "logical_cpus": logical_cpus or None,
+            "uptime_seconds": uptime_seconds,
+            "procs_running": procs_running,
+            "procs_total": procs_total,
+            "kernel_release": platform.release(),
+            "sampled_at": now(),
+        }
     except (OSError, ValueError, IndexError, KeyError):
         return {"available": False}
 

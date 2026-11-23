@@ -17,7 +17,7 @@ import { submitSession, getSession, listSessions, releaseSession } from './api';
 import type { Session, SessionState } from './types';
 import { TerminalView } from './components/TerminalView';
 
-export function StudentPortal({ csrf }: { csrf: string }) {
+export function StudentPortal({ csrf, signingOut = false }: { csrf: string; signingOut?: boolean }) {
   const activeToken = csrf;
 
   const [activeSession, setActiveSession] = useState<Session | null>(null);
@@ -33,25 +33,31 @@ export function StudentPortal({ csrf }: { csrf: string }) {
   const [summary, setSummary] = useState<{ active: number; queued: number; available_slots: number; per_user_limit: number } | null>(null);
 
   useEffect(() => {
+    if (signingOut) return;
+    const controller = new AbortController();
     const update = async () => {
       try {
-        const response = await fetch('/workspace/summary');
+        const response = await fetch('/workspace/summary', { signal: controller.signal });
         if (response.status === 401) window.dispatchEvent(new Event('session-expired'));
         if (!response.ok) throw new Error('Could not load workspace summary');
         setSummary(await response.json());
       } catch (err) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         setError(err instanceof Error ? err.message : 'Could not load workspace summary');
       }
     };
     void update();
     const timer = setInterval(update, 3000);
-    return () => clearInterval(timer);
-  }, []);
+    return () => {
+      controller.abort();
+      clearInterval(timer);
+    };
+  }, [signingOut]);
 
-  const fetchSessions = useCallback(async () => {
-    if (!activeToken) return;
+  const fetchSessions = useCallback(async (signal?: AbortSignal) => {
+    if (!activeToken || signingOut) return;
     try {
-      const list = await listSessions(activeToken);
+      const list = await listSessions(activeToken, signal);
       setSessionList(list);
       setActiveSession((prev) => {
         if (prev) {
@@ -61,38 +67,49 @@ export function StudentPortal({ csrf }: { csrf: string }) {
         return list.find((s) => ['REQUESTED', 'QUEUED', 'PROVISIONING', 'RUNNING', 'RELEASING'].includes(s.state)) ?? list[0] ?? null;
       });
     } catch (err: unknown) {
+      if (err instanceof Error && err.name === 'AbortError') return;
       if (err instanceof Error && err.message.includes('401')) {
         setError('Your session has expired. Please sign in again.');
       }
     }
-  }, [activeToken]);
+  }, [activeToken, signingOut]);
 
   useEffect(() => {
-    fetchSessions();
-    const timer = setInterval(fetchSessions, 3000);
-    return () => clearInterval(timer);
-  }, [fetchSessions]);
+    if (signingOut) return;
+    const controller = new AbortController();
+    void fetchSessions(controller.signal);
+    const timer = setInterval(() => void fetchSessions(controller.signal), 3000);
+    return () => {
+      controller.abort();
+      clearInterval(timer);
+    };
+  }, [fetchSessions, signingOut]);
 
   // Poll active session while in non-terminal lifecycle states or cleanup_pending
   useEffect(() => {
-    if (!activeSession || !activeToken) return;
+    if (!activeSession || !activeToken || signingOut) return;
     const doneStates: SessionState[] = ['COMPLETED', 'RELEASED', 'FAILED', 'CANCELLED'];
     if (doneStates.includes(activeSession.state) && !activeSession.cleanup_pending) return;
 
+    const controller = new AbortController();
     const interval = setInterval(async () => {
       try {
-        const updated = await getSession(activeToken, activeSession.id);
+        const updated = await getSession(activeToken, activeSession.id, controller.signal);
         setActiveSession(updated);
-        listSessions(activeToken).then(setSessionList).catch(() => {});
+        listSessions(activeToken, controller.signal).then(setSessionList).catch(() => {});
       } catch (err: unknown) {
+        if (err instanceof Error && err.name === 'AbortError') return;
         if (err instanceof Error && err.message.includes('404')) {
           setActiveSession(null);
         }
       }
     }, 1000);
 
-    return () => clearInterval(interval);
-  }, [activeSession, activeToken]);
+    return () => {
+      controller.abort();
+      clearInterval(interval);
+    };
+  }, [activeSession, activeToken, signingOut]);
 
   // Live duration ticker for RUNNING session
   useEffect(() => {
@@ -220,12 +237,12 @@ export function StudentPortal({ csrf }: { csrf: string }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans">
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex-1 w-full flex flex-col gap-6">
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3" aria-label="Workspace summary">
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">Active workspaces <strong className="ml-2">{summary?.active ?? '—'}</strong></div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">Queued requests <strong className="ml-2">{summary?.queued ?? '—'}</strong></div>
-          <div className="rounded-lg border border-slate-800 bg-slate-900 p-4">Available slots <strong className="ml-2">{summary ? `${summary.available_slots} / ${summary.per_user_limit}` : '—'}</strong></div>
+    <div className="text-white flex flex-col font-sans">
+      <main className="w-full flex-1 flex flex-col gap-6">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3" aria-label="Workspace summary">
+          <div className="rounded-lg border border-white/5 bg-[#27293d] p-4 shadow-md text-xs text-[#9a9a9a]">Active workspaces <strong className="ml-2 text-base text-[#00f2c3] font-mono">{summary?.active ?? '—'}</strong></div>
+          <div className="rounded-lg border border-white/5 bg-[#27293d] p-4 shadow-md text-xs text-[#9a9a9a]">Queued requests <strong className="ml-2 text-base text-[#ff8d72] font-mono">{summary?.queued ?? '—'}</strong></div>
+          <div className="rounded-lg border border-white/5 bg-[#27293d] p-4 shadow-md text-xs text-[#9a9a9a]">Available slots <strong className="ml-2 text-base text-[#1d8cf8] font-mono">{summary ? `${summary.available_slots} / ${summary.per_user_limit}` : '—'}</strong></div>
         </div>
         {error && (
           <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-lg text-rose-300 text-xs flex items-center justify-between">
@@ -245,7 +262,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1">
           <div className="lg:col-span-4 flex flex-col gap-5">
             {/* Request Container Form */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm">
+            <div className="bg-[#27293d] border border-white/5 rounded-lg p-5 shadow-sm">
               <h2 className="text-sm font-semibold text-slate-200 mb-1 flex items-center gap-2">
                 <Play className="w-4 h-4 text-sky-400" />
                 Request New Environment
@@ -308,7 +325,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="w-full py-2.5 px-4 bg-sky-600 hover:bg-sky-500 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-[#1d8cf8] to-[#3358f4] hover:opacity-90 disabled:bg-slate-800 disabled:text-slate-500 text-white text-xs font-semibold rounded-lg shadow-sm transition flex items-center justify-center gap-2 cursor-pointer disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>
@@ -327,7 +344,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
 
             {/* Active Session Details & Live Metrics */}
             {activeSession && (
-              <div className="bg-slate-900 border border-slate-800 rounded-xl p-5 shadow-sm space-y-4">
+              <div className="bg-[#27293d] border border-white/5 rounded-lg p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <Activity className="w-4 h-4 text-emerald-400" />
@@ -436,14 +453,14 @@ export function StudentPortal({ csrf }: { csrf: string }) {
             )}
 
             {/* Session List & Cross-Session Access Test */}
-            <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-sm flex-1 flex flex-col gap-3">
+            <div className="bg-[#27293d] border border-white/5 rounded-lg p-4 shadow-sm flex-1 flex flex-col gap-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
                   <Layers className="w-3.5 h-3.5 text-slate-400" />
                   Your Sessions ({sessionList.length})
                 </span>
                 <button
-                  onClick={fetchSessions}
+                  onClick={() => void fetchSessions()}
                   className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-slate-200 transition cursor-pointer"
                   title="Refresh sessions"
                 >
@@ -503,7 +520,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
             {activeSession && activeSession.state === 'RUNNING' ? (
               <TerminalView sessionId={activeSession.id} />
             ) : activeSession && ['REQUESTED', 'QUEUED'].includes(activeSession.state) ? (
-              <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+              <div className="flex-1 bg-[#27293d] border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center text-center">
                 <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-full text-amber-400 mb-4 animate-bounce">
                   <Clock className="w-8 h-8" />
                 </div>
@@ -523,7 +540,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
                 </div>
               </div>
             ) : activeSession && activeSession.state === 'PROVISIONING' ? (
-              <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+              <div className="flex-1 bg-[#27293d] border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center text-center">
                 <div className="p-4 bg-sky-500/10 border border-sky-500/20 rounded-full text-sky-400 mb-4 animate-spin">
                   <RefreshCw className="w-8 h-8" />
                 </div>
@@ -535,7 +552,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
                 </p>
               </div>
             ) : activeSession && activeSession.state === 'RELEASING' ? (
-              <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+              <div className="flex-1 bg-[#27293d] border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center text-center">
                 <div className="p-4 bg-purple-500/10 border border-purple-500/20 rounded-full text-purple-400 mb-4 animate-spin">
                   <RefreshCw className="w-8 h-8" />
                 </div>
@@ -547,7 +564,7 @@ export function StudentPortal({ csrf }: { csrf: string }) {
                 </p>
               </div>
             ) : activeSession && ['RELEASED', 'COMPLETED', 'CANCELLED', 'FAILED'].includes(activeSession.state) ? (
-              <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-8 flex flex-col items-center justify-center text-center">
+              <div className="flex-1 bg-[#27293d] border border-white/5 rounded-lg p-8 flex flex-col items-center justify-center text-center">
                 <div className="p-4 bg-slate-800 rounded-full text-slate-300 mb-4">
                   {activeSession.state === 'FAILED' ? (
                     <ShieldAlert className="w-8 h-8 text-rose-400" />

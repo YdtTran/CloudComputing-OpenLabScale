@@ -14,10 +14,12 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .auth import COOKIE, auth_router, current_user
+from .demo import DemoRunner
 from .engine import Engine
 from .identity import IdentityStore
 from .models import Request, Session, Settings, State, now
 from .scheduler import Entry, Scheduler
+from .telemetry import ObservabilityTracker
 from .terminal import bridge
 
 
@@ -45,17 +47,41 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             if engine is None:
                 await asyncio.to_thread(manager.check_runtime)
             scheduler = Scheduler(settings, manager)
+            observability = ObservabilityTracker(settings, manager)
+            demo_runner = DemoRunner(settings, scheduler, store)
+            await asyncio.to_thread(observability.start)
             app.state.scheduler = scheduler
+            app.state.observability = observability
+            app.state.demo = demo_runner
             app.state.stats_lock = asyncio.Lock()
             app.state.previous_host = None
             worker = asyncio.create_task(scheduler.run())
             app.state.worker = worker
+
+            async def poll_observability() -> None:
+                while not scheduler.stopping:
+                    try:
+                        await asyncio.to_thread(
+                            observability.observe,
+                            [e.session for e in list(scheduler.sessions.values())],
+                            None,
+                        )
+                    except Exception:
+                        pass
+                    await asyncio.sleep(max(1.0, settings.poll_seconds))
+
+            obs_worker = asyncio.create_task(poll_observability()) if settings.enable_ebpf else None
             try:
                 yield
             finally:
                 scheduler.stopping = True
                 scheduler.wake.set()
+                await demo_runner.stop()
+                if obs_worker is not None:
+                    obs_worker.cancel()
+                    await asyncio.gather(obs_worker, return_exceptions=True)
                 await worker
+                await asyncio.to_thread(observability.stop)
         finally:
             if engine is None and manager is not None:
                 await asyncio.to_thread(manager.client.close)
@@ -91,7 +117,9 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
         if not scheduler.healthy or app.state.worker.done():
             raise HTTPException(503, "Docker unavailable")
         try:
-            return scheduler.submit(owner, body)
+            created = scheduler.submit(owner, body)
+            app.state.observability.record_interaction(created.id, "session_create")
+            return created
         except ValueError as error:
             raise HTTPException(422, str(error)) from error
 
@@ -138,6 +166,8 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             'host_cpu_millis', 'host_memory_mib', 'headroom_cpu_millis', 'headroom_memory_mib',
             'default_cpu_millis', 'default_memory_mib', 'max_sessions', 'per_user', 'pids',
             'lifetime_seconds', 'queue_seconds', 'poll_seconds', 'docker_timeout_seconds', 'image',
+            'enable_ebpf', 'collector_image', 'idle_cpu_threshold_pct', 'idle_quiet_seconds',
+            'interaction_grace_seconds', 'stale_threshold_seconds',
         })
 
     @app.get("/stats")
@@ -177,6 +207,13 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             if sum(entry.session.owner == session.owner for entry in scheduler.reserved.values()) >= settings.per_user:
                 reasons.append('Personal workspace limit')
             queue_reasons[session_id] = reasons
+        obs = await asyncio.to_thread(
+            app.state.observability.observe,
+            [e.session for e in list(scheduler.sessions.values())],
+            telemetry.get("containers"),
+        )
+        if telemetry.get("containers") is not None:
+            telemetry = {**telemetry, "containers": obs["containers"]}
         return {
             "sampled_at": now(), "total_sessions": len(scheduler.sessions),
             'accounts': {'total': len(users), 'active': sum(bool(user['is_active']) for user in users)},
@@ -185,8 +222,31 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             "queue": list(scheduler.queue),
             "sessions": [scheduler.snapshot(entry) for entry in scheduler.sessions.values()],
             "headroom": {"cpu_millis": settings.headroom_cpu_millis, "memory_mib": settings.headroom_memory_mib},
+            "observability": obs["observability"],
+            "demo": app.state.demo.status(),
             **scheduler.capacity(), **telemetry,
         }
+
+    @app.get("/admin/demo")
+    async def demo_status(request: HTTPRequest):
+        current_user(store, settings.terminal_origin, request, admin=True)
+        return app.state.demo.status()
+
+    @app.post("/admin/demo/run")
+    async def demo_run(body: dict, request: HTTPRequest):
+        current_user(store, settings.terminal_origin, request, admin=True, mutate=True)
+        scenario_id = str(body.get("scenario", ""))
+        try:
+            return app.state.demo.start(scenario_id)
+        except ValueError as error:
+            raise HTTPException(422, str(error)) from error
+        except RuntimeError as error:
+            raise HTTPException(409, str(error)) from error
+
+    @app.post("/admin/demo/stop")
+    async def demo_stop(request: HTTPRequest):
+        current_user(store, settings.terminal_origin, request, admin=True, mutate=True)
+        return await app.state.demo.stop()
 
     @app.websocket("/sessions/{session_id}/terminal")
     async def terminal(websocket: WebSocket, session_id: str):
@@ -203,7 +263,13 @@ def create_app(settings: Optional[Settings] = None, engine=None) -> FastAPI:
             await websocket.close(code=1008)
             return
         entry.terminal_attached = True
-        await bridge(websocket, entry, scheduler.docker, lambda: store.session(credential) is not None)
+        await bridge(
+            websocket,
+            entry,
+            scheduler.docker,
+            lambda: store.session(credential) is not None,
+            on_activity=lambda: app.state.observability.record_interaction(entry.session.id, "terminal_input"),
+        )
 
     dist = Path(__file__).resolve().parent.parent / "frontend" / "dist"
     if (dist / "index.html").is_file():
