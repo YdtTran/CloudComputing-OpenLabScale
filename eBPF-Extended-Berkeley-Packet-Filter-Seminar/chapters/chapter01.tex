@@ -58,8 +58,8 @@
     \end{column}
   \end{columns}
   \vspace{0.20cm}
-  Trong phép so sánh tiếp theo, \texttt{perf trace} xuất từng lượt đọc để script tổng hợp.
-  Chương trình eBPF có thể tính cùng chỉ số ngay trong kernel.
+  Mỗi phương pháp đánh đổi khác nhau giữa chi phí thu thập, khả năng tùy biến và mức độ an toàn đối với kernel.
+  \note{Khoảng 75 giây. Application logging dễ dùng nhưng thiếu góc nhìn kernel và đòi hỏi sửa mã nguồn khi cần sự kiện mới. strace dùng ptrace dừng tiến trình nên chi phí cao. perf mạnh về lấy mẫu nhưng tùy biến logic phức tạp ngay trong kernel còn hạn chế. Kernel module can thiệp sâu nhưng lỗi có thể gây crash toàn hệ thống.}
 \end{frame}
 
 \begin{frame}{eBPF mở rộng khả năng của Linux kernel}
@@ -82,80 +82,5 @@
 
   \smallskip
   {\scriptsize Nguồn \href{https://ebpf.io/what-is-ebpf/}{eBPF.io}}
-  \note{Khoảng 1 phút. eBPF đưa logic xử lý sự kiện vào các điểm kernel hỗ trợ. Bộ đếm mở tệp chạy mà không cần thay đổi mã ứng dụng hoặc khởi động lại máy. Sửa kernel và kernel module vẫn phục vụ các nhu cầu rộng hơn. Phép thử đọc chậm cho thấy khác biệt khi việc tổng hợp diễn ra trong kernel.}
-\end{frame}
-
-\begin{frame}{Phép thử đếm lượt đọc chậm theo container}
-  \small
-  Hai container đang chạy cùng một chương trình. Mỗi bên thực hiện \textbf{20 lượt đọc}.
-  Container B được cấp dữ liệu trễ khoảng 320 ms ở bốn lượt.
-  \vspace{0.25cm}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.48\textwidth}
-      \begin{block}{\texttt{perf trace} + script}
-        Kernel ghi nhận từng lượt đọc.\\[0.15cm]
-        $\downarrow$ Từng bản ghi đi ra ngoài kernel.\\[0.15cm]
-        Script lọc lượt trên 200 ms và đếm.
-      \end{block}
-    \end{column}
-    \begin{column}{0.48\textwidth}
-      \begin{block}{eBPF + bộ đếm}
-        Probe đo từng lượt đọc ngay trong kernel.\\[0.15cm]
-        Probe lọc lượt trên 200 ms và đếm.\\[0.15cm]
-        $\downarrow$ Công cụ giám sát lấy số tổng sau 5 giây.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vspace{0.30cm}
-  \centering\textbf{Hai cách cho cùng số lượt đọc chậm? Bao nhiêu dữ liệu đi ra ngoài kernel?}
-\end{frame}
-
-\begin{frame}{Kết quả đo lượt đọc chậm theo container}
-  \small
-  \begin{columns}[c,onlytextwidth]
-    \begin{column}{0.68\textwidth}
-      \centering
-      \includegraphics[width=\linewidth]{images/demo-slow-reads-terminal.png}
-    \end{column}
-    \begin{column}{0.30\textwidth}
-      \begin{block}{Cùng kết quả}
-        A có \textbf{0}, B có \textbf{4} lượt đọc chậm.
-      \end{block}
-      \begin{block}{Dữ liệu nhận được}
-        \texttt{perf trace}: \textbf{40} bản ghi.\\
-        eBPF: \textbf{2} giá trị tổng.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vspace{0.22cm}
-  \centering\textbf{Sau khi gỡ probe, cả hai tiến trình đọc tiếp với cùng PID.}
-  \note{Ảnh từ terminal khi chạy demo thật. 40 là số bản ghi của các lượt đọc mẫu mà script perf xử lý. 2 là số giá trị tổng theo container ở lần đọc map đầu tiên. Phép đo không đếm các gói nội bộ hay đo CPU.}
-\end{frame}
-
-\begin{frame}[fragile]{Phép đo eBPF trên kernel đang chạy}
-  \small
-  Hai tracepoint tại đầu và cuối \texttt{read()} cung cấp mốc thời gian cho phép đo.
-  \vspace{0.20cm}
-  \begin{columns}[T,onlytextwidth]
-    \begin{column}{0.43\textwidth}
-      \begin{block}{Lọc và đếm bên ngoài kernel}
-        \begin{lstlisting}
-perf trace -a -G "$path_a" -e read
-\end{lstlisting}
-        Script đọc thời lượng từ từng dòng trace rồi đếm các lượt trên 200 ms.
-      \end{block}
-    \end{column}
-    \begin{column}{0.52\textwidth}
-      \begin{block}{Lọc và đếm trong kernel}
-        \lstinputlisting[firstline=17,lastline=19]{demo/slow-reads.bt}
-        Probe cộng vào bộ đếm của container. Sau 5 giây, công cụ giám sát đọc số tổng.
-      \end{block}
-    \end{column}
-  \end{columns}
-  \vspace{0.30cm}
-  \begin{center}
-    \textbf{Phép đo có thể bắt đầu và kết thúc trong khi máy chủ\\
-      tiếp tục phục vụ các container.}
-  \end{center}
-  \note{Trích mã thực thi. Probe được kernel kiểm tra khi nạp và cần hook cùng quyền phù hợp. Bản đầy đủ lưu thời điểm bắt đầu theo TID và xóa trạng thái khi lượt đọc kết thúc.}
+  \note{Khoảng 1 phút. eBPF đưa logic xử lý sự kiện vào các điểm kernel hỗ trợ. Bộ đếm mở tệp chạy mà không cần thay đổi mã ứng dụng hoặc khởi động lại máy. Sửa kernel và kernel module vẫn phục vụ các nhu cầu rộng hơn.}
 \end{frame}

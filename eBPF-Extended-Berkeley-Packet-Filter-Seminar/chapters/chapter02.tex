@@ -2,7 +2,7 @@
 \section{Chương 2: Kiến trúc eBPF}
 \ChapterDivider{Chương 2}{Kiến trúc eBPF}{Chương trình chạy ở đâu và các thành phần phối hợp thế nào?}
 
-\begin{frame}{eBPF nằm ở đâu trong Linux?}
+\begin{frame}{eBPF trong Linux}
   \begin{center}
     \begin{tikzpicture}[font=\small]
       \draw[draw=BKTemplate, fill=BKTemplate!4, rounded corners=3pt] (0,3.45) rectangle (14.1,5.3);
@@ -27,7 +27,7 @@
   \note{Công cụ như bpftrace hoặc ứng dụng dùng libbpf hoạt động ở User Space. Các mũi tên biểu thị vai trò, không phải toàn bộ chuỗi nạp chương trình. Chương trình eBPF thực thi trong ngữ cảnh phù hợp với program type và hook. Nguồn: \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://docs.kernel.org/bpf/verifier.html}.}
 \end{frame}
 
-\begin{frame}{Từ mã nguồn đến thực thi eBPF}
+\begin{frame}{Quy trình xây dựng chương trình eBPF}
   \begin{center}
     \begin{tikzpicture}
       \node[font=\small\bfseries,text=BKTemplate] at (2.25,0.95) {User Space};
@@ -55,29 +55,91 @@
   \note{Khoảng 90 giây. Compiler tạo object chứa tập lệnh eBPF. Loader yêu cầu nạp qua BPF API. Verifier phân tích chương trình, kernel từ chối yêu cầu nếu chương trình vi phạm ràng buộc. JIT có thể tạo mã máy trong bước nạp. Attach liên kết chương trình với một hook tương thích. Sự kiện sau đó mới kích hoạt chương trình. Tiếp theo là một nhánh cụ thể mà verifier phân tích trong ví dụ mở tệp.}
 \end{frame}
 
-\begin{frame}[fragile]{Verifier phân tích các nhánh khi nạp chương trình}
+\begin{frame}[fragile]{Verifier phân tích nhánh và an toàn bộ nhớ}
   \begin{columns}[T,onlytextwidth]
-    \column{0.47\textwidth}
-    \begin{block}{Ràng buộc của kernel}
-      \small
+    \column{0.48\textwidth}
+    \begin{alertblock}{Bị Verifier từ chối}
+      \begin{lstlisting}[language=C,style=dense]
+__u64 *c = bpf_map_lookup_elem(&m, &k);
+/* Loi: con tro c co the la NULL */
+__sync_fetch_and_add(c, 1);
+/* invalid mem access 'map_value_or_null' */
+\end{lstlisting}
+      \footnotesize
       \begin{itemize}
-        \item Kiểu con trỏ và phạm vi truy cập bộ nhớ
-        \item Luồng điều khiển và khả năng kết thúc
-        \item Trạng thái thanh ghi trên từng nhánh
-        \item Helper và thao tác theo program type
+        \item Chưa kiểm tra \texttt{NULL} trước khi giải tham chiếu con trỏ.
+        \item Vòng lặp không cận trên, tràn stack $> 512\text{ B}$ hoặc đọc ngoài biên bộ nhớ.
       \end{itemize}
-    \end{block}
-    \column{0.49\textwidth}
-    \begin{block}{Tra cứu bộ đếm \texttt{openat()}}
-      \lstinputlisting[language=C,firstline=30,lastline=37,emptylines=0]{demo/openat_demo.c}
-      \small Nhánh có con trỏ hợp lệ tăng bộ đếm. Nhánh còn lại thử tạo mục mới.
+    \end{alertblock}
+
+    \column{0.48\textwidth}
+    \begin{block}{Được Verifier chấp nhận}
+      \begin{lstlisting}[language=C,style=dense]
+__u64 *c = bpf_map_lookup_elem(&m, &k);
+if (c) {
+    /* Verifier thu hep -> map_value */
+    __sync_fetch_and_add(c, 1);
+}
+\end{lstlisting}
+      \footnotesize
+      \begin{itemize}
+        \item Kiểm tra mọi nhánh điều khiển, trạng thái thanh ghi và giới hạn helper theo program type.
+        \item Xác nhận chương trình kết thúc hữu hạn trước khi nạp vào kernel.
+      \end{itemize}
     \end{block}
   \end{columns}
   \medskip
-  {\small Tính đúng của phép đếm còn phụ thuộc vào logic xử lý sự kiện.}
 
+  \smallskip
   {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/verifier.html}{Linux kernel: eBPF verifier}}
-  \note{Khoảng 1 phút. Lookup có thể trả về NULL nếu key chưa tồn tại. Verifier theo dõi trạng thái con trỏ qua hai nhánh. Trong nhánh if, con trỏ trỏ đến một giá trị map và mã tăng số đếm. Nhánh else gọi helper để thử tạo bộ đếm ban đầu. Việc qua verifier xác nhận các ràng buộc mà kernel kiểm tra. Tính đúng của phép đếm vẫn phụ thuộc logic chương trình.}
+  \note{Khoảng 75 giây. Trình bày ví dụ cụ thể vì sao verifier từ chối chương trình truy cập con trỏ map\_value\_or\_null khi chưa kiểm tra NULL. Khi thêm if (c), verifier thu hẹp kiểu trên nhánh đúng. Ngoài con trỏ, verifier còn duyệt mọi nhánh để bảo đảm không lặp vô hạn và không vượt stack 512 byte.}
+\end{frame}
+
+\begin{frame}{Máy ảo eBPF, biên dịch JIT và cơ chế Helper}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{block}{Mô hình thực thi máy ảo (eBPF VM)}
+      \small
+      \begin{itemize}
+        \item \textbf{11 thanh ghi 64-bit (\texttt{R0--R10}):} \texttt{R1--R5} truyền tham số, \texttt{R0} nhận giá trị trả về, \texttt{R10} chỉ đọc trỏ stack.
+        \item \textbf{Stack giới hạn 512 byte:} giữ chương trình gọn nhẹ, dùng map cho dữ liệu lớn.
+        \item \textbf{Tập lệnh RISC 64-bit:} biểu diễn bytecode độc lập kiến trúc phần cứng.
+      \end{itemize}
+    \end{block}
+
+    \column{0.48\textwidth}
+    \begin{block}{Biên dịch JIT (Just-In-Time)}
+      \small
+      Sau khi Verifier thông qua, JIT dịch bytecode sang mã máy gốc (\texttt{x86-64}, \texttt{ARM64}) ngay lúc nạp để đạt tốc độ gần tương đương mã C biên dịch trong kernel.
+    \end{block}
+    \begin{block}{Giao tiếp an toàn: Helpers \& \texttt{kfuncs}}
+      \small
+      Chương trình eBPF không gọi tùy ý hàm nội bộ kernel mà đi qua danh sách \textbf{BPF helpers} hoặc \textbf{kfuncs} được phép theo từng \textsl{program type}.
+    \end{block}
+  \end{columns}
+  \medskip
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/standardization/instruction-set.html}{Linux kernel: BPF Instruction Set} \quad \textbar \quad \href{https://docs.kernel.org/bpf/kfuncs.html}{BPF Kernel Functions}}
+  \note{Khoảng 75 giây. Giới thiệu eBPF là máy ảo RISC 64-bit bên trong kernel với 11 thanh ghi và 512 byte stack. Khi bật JIT, kernel chuyển bytecode thành mã máy bản địa ngay lúc load. Để đọc ngữ cảnh hay cập nhật map, chương trình phải dùng helpers hoặc kfuncs được phép theo program type.}
+\end{frame}
+
+\begin{frame}{Các nhóm Hook phổ biến trong Linux kernel}
+  \small
+  \renewcommand{\arraystretch}{1.20}
+  \begin{tabular}{@{}L{0.19\textwidth}L{0.27\textwidth}L{0.17\textwidth}L{0.27\textwidth}@{}}
+    \toprule
+    \textbf{Loại Hook}                         & \textbf{Điểm gắn}                                                   & \textbf{Ổn định ABI}         & \textbf{Chi phí \& Ứng dụng}                                         \\
+    \midrule
+    \texttt{Tracepoint}                        & Điểm đánh dấu tĩnh trong kernel (\texttt{syscalls}, \texttt{sched}) & Cao (cố định)                & Thấp; phù hợp giám sát hệ thống lâu dài                              \\
+    \texttt{kprobe} / \texttt{kretprobe}       & Đầu hoặc cuối hàm nội bộ kernel bất kỳ                              & Thấp (theo phiên bản kernel) & Cao hơn do cơ chế ngắt/trap; linh hoạt khi debug                     \\
+    \texttt{fentry} / \texttt{fexit}           & Trampoline trực tiếp qua BTF (Linux 5.5+)                           & Theo chữ ký hàm (BTF)        & Rất thấp; \texttt{fexit} đọc đồng thời tham số vào và giá trị trả về \\
+    \texttt{XDP} / \texttt{TC} \& \texttt{LSM} & Đường đi gói tin mạng hoặc điểm kiểm tra bảo mật                    & Giao diện chuẩn hóa          & Thực thi đồng bộ tốc độ cao (drop gói, chặn syscall)                 \\
+    \bottomrule
+  \end{tabular}
+  \vspace{0.14cm}
+
+  \cue{1}{Ưu tiên \textbf{tracepoint} hoặc \textbf{fentry/fexit} khi khả dụng để giảm chi phí và giữ ổn định.}
+  \cue{2}{Không phải program type nào cũng gắn được vào mọi hook -- Verifier kiểm tra tính tương thích.}
+  \note{Khoảng 80 giây. Tracepoint là điểm gắn tĩnh ổn định nhất; kprobe gắn vào hàm bất kỳ nhưng dễ gãy khi đổi kernel và tốn chi phí bẫy hơn. fentry/fexit dùng BTF trampoline giúp giảm đáng kể overhead và đọc được cả tham số lẫn giá trị trả về. XDP, TC và BPF LSM phục vụ mạng và bảo mật.}
 \end{frame}
 
 \begin{frame}{Khi sự kiện xảy ra, eBPF nhận dữ liệu gì?}
@@ -85,11 +147,11 @@
   \renewcommand{\arraystretch}{1.35}
   \begin{tabular}{@{}L{0.16\textwidth}L{0.40\textwidth}L{0.36\textwidth}@{}}
     \toprule
-      & \textbf{Tracepoint \texttt{sys\_enter\_openat}} & \textbf{XDP} \\
+            & \textbf{Tracepoint \texttt{sys\_enter\_openat}}     & \textbf{XDP}                                                                         \\
     \midrule
-    Sự kiện & Tiến trình yêu cầu mở tệp & Gói tin đi vào đường xử lý mạng \\
-    Context & Các trường của syscall tracepoint & \texttt{struct xdp\_md}: vùng dữ liệu gói và metadata \\
-    Xử lý & Helper lấy \texttt{comm}, chương trình cập nhật map & Chương trình phân tích gói, có thể trả về \texttt{XDP\_PASS} hoặc \texttt{XDP\_DROP} \\
+    Sự kiện & Tiến trình yêu cầu mở tệp                           & Gói tin đi vào đường xử lý mạng                                                      \\
+    Context & Các trường của syscall tracepoint                   & \texttt{struct xdp\_md}: vùng dữ liệu gói và metadata                                \\
+    Xử lý   & Helper lấy \texttt{comm}, chương trình cập nhật map & Chương trình phân tích gói, có thể trả về \texttt{XDP\_PASS} hoặc \texttt{XDP\_DROP} \\
     \bottomrule
   \end{tabular}
   \medskip
@@ -101,7 +163,7 @@
 
   \smallskip
   {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/libbpf/program_types.html}{Linux kernel: program types}
-  \quad \href{https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_XDP/}{eBPF Docs: XDP}}
+    \quad \href{https://docs.ebpf.io/linux/program-type/BPF_PROG_TYPE_XDP/}{eBPF Docs: XDP}}
   \note{Khoảng 90 giây. Hai hook kích hoạt tại các sự kiện khác nhau. Kernel truyền context phù hợp với program type. Với XDP, xdp_md cung cấp thông tin để truy cập dữ liệu gói. Với bộ đếm mở tệp, mã demo nhận ctx nhưng không đọc trường nào trực tiếp. Helper bpf_get_current_comm trả tên tác vụ hiện tại. Tiếp theo, map giữ số đếm sau khi mỗi lần gọi kết thúc.}
 \end{frame}
 
@@ -109,18 +171,18 @@
   \begin{center}
     \begin{tikzpicture}
       \node[ebpfkernel, text width=2.85cm, minimum height=1.55cm] (hook) at (0,0)
-        {\textbf{Tracepoint}\\\footnotesize \texttt{sys\_enter\_openat}};
+      {\textbf{Tracepoint}\\\footnotesize \texttt{sys\_enter\_openat}};
       \node[ebpfprogram, text width=2.55cm, minimum height=1.55cm] (prog) at (3.55,0)
-        {\textbf{eBPF program}\\\footnotesize Lấy \texttt{comm}, tăng số đếm};
+      {\textbf{eBPF program}\\\footnotesize Lấy \texttt{comm}, tăng số đếm};
       \node[ebpfmap, text width=2.65cm, minimum height=1.55cm] (map) at (7.05,0)
-        {\textbf{BPF hash map}\\\footnotesize Tên tác vụ và số đếm};
+      {\textbf{BPF hash map}\\\footnotesize Tên tác vụ và số đếm};
       \node[ebpfuser, text width=2.45cm, minimum height=1.55cm] (loader) at (10.55,0)
-        {\textbf{Loader}\\\footnotesize Đọc map mỗi 5 giây};
+      {\textbf{Loader}\\\footnotesize Đọc map mỗi 5 giây};
       \draw[arr] (hook) -- (prog);
       \draw[arr] (prog) -- (map);
       \draw[arr] (map) -- (loader);
       \draw[decorate,decoration={brace,amplitude=4pt}] (8.5,-1.00) -- (-1.55,-1.00)
-        node[midway,below=5pt,font=\scriptsize] {Kernel Space};
+      node[midway,below=5pt,font=\scriptsize] {Kernel Space};
       \node[font=\scriptsize] at (10.55,-1.25) {User Space};
     \end{tikzpicture}
   \end{center}
@@ -134,9 +196,9 @@
       \toprule
       \textbf{Tác vụ (\texttt{comm})} & \textbf{Lượt gọi} \\
       \midrule
-      \texttt{cat} & 620 \\
-      \texttt{docker} & 85 \\
-      \texttt{postgres} & 30 \\
+      \texttt{cat}                    & 620               \\
+      \texttt{docker}                 & 85                \\
+      \texttt{postgres}               & 30                \\
       \bottomrule
     \end{tabular}
 
@@ -151,4 +213,25 @@
     {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/maps.html}{Linux kernel: BPF maps}}
   \end{columns}
   \note{Khoảng 80 giây. Mỗi lượt vào openat kích hoạt chương trình. Chương trình tìm tên tác vụ và cập nhật map. Loader đọc số đếm tích lũy mỗi 5 giây. Bảng chỉ minh họa cấu trúc dữ liệu, không phải số đo mới. Khi cần truyền bản ghi riêng lẻ, ring buffer phù hợp hơn bộ đếm.}
+\end{frame}
+
+\begin{frame}{BPF Map và tính chất}
+  \small
+  \renewcommand{\arraystretch}{1.34}
+  \begin{tabular}{@{}L{0.23\textwidth}L{0.34\textwidth}L{0.35\textwidth}@{}}
+    \toprule
+    \textbf{Họ BPF Map}                            & \textbf{Cơ chế lưu trữ \& truy cập}                                       & \textbf{Trade-off với tải cao}                                                             \\
+    \midrule
+    \texttt{HASH} / \texttt{ARRAY}                 & Một bản dữ liệu dùng chung cho mọi CPU (tra theo key hoặc chỉ số)         & Cập nhật đồng thời cần phép toán nguyên tử hoặc spinlock $\rightarrow$ dễ nghẽn cache line \\
+    \texttt{PERCPU\_HASH} / \texttt{PERCPU\_ARRAY} & Tách riêng vùng nhớ cho từng nhân CPU; không tranh chấp khóa trong kernel & Cộng không khóa cực nhanh; user space tự cộng dồn các nhân khi đọc                         \\
+    \texttt{RINGBUF} (Linux 5.8+)                  & Bộ đệm vòng truyền từng bản ghi sự kiện từ kernel ra user space           & Giữ chi tiết từng sự kiện, nhưng dễ rớt nếu user space đọc không kịp                       \\
+    \bottomrule
+  \end{tabular}
+  \medskip
+
+  \begin{block}{Nguyên tắc chọn cấu trúc dữ liệu}
+    Khi chỉ cần thống kê (đếm lượt gọi, tổng byte, histogram), ưu tiên tổng hợp bằng \textbf{\texttt{PERCPU}} map trong kernel thay vì đẩy từng sự kiện qua \textbf{\texttt{RINGBUF}}.
+  \end{block}
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/maps.html}{Linux kernel: BPF maps} \quad \textbar \quad \href{https://docs.kernel.org/bpf/ringbuf.html}{BPF Ring Buffer}}
+  \note{Khoảng 75 giây. So sánh 3 nhóm map quan trọng nhất. HASH và ARRAY dùng chung giữa các CPU nên cần atomic hoặc khóa khi nhiều nhân cùng ghi. PERCPU map cấp vùng riêng theo từng CPU nên cập nhật không khóa, chỉ cộng dồn ở user space lúc đọc. RINGBUF truyền từng sự kiện chi tiết nhưng tốn chi phí copy và dễ mất sự kiện ở tốc độ cao.}
 \end{frame}

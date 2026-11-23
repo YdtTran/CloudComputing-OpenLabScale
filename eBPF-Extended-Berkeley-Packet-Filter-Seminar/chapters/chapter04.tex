@@ -1,7 +1,7 @@
 \section{Chương 4: eBPF trong hệ thống thật}
 
 \ChapterDivider{Chương 4}{eBPF trong hệ thống thật}
-  {Ứng dụng eBPF, Cilium và demo \texttt{openat()}}
+  {Ứng dụng eBPF, Cilium và demo so sánh overhead}
 
 \begin{frame}{Các container trên cùng host dùng chung Linux kernel}
   \begin{center}
@@ -49,6 +49,7 @@
 
     \textbf{Ứng dụng.} Các dự án như Cilium và BCC dùng eBPF để xử lý mạng, bảo mật hoặc quan sát hệ thống.
   \end{columns}
+  \note{Khoảng 55 giây. Sơ đồ tổng thể từ eBPF.io cho thấy 3 tầng: tầng kernel gồm Verifier, JIT, Maps và Helper API; tầng user space gồm các SDK C/Go/Rust; và tầng trên cùng gồm 3 nhóm ứng dụng mạng, bảo mật, quan sát.}
 \end{frame}
 
 \begin{frame}{eBPF được ứng dụng ở đâu?}
@@ -99,6 +100,7 @@
     \includegraphics[width=\linewidth,height=5.1cm,keepaspectratio]{images/chapter04/cilium-overview.png}\\[0.16cm]
     {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/overview/component-overview/}{Cilium Component Overview}}
   \end{columns}
+  \note{Khoảng 55 giây. Giải thích vai trò của Cilium như một CNI plugin cho Kubernetes: khi tạo hoặc xóa Pod, Kubernetes gọi Cilium Agent để biên dịch/cấu hình chương trình eBPF xuống kernel nhằm thiết lập kết nối và chính sách mạng.}
 \end{frame}
 
 \begin{frame}{Cilium hoạt động như thế nào?}
@@ -117,9 +119,31 @@
     \centering
     \includegraphics[width=\linewidth,height=4.7cm,keepaspectratio]{images/chapter04/hubble-service-map.png}\\[0.16cm]
     {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/gettingstarted/hubble/}{Hubble UI}
-    \hspace{0.3cm}
+    \,\textbar\,
     \href{https://docs.cilium.io/en/stable/network/kubernetes/policy/}{Tài liệu chính sách mạng}}
   \end{columns}
+  \note{Khoảng 65 giây. Nhấn mạnh 3 khả năng cốt lõi trên cùng hạ tầng eBPF: chuyển tiếp gói tin, áp dụng chính sách theo danh tính workload thay vì chỉ theo IP tĩnh, và quan sát trực quan luồng kết nối dịch vụ qua Hubble UI.}
+\end{frame}
+
+\begin{frame}{Vì sao Cilium thay thế \texttt{kube-proxy} (\texttt{iptables})?}
+  \small
+  \renewcommand{\arraystretch}{1.35}
+  \begin{tabular}{@{}L{0.22\textwidth}L{0.34\textwidth}L{0.36\textwidth}@{}}
+    \toprule
+    \textbf{Khía cạnh} & \textbf{\texttt{kube-proxy} (\texttt{iptables})} & \textbf{Cilium (eBPF)} \\
+    \midrule
+    Tra cứu Service & Duyệt tuần tự chuỗi luật Netfilter: độ phức tạp $O(N)$ theo số Service & Tra cứu trực tiếp BPF hash map: độ phức tạp $O(1)$ \\
+    Cập nhật khi Pod đổi & Viết lại toàn bộ bảng luật (\texttt{iptables-restore}) & Cập nhật từng mục trong BPF map nguyên tử \\
+    Điểm can thiệp & Xử lý từng gói tin qua nhiều tầng Netfilter trong stack mạng & Hỗ trợ cân bằng tải ở mức socket (\texttt{cgroup/connect4}) ngay khi gọi \texttt{connect()} \\
+    \bottomrule
+  \end{tabular}
+  \medskip
+
+  \cue{1}{Khi cụm Kubernetes có hàng nghìn Service, \texttt{iptables} làm tăng rõ rệt độ trễ nối gói và chi phí đồng bộ luật.}
+  \cue{2}{Cân bằng tải ở lớp socket bỏ qua bước dịch NAT lặp lại trên từng gói tin trong kết nối.}
+  \smallskip
+  {\scriptsize Nguồn \href{https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/}{Cilium: Kubernetes Without kube-proxy}}
+  \note{Khoảng 75 giây. So sánh trực diện kube-proxy dùng iptables với Cilium eBPF. Với iptables, tra cứu là tuyến tính O(N) và cập nhật Pod phải nạp lại cả bảng luật. Cilium dùng hash map O(1), cập nhật nguyên tử và có thể dịch ClusterIP ngay tại socket khi ứng dụng gọi connect().}
 \end{frame}
 
 \begin{frame}{Cilium cân bằng tải cho Kubernetes Service}
@@ -152,32 +176,164 @@
 
   \smallskip
   {\scriptsize Nguồn \href{https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/}{Cilium: Kubernetes Without kube-proxy}}
-  \note{Khoảng 90 giây. Service cung cấp một địa chỉ logic ổn định cho nhiều Pod. Cilium có thể xử lý Service bằng eBPF ở cấu hình phù hợp. Mũi tên liền chỉ một lựa chọn backend trong ví dụ, các đường nét đứt phía backend chỉ các đích khác có thể được chọn. Sơ đồ diễn tả quyết định logic, đường gói tin thực tế thay đổi theo chế độ. Cilium Agent đồng bộ trạng thái, datapath xử lý lưu lượng và Hubble mô tả luồng quan sát được.}
+  \note{Khoảng 60 giây. Service cung cấp một địa chỉ logic ổn định cho nhiều Pod. Cilium có thể xử lý Service bằng eBPF ở cấu hình phù hợp. Mũi tên liền chỉ một lựa chọn backend trong ví dụ, các đường nét đứt phía backend chỉ các đích khác có thể được chọn. Cilium Agent đồng bộ trạng thái, datapath xử lý lưu lượng và Hubble mô tả luồng quan sát được.}
 \end{frame}
 
-\begin{frame}{Demo \texttt{openat()}: số đếm theo tên tác vụ}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.60\textwidth}
-    \begin{block}{Tải minh họa}
-      Các lần chạy \texttt{cat /etc/hostname} phát sinh yêu cầu mở tệp. Tracepoint kích hoạt cả khi yêu cầu sau đó thất bại.
-    \end{block}
-    \begin{block}{Đầu ra của loader}
-      Sau mỗi 5 giây, cột \texttt{OPENAT CALLS} hiển thị số đếm tích lũy theo \texttt{comm}. Dòng \texttt{cat} gộp các tác vụ cùng tên trên host.
+\begin{frame}{Bảo mật Runtime trong Kernel với Tetragon và BPF LSM}
+  \begin{center}
+    \begin{tikzpicture}[font=\scriptsize]
+      \node[ebpfuser, text width=2.55cm, minimum height=1.35cm] (ev) at (0,0)
+        {\textbf{Workload Event}\\\texttt{execve}, mở tệp,\\kết nối socket};
+      \node[ebpfkernel, text width=2.6cm, minimum height=1.35cm] (hook) at (3.3,0)
+        {\textbf{Kernel Hooks}\\BPF LSM, \texttt{kprobe},\\Tracepoint};
+      \node[ebpfprogram, text width=3.05cm, minimum height=1.35cm] (tet) at (6.85,0)
+        {\textbf{Tetragon eBPF}\\Đối chiếu chính sách\\theo Pod / \texttt{cgroup}};
+      \node[hwred, text width=2.95cm, minimum height=1.35cm] (act) at (10.65,0)
+        {\textbf{Phản ứng đồng bộ}\\Allow, Audit log,\\Chặn \texttt{-EPERM}/\texttt{SIGKILL}};
+      \draw[arr] (ev) -- (hook);
+      \draw[arr] (hook) -- (tet);
+      \draw[arr] (tet) -- (act);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.15cm}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{block}{Vì sao cần thực thi ngay trong kernel?}
+      \small
+      Giám sát bất đồng bộ ngoài user space (\texttt{auditd}, đọc log) dễ tạo khoảng trễ kiểm tra-sử dụng (TOCTOU): tiến trình độc hại kịp chạy xong hoặc thoát trước khi bị xử lý.
     \end{block}
 
-    \column{0.36\textwidth}
-    \centering
-    \begin{tikzpicture}
-      \node[ebpfuser, text width=3.6cm] (task) at (0,0) {\texttt{cat /etc/hostname}};
-      \node[ebpfkernel, text width=3.6cm] (hook) at (0,-1.1) {\texttt{sys\_enter\_openat}};
-      \node[ebpfmap, text width=3.6cm] (map) at (0,-2.2) {Bộ đếm trong map};
-      \node[ebpfuser, text width=3.6cm] (loader) at (0,-3.3) {\texttt{OPENAT CALLS}};
-      \draw[arr] (task) -- (hook);
-      \draw[arr] (hook) -- (map);
-      \draw[arr] (map) -- (loader);
-    \end{tikzpicture}
+    \column{0.48\textwidth}
+    \begin{block}{BPF LSM \& Chính sách theo ngữ cảnh}
+      \small
+      Hook \textbf{BPF LSM} cho phép trả về \texttt{-EPERM} ngay trước khi hành động xảy ra, gắn kèm danh tính container/Pod mà không cần sửa ứng dụng.
+    \end{block}
   \end{columns}
-  \note{Lệnh biên dịch, tải minh họa và cách dừng loader nằm trong PRESENTER\_NOTES.md. Mỗi lượt chạy cat có thể phát sinh nhiều lời gọi openat do cả chương trình và thư viện. Tổng số lượt chạy cat không phải giá trị kỳ vọng của bộ đếm.}
+  \smallskip
+  {\scriptsize Nguồn \href{https://tetragon.io/docs/overview/}{Cilium Tetragon} \quad \textbar \quad \href{https://docs.kernel.org/bpf/prog_lsm.html}{Linux kernel: BPF LSM}}
+  \note{Khoảng 75 giây. Mở rộng trụ cột Security đã nêu ở slide ứng dụng. Tetragon kết hợp tracepoint/kprobe và BPF LSM để đối chiếu chính sách ngay trong kernel gắn cùng danh tính container. Khác với giám sát bất đồng bộ ngoài user space, vi phạm bị chặn đồng bộ trước khi hoàn tất, tránh lỗ hổng thời gian TOCTOU.}
+\end{frame}
+
+\begin{frame}{Demo: Thiết kế phép đo overhead bốn làn song song}
+  \small
+  Bốn container tải độc lập ghim trên 4 P-core chạy đồng thời trong \textbf{5 giây}, liên tục gọi \texttt{read()} (xen kẽ lượt đọc chậm $> 500\,\mu\text{s}$).
+  Bài toán: đếm tổng lượt đọc, tổng byte và số lượt chậm $> 500\,\mu\text{s}$.
+
+  \vspace{0.12cm}
+  \begin{center}
+    \begin{tikzpicture}[font=\scriptsize]
+      \node[ebpfuser, text width=2.7cm, minimum height=0.82cm] (w1) at (0,2.64)
+        {\textbf{W1: Baseline}\\P-core 0};
+      \node[ebpfuser, text width=2.7cm, minimum height=0.82cm] (w2) at (0,1.52)
+        {\textbf{W2: \texttt{strace}}\\P-core 2};
+      \node[ebpfuser, text width=2.7cm, minimum height=0.82cm] (w3) at (0,0.40)
+        {\textbf{W3: \texttt{perf trace}}\\P-core 4};
+      \node[ebpfuser, text width=2.7cm, minimum height=0.82cm] (w4) at (0,-0.72)
+        {\textbf{W4: eBPF Map}\\P-core 6};
+
+      \node[ebpfkernel, text width=3.4cm, minimum height=0.82cm] (k1) at (4.35,2.64)
+        {Không gắn công cụ\\Đo tốc độ nền};
+      \node[hwred, text width=3.4cm, minimum height=0.82cm] (k2) at (4.35,1.52)
+        {\texttt{ptrace} dừng tiến trình\\2 lần mỗi syscall};
+      \node[hworange, text width=3.4cm, minimum height=0.82cm] (k3) at (4.35,0.40)
+        {Không chặn, đẩy từng\\bản ghi qua ring buffer};
+      \node[ebpfprogram, text width=3.4cm, minimum height=0.82cm] (k4) at (4.35,-0.72)
+        {Lọc \texttt{cgroup\_id}, tính\\ngay trong kernel map};
+
+      \node[ebpfuser, text width=4.45cm, minimum height=0.82cm] (u1) at (9.65,2.64)
+        {Ghi ground truth cuối kỳ};
+      \node[hwred, text width=4.45cm, minimum height=0.82cm] (u2) at (9.65,1.52)
+        {\texttt{userspace\_calc}: đọc \& cộng\\từng dòng ngoài kernel};
+      \node[hworange, text width=4.45cm, minimum height=0.82cm] (u3) at (9.65,0.40)
+        {\texttt{userspace\_calc}: đọc \& cộng\\từng dòng ngoài kernel};
+      \node[ebpfmap, text width=4.45cm, minimum height=0.82cm] (u4) at (9.65,-0.72)
+        {\texttt{inkernel\_calc}: ngủ 5 s,\\đọc map \textbf{1 lần} cuối kỳ};
+
+      \draw[arr] (w1) -- (k1); \draw[arr] (k1) -- (u1);
+      \draw[arr] (w2) -- (k2); \draw[arr] (k2) -- (u2);
+      \draw[arr] (w3) -- (k3); \draw[arr] (k3) -- (u3);
+      \draw[arr] (w4) -- (k4); \draw[arr] (k4) -- (u4);
+    \end{tikzpicture}
+  \end{center}
+
+  \vspace{0.12cm}
+  \centering\textbf{Cùng logic đếm và ngưỡng $500\,\mu\text{s}$ -- khác vị trí đặt phép tính.}
+  \note{Bốn container chạy trong cùng cửa sổ 5 giây; ba observer ghim trên 3 E-core riêng (8, 9, 10) để không tranh CPU với tải. Việc đặt Baseline bên cạnh cho thấy mức overhead tuyệt đối của từng cơ chế.}
+\end{frame}
+
+\begin{frame}[fragile]{Demo: Tính ngoài kernel và tính trong kernel}
+  \begin{columns}[T,onlytextwidth]
+    \begin{column}{0.47\textwidth}
+      \begin{block}{User space (\texttt{userspace\_calc.c})}
+        \lstinputlisting[language=C,style=dense,firstline=48,lastline=52,emptylines=0]{demo/userspace_calc.c}
+        \vspace{-0.15cm}
+        \lstinputlisting[language=C,style=dense,firstline=107,lastline=113,emptylines=0]{demo/userspace_calc.c}
+        {\footnotesize Đọc từng dòng sự kiện từ \texttt{strace} / \texttt{perf trace} đi ra khỏi kernel rồi mới lọc và cộng.}
+      \end{block}
+    \end{column}
+    \begin{column}{0.49\textwidth}
+      \begin{block}{Kernel space (\texttt{inkernel\_calc.c})}
+        \lstinputlisting[language=C,style=dense,firstline=84,lastline=98,emptylines=0]{demo/inkernel_calc.c}
+        {\footnotesize Tính \texttt{delta\_ns} và cộng thẳng vào \texttt{PERCPU\_ARRAY} ngay tại \texttt{sys\_exit\_read}; tiến trình ngoài kernel ngủ yên và đọc map đúng 1 lần cuối kỳ.}
+      \end{block}
+    \end{column}
+  \end{columns}
+
+  \vspace{0.08cm}
+  \centering{\small Chạy thực nghiệm: \texttt{sh demo/compare-overhead.sh}}
+  \note{Hai khối lệnh thực hiện cùng một phép lọc ngưỡng 500 us và cộng tổng byte. Bên trái phải copy từng sự kiện qua ranh giới kernel-user để parse chuỗi; bên phải cập nhật không khóa ngay trên CPU phát sinh syscall.}
+\end{frame}
+
+\begin{frame}{Demo: Kết quả thực nghiệm trong cửa sổ 5 giây}
+  \centering
+  {\footnotesize Đo thực tế trên Debian 13 (Linux 6.12, Intel Core i5-12450HX, 4 P-core + 3 E-core cô lập)}\\[0.16cm]
+  {\scriptsize\setlength{\tabcolsep}{4pt}\renewcommand{\arraystretch}{1.32}%
+  \begin{tabular}{@{}l r r r r r@{}}
+    \toprule
+    \textbf{Chế độ} & \textbf{Throughput} & \textbf{Ctx switch} & \textbf{Dữ liệu K$\rightarrow$U} & \textbf{Obs CPU} & \textbf{Bắt đủ (Chậm)} \\
+    \midrule
+    Baseline & 1,890,313/s (100\%) & 1,018 & -- & -- & -- \\
+    \texttt{strace} (ptrace + user) & 30,429/s (2\%) & 304,345 & 8.1 MB (152.1K) & 3,926.8 ms & 100.0\% (202/470) \\
+    \texttt{perf trace} (user) & 1,195,818/s (63\%) & 642 & 29.7 MB (116.2K) & 5,061.5 ms & 1.9\% (214/600) \\
+    \textbf{eBPF (in-kernel map)} & \textbf{1,619,391/s (86\%)} & \textbf{1,265} & \textbf{288 B (1 lần)} & \textbf{11.3 ms} & \textbf{100.0\% (812/812)} \\
+    \bottomrule
+  \end{tabular}%
+  }
+
+  \vspace{0.28cm}
+  \begin{minipage}{0.96\textwidth}
+    \cue{1}{\texttt{strace} dừng tiến trình qua \texttt{ptrace} làm nổ context switch và giảm throughput ứng dụng hơn $53\times$ so với eBPF.}
+    \cue{2}{\texttt{perf trace} không chặn ứng dụng nhưng đẩy từng bản ghi ra user space: tốn trọn 1 nhân CPU, truyền 29.7 MB và đánh rơi hơn 11.5 triệu sự kiện.}
+    \cue{3}{eBPF cộng dồn ngay trong kernel map: chỉ đọc 288 byte cuối kỳ, tốn 11.3 ms CPU giám sát và ghi nhận đủ 100\% lượt đọc chậm.}
+  \end{minipage}
+  \note{Lưu ý trung thực cho Q\&A: Ở strace, tỷ lệ bắt tổng số read đạt 100.0\%, nhưng cột lượt chậm ghi nhận 202/470 vì ứng dụng đo cả thời gian bị ptrace dừng xen giữa hai mốc monotonic trong khi strace -T chỉ đo phần thực thi trong kernel. Với perf trace, sự kiện rơi quá nhiều (lost=11,584,230) nên chỉ bắt được 1.9\%.}
+\end{frame}
+
+\begin{frame}{Giới hạn kỹ thuật và đánh đổi khi vận hành eBPF}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{block}{Đặc quyền nạp chương trình}
+      \small
+      Môi trường production thường tắt eBPF cho user thường (\texttt{unprivileged\_bpf\_disabled}); collector cần quyền quản trị (\texttt{CAP\_BPF}, \texttt{CAP\_PERFMON}, \texttt{CAP\_NET\_ADMIN}).
+    \end{block}
+    \begin{block}{Ràng buộc của Verifier \& VM}
+      \small
+      Stack $512\text{ B}$, độ phức tạp nhánh hữu hạn và tập helper bị giới hạn -- không thay thế được các driver phần cứng hay module kernel phức tạp.
+    \end{block}
+
+    \column{0.48\textwidth}
+    \begin{block}{Phụ thuộc Kernel \& BTF}
+      \small
+      Các tính năng hiện đại như \texttt{RINGBUF}, \texttt{fentry}/\texttt{fexit} hay \texttt{BPF LSM} đòi hỏi Linux kernel mới và bật \texttt{CONFIG\_DEBUG\_INFO\_BTF}.
+    \end{block}
+    \begin{block}{Chi phí trên đường nóng (Hot-path)}
+      \small
+      Dù nhanh hơn \texttt{strace} nhiều lần, eBPF vẫn có chi phí ($86\%$ vs $100\%$ Baseline ở tải $1.9\text{M read/s}$); cần lọc sớm và gom tổng bằng \texttt{PERCPU} map.
+    \end{block}
+  \end{columns}
+  \medskip
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/bpf_design_QA.html}{Linux kernel: BPF Design Q\&A}}
+  \note{Khoảng 75 giây. Cân bằng góc nhìn kỹ thuật trước khi kết luận: eBPF vẫn cần capabilities phù hợp trên host, cần kernel mới có BTF cho tính năng nâng cao, bị giới hạn bởi verifier (512 B stack) nên không thay thế toàn bộ kernel module, và trên syscall tần suất hàng triệu lần/giây vẫn tạo ra chi phí đo được như mức giảm 14\% ở demo vừa xem.}
 \end{frame}
 
 \begin{frame}{Kết luận}
@@ -198,4 +354,5 @@
     \includegraphics[width=\linewidth,height=4.75cm,keepaspectratio]{images/chapter04/hubble-grafana-network.png}\\[0.16cm]
     {\scriptsize Hình: \href{https://docs.cilium.io/en/stable/observability/metrics/}{Cilium Monitoring \& Metrics}}
   \end{columns}
+  \note{Khoảng 50 giây. Tóm tắt lại 3 vai trò chính của eBPF trong hệ thống thật (Observability, Networking, Security) và nối lại câu hỏi mở đầu từ Slide 4 về việc kết hợp tín hiệu eBPF với số liệu CPU/I/O theo container.}
 \end{frame}

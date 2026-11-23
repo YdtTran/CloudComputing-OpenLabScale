@@ -1,40 +1,40 @@
-% Chapter 03 -- Content from chaptersnew, diagrams styled as chapters/.
+% Chapter 03 -- Development workflow, BTF/CO-RE, tooling, and openat() walkthrough.
 \section{Chương 3: Phát triển và công cụ}
 \ChapterDivider{Chương 3}{Phát triển và công cụ}{Từ mã nguồn đến quan sát được sự kiện thật}
 
-\begin{frame}{Quy trình phát triển chương trình eBPF}
-  \noindent{\small Ví dụ với C, Clang/LLVM và libbpf.}\par
+\begin{frame}{Quy trình xây dựng ứng dụng eBPF với C và \texttt{libbpf}}
+  \noindent{\small Tổ chức mã nguồn tách thành chương trình kernel (\texttt{.bpf.c}) và loader user space.}\par
   \begin{center}
     \begin{tikzpicture}
-      \node[ebpfuser, text width=3.7cm, minimum height=1.9cm, align=left] (write) at (0,0)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{1. Mã nguồn}\\[0.13cm]
-          Mã C mô tả logic xử lý sự kiện.
+      \node[ebpfuser, text width=3.7cm, minimum height=1.95cm, align=left] (write) at (0,0)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{1. Mã \texttt{.bpf.c}}\\[0.10cm]
+          Khai báo \texttt{SEC(".maps")} và hàm gắn hook.
         \end{minipage}};
-      \node[ebpfuser, text width=3.7cm, minimum height=1.9cm, align=left] (compile) at (4.7,0)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{2. Compile}\\[0.13cm]
-          Clang/LLVM tạo object chứa bytecode.
+      \node[ebpfuser, text width=3.7cm, minimum height=1.95cm, align=left] (compile) at (4.7,0)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{2. \texttt{Clang -target bpf}}\\[0.10cm]
+          Sinh tệp ELF \texttt{.bpf.o} chứa bytecode và BTF.
         \end{minipage}};
-      \node[ebpfkernel, text width=3.7cm, minimum height=1.9cm, align=left] (load) at (9.4,0)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{3. Load \& Verify}\\[0.13cm]
-          Loader yêu cầu nạp, Verifier kiểm tra.
+      \node[ebpfkernel, text width=3.7cm, minimum height=1.95cm, align=left] (load) at (9.4,0)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{3. Open \& Load}\\[0.10cm]
+          \texttt{libbpf} nạp object, Verifier kiểm tra và JIT.
         \end{minipage}};
-      \node[ebpfkernel, text width=3.7cm, minimum height=1.9cm, align=left] (attach) at (9.4,-2.5)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{4. Attach}\\[0.13cm]
-          Loader gắn chương trình vào hook.
+      \node[ebpfkernel, text width=3.7cm, minimum height=1.95cm, align=left] (attach) at (9.4,-2.5)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{4. Attach (\texttt{bpf\_link})}\\[0.10cm]
+          Gắn chương trình vào hook; tự tách khi đóng \texttt{link}.
         \end{minipage}};
-      \node[ebpfprogram, text width=3.7cm, minimum height=1.9cm, align=left] (execute) at (4.7,-2.5)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{5. Execute}\\[0.13cm]
-          Sự kiện phù hợp kích hoạt program.
+      \node[ebpfprogram, text width=3.7cm, minimum height=1.95cm, align=left] (execute) at (4.7,-2.5)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{5. Kernel Execute}\\[0.10cm]
+          Sự kiện kích hoạt hàm eBPF, cập nhật vào map.
         \end{minipage}};
-      \node[ebpfmap, text width=3.7cm, minimum height=1.9cm, align=left] (collect) at (0,-2.5)
-      {\begin{minipage}[t][1.5cm][t]{3.7cm}\raggedright
-          \textbf{6. Collect}\\[0.13cm]
-          User Space đọc map hoặc nhận sự kiện.
+      \node[ebpfmap, text width=3.7cm, minimum height=1.95cm, align=left] (collect) at (0,-2.5)
+      {\begin{minipage}[t][1.55cm][t]{3.7cm}\raggedright
+          \textbf{6. Collect (\texttt{map\_fd})}\\[0.10cm]
+          User space đọc map định kỳ hoặc tiêu thụ \texttt{ringbuf}.
         \end{minipage}};
       \draw[arr] (write) -- (compile);
       \draw[arr] (compile) -- (load);
@@ -43,8 +43,46 @@
       \draw[arr] (execute) -- (collect);
     \end{tikzpicture}
   \end{center}
-  {\small \textbf{Load và Attach là hai bước riêng.} JIT là tùy chọn. Công cụ cấp cao có thể tự xử lý nhiều bước.}
-  \note{Đây là quy trình ví dụ với C/libbpf. Loader yêu cầu kernel nạp chương trình; Verifier kiểm tra trong bước nạp. JIT có thể dịch bytecode sang mã máy khi được hỗ trợ và bật. bpftrace có thể quản lý nhiều bước thay người dùng. Nguồn: \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://docs.kernel.org/admin-guide/sysctl/net.html}.}
+  {\small \textbf{Tách pha phát triển:} \texttt{Clang} biên dịch một lần ra \texttt{.bpf.o}; \texttt{libbpf} lo nạp, vá offset và gắn \texttt{bpf\_link} khi chạy.}
+  \note{Khoảng 75 giây. Khác với sơ đồ kiến trúc ở Chương 2, slide này nhấn mạnh các tạo tác kỹ thuật mà lập trình viên thao tác: tệp .bpf.c biên dịch bằng clang -target bpf tạo ra .bpf.o kèm thông tin BTF; phía user space dùng libbpf mở object, nạp qua Verifier, giữ bpf\_link để gắn hook và đọc dữ liệu qua map\_fd.}
+\end{frame}
+
+\begin{frame}{Tính khả chuyển giữa các kernel: BTF và CO-RE}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.48\textwidth}
+    \begin{block}{Cách tiếp cận BCC truyền thống}
+      \small
+      \begin{itemize}
+        \item Nhúng mã nguồn C trong ứng dụng user space.
+        \item Đòi hỏi cài sẵn \textbf{Clang/LLVM} và \texttt{linux-headers} trên từng máy đích.
+        \item Biên dịch lại khi khởi động $\rightarrow$ tốn RAM/CPU và thời gian khởi chạy.
+      \end{itemize}
+    \end{block}
+
+    \column{0.48\textwidth}
+    \begin{block}{BTF + CO-RE hiện đại}
+      \small
+      \begin{itemize}
+        \item \textsl{Compile Once -- Run Everywhere} dựa trên mô tả kiểu tại \texttt{/sys/kernel/btf/vmlinux}.
+        \item Xuất một tệp \texttt{vmlinux.h} và dùng \texttt{BPF\_CORE\_READ()} khi đọc struct kernel.
+        \item \texttt{libbpf} tự dịch chuyển offset trường dữ liệu lúc nạp theo kernel đích.
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  \vspace{0.08cm}
+  \begin{center}
+    \begin{tikzpicture}[font=\scriptsize]
+      \node[ebpfuser, text width=2.4cm, minimum height=0.85cm] (h) at (0,0) {\texttt{vmlinux.h}\\từ BTF kernel};
+      \node[ebpfuser, text width=2.6cm, minimum height=0.85cm] (c) at (3.4,0) {Biên dịch 1 lần\\\texttt{clang -target bpf}};
+      \node[ebpfmap, text width=2.8cm, minimum height=0.85cm] (r) at (7.0,0) {\texttt{libbpf} CO-RE\\relocate theo máy đích};
+      \node[ebpfprogram, text width=2.7cm, minimum height=0.85cm] (k) at (10.6,0) {Chạy trên nhiều\\phiên bản Linux};
+      \draw[arr] (h) -- (c);
+      \draw[arr] (c) -- (r);
+      \draw[arr] (r) -- (k);
+    \end{tikzpicture}
+  \end{center}
+  {\scriptsize Nguồn \href{https://docs.kernel.org/bpf/btf.html}{Linux kernel: BPF Type Format (BTF)} \quad \textbar \quad \href{https://nakryiko.com/posts/bpf-core-reference-guide/}{BPF CO-RE Reference}}
+  \note{Khoảng 80 giây. Giải thích bài toán cấu trúc nội bộ kernel thay đổi giữa các phiên bản Linux. Trước đây BCC phải mang cả Clang và kernel headers lên máy đích để biên dịch tại chỗ. Nhờ BTF trong kernel và cơ chế CO-RE của libbpf, ta chỉ cần biên dịch một file nhị phân nhỏ gọn một lần duy nhất.}
 \end{frame}
 
 \begin{frame}{Công cụ phát triển và sử dụng eBPF}
@@ -73,7 +111,69 @@
     \end{tikzpicture}
   \end{center}
   {\small \texttt{bpftool} cho biết tính năng BPF của kernel. \texttt{bpftrace} hỗ trợ khảo sát sự kiện bằng script ngắn.}
-  \note{Vai trò và lựa chọn cho phần thực hành theo nội dung chaptersnew. Nguồn: \url{https://bpftrace.org/about}; \url{https://github.com/libbpf/bpftool/blob/main/docs/bpftool.rst}; \url{https://docs.kernel.org/bpf/libbpf/libbpf_overview.html}; \url{https://github.com/iovisor/bcc}.}
+  \note{Khoảng 65 giây. Hệ sinh thái eBPF gồm 4 nhóm công cụ chính. bpftool dùng để kiểm tra và debug trực tiếp trạng thái kernel. bpftrace dùng ngôn ngữ bậc cao kiểu awk để khảo sát nhanh. BCC cung cấp bộ công cụ dựng sẵn như opensnoop. Còn libbpf là nền tảng C nhẹ, chuẩn CO-RE để đóng gói vào ứng dụng sản phẩm.}
+\end{frame}
+
+\begin{frame}[fragile]{Kiểm tra kernel và đối tượng đang chạy với \texttt{bpftool}}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.52\textwidth}
+    \begin{block}{Lệnh chẩn đoán thường dùng}
+\begin{lstlisting}[language=bash,style=dense]
+# 1. Kiem tra tinh nang kernel, JIT, BTF
+bpftool feature probe
+bpftool btf list
+
+# 2. Xem cac chuong trinh eBPF dang nap
+bpftool prog show
+
+# 3. Doc truc tiep du lieu trong map
+bpftool map dump name opens
+\end{lstlisting}
+    \end{block}
+
+    \column{0.44\textwidth}
+    \begin{block}{Ý nghĩa thông tin trả về}
+      \small
+      \begin{itemize}
+        \item \textbf{\texttt{feature probe}:} xác nhận hệ thống hỗ trợ kiểu map (\texttt{ringbuf}), hook và JIT hay không.
+        \item \textbf{\texttt{prog show}:} hiển thị ID, loại chương trình, kích thước \texttt{xlated}/\texttt{jited} và danh sách \texttt{map\_ids}.
+        \item \textbf{\texttt{map dump}:} kiểm tra giá trị bộ đếm trong kernel mà không cần viết thêm công cụ đọc riêng.
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  \medskip
+  {\scriptsize Nguồn \href{https://github.com/libbpf/bpftool/blob/main/docs/bpftool.rst}{bpftool manual}}
+  \note{Khoảng 75 giây. Trước khi chạy bất kỳ collector eBPF nào, ta dùng bpftool feature probe để kiểm tra kernel và BTF. Khi chương trình đang chạy, bpftool prog show cho thấy mã đã được JIT hay chưa và liên kết với map nào, còn bpftool map dump cho phép đọc thẳng giá trị map từ shell để kiểm chứng.}
+\end{frame}
+
+\begin{frame}[fragile]{Khảo sát sự kiện nhanh bằng \texttt{bpftrace}}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.55\textwidth}
+    \begin{block}{Ví dụ one-liner tại tracepoint}
+\begin{lstlisting}[language=bash,style=dense]
+# Dem so lan goi openat() theo ten tien trinh
+bpftrace -e 'tracepoint:syscalls:sys_enter_openat
+  { @[comm] = count(); }'
+
+# Ve histogram kich thuoc bytes doc duoc
+bpftrace -e 'tracepoint:syscalls:sys_exit_read
+  /args->ret > 0/ { @bytes = hist(args->ret); }'
+\end{lstlisting}
+    \end{block}
+
+    \column{0.41\textwidth}
+    \begin{block}{Khi nào chọn \texttt{bpftrace}?}
+      \small
+      \begin{itemize}
+        \item Kiểm chứng giả thuyết trong vài giây mà không cần biên dịch C.
+        \item Hỗ trợ sẵn hàm tổng hợp trong kernel: \texttt{count()}, \texttt{sum()}, \texttt{hist()}.
+        \item Đổi lại: khó tích hợp sâu vào dịch vụ dài hạn hoặc kiểm soát chặt bộ nhớ bằng \texttt{libbpf}.
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  \medskip
+  {\scriptsize Nguồn \href{https://bpftrace.org/about}{bpftrace documentation}}
+  \note{Khoảng 75 giây. Với bài toán điều tra sự cố nhanh, chỉ một dòng bpftrace đã tự tạo program, map và in histogram ngay trên terminal. Khi cần đưa vào daemon giám sát chạy 24/7 với kiểm soát tài nguyên và binary nhỏ gọn, ta chuyển sang C và libbpf như ví dụ tiếp theo.}
 \end{frame}
 
 \begin{frame}{Ví dụ: Theo dõi lời gọi \texttt{openat()}}
@@ -99,24 +199,113 @@
   \end{center}
   \cue{1}{Bộ đếm gộp các tác vụ có cùng \texttt{comm}, kể cả khi PID khác nhau.}
   \cue{2}{Sự kiện tại \textsl{entry} ghi nhận yêu cầu, chưa xác nhận mở tệp thành công.}
-  \note{Ví dụ này dùng loader C với libbpf. Tên tác vụ do kernel cung cấp và có giới hạn độ dài. Tracepoint sys_enter_openat ghi nhận lúc bắt đầu lời gọi, bao gồm những lượt sau đó thất bại. Nguồn \url{https://man7.org/linux/man-pages/man5/proc_pid_comm.5.html}.}
+  \note{Khoảng 60 giây. Chốt mô hình luồng dữ liệu của bài toán openat(): ứng dụng gọi syscall đi vào tracepoint sys\_enter\_openat, chương trình eBPF lấy tên tác vụ comm rồi tăng bộ đếm trong hash map, loader đọc định kỳ.}
 \end{frame}
 
-\begin{frame}[fragile]{Logic của bộ đếm \texttt{openat()}}
-  \begin{columns}[c,onlytextwidth]
-    \column{0.53\textwidth}
-    \lstinputlisting[language=C,firstline=21,lastline=40,emptylines=0,
-      basicstyle=\ttfamily\fontsize{8}{9.4}\selectfont]{demo/openat_demo.c}
-
-    \column{0.43\textwidth}
-    \small
-    \begin{block}{Điểm gắn}
-      ELF section nhận diện chương trình tracepoint. Loader gắn nó vào \texttt{sys\_enter\_openat}.
+\begin{frame}[fragile]{Phía Kernel: Khai báo Map và hàm đếm \texttt{openat()}}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.44\textwidth}
+    \begin{block}{Định nghĩa Key và BPF Hash Map}
+      \lstinputlisting[language=C,style=dense,firstline=9,lastline=19,emptylines=0]{demo/openat_demo.c}
+      \footnotesize
+      \begin{itemize}
+        \item \texttt{SEC(".maps")} dùng định nghĩa BTF-defined map chuẩn \texttt{libbpf}.
+        \item Giới hạn tối đa \texttt{1024} tên tiến trình đồng thời.
+      \end{itemize}
     \end{block}
 
-    \begin{block}{Bộ đếm theo tên tác vụ}
-      Helper lấy \texttt{comm}. Nếu key đã có, phép cộng nguyên tử tăng bộ đếm. Với key mới, chương trình thử khởi tạo số đếm bằng 1.
+    \column{0.52\textwidth}
+    \begin{block}{Hàm xử lý tại \texttt{sys\_enter\_openat}}
+      \lstinputlisting[language=C,style=dense,firstline=21,lastline=40,emptylines=0]{demo/openat_demo.c}
     \end{block}
   \end{columns}
-  \note{Mã trích từ demo/openat\_demo.c. Clang tạo object eBPF. Một chương trình C riêng dùng libbpf để nạp object, gắn tracepoint và đọc map. Phần chuẩn bị demo nằm trong PRESENTER\_NOTES.md.}
+  \note{Khoảng 80 giây. Mã trích trực tiếp từ demo/openat\_demo.c. Bên trái là struct process\_key và khai báo hash map opens với tối đa 1024 mục. Bên phải là hàm count\_openat lấy tên tác vụ qua bpf\_get\_current\_comm, tra cứu map rồi cộng nguyên tử nếu đã có hoặc chèn mới bằng cờ BPF\_NOEXIST.}
+\end{frame}
+
+\begin{frame}[fragile]{Phía User Space: Nạp, gắn và đọc Map với \texttt{libbpf}}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.49\textwidth}
+    \begin{block}{Vòng đời Open $\rightarrow$ Load $\rightarrow$ Attach}
+\begin{lstlisting}[language=C,style=dense]
+obj = bpf_object__open_file(
+    "openat_demo.bpf.o", NULL);
+bpf_object__load(obj);
+prog = bpf_object__find_program_by_name(
+    obj, "count_openat");
+link = bpf_program__attach_tracepoint(
+    prog, "syscalls", "sys_enter_openat");
+map_fd = bpf_object__find_map_fd_by_name(
+    obj, "opens");
+\end{lstlisting}
+      \footnotesize Khi thoát, gọi \texttt{bpf\_link\_\_destroy(link)} và \texttt{bpf\_object\_\_close(obj)} để gỡ hook an toàn.
+    \end{block}
+
+    \column{0.47\textwidth}
+    \begin{block}{Duyệt Map định kỳ mỗi 5 giây}
+\begin{lstlisting}[language=C,style=dense]
+err = bpf_map_get_next_key(
+    map_fd, NULL, &next);
+while (err == 0) {
+    key = next;
+    if (bpf_map_lookup_elem(
+            map_fd, &key, &count) == 0)
+        printf("%-16.16s %llu\n",
+               key.comm, count);
+    err = bpf_map_get_next_key(
+        map_fd, &key, &next);
+}
+\end{lstlisting}
+      \footnotesize Thực tế thường dùng \texttt{bpftool gen skeleton} sinh file \texttt{.skel.h} để tránh sai tên hàm/map khi gõ chuỗi.
+    \end{block}
+  \end{columns}
+  \note{Khoảng 85 giây. Đây là nửa user space còn lại của openat\_demo.c. Trình nạp mở file object, nạp vào kernel qua verifier, lấy tham chiếu chương trình và tạo bpf\_link gắn vào tracepoint. Vòng lặp 5 giây dùng bpf\_map\_get\_next\_key để duyệt từng khóa và in số đếm tích lũy. Lưu ý nhắc tới BPF skeleton sinh bởi bpftool để kiểm tra tên ngay lúc biên dịch.}
+\end{frame}
+
+\begin{frame}[fragile]{Kết quả chạy và các lưu ý kỹ thuật của \texttt{openat()}}
+  \begin{columns}[T,onlytextwidth]
+    \column{0.42\textwidth}
+    \begin{block}{Đầu ra minh họa từ \texttt{openat\_demo}}
+\begin{lstlisting}[style=dense]
+Monitoring openat()... Ctrl+C to stop
+
+PROCESS          OPENAT CALLS
+-----------------------------
+systemd-journal  142
+dockerd          85
+python3          46
+cat              12
+\end{lstlisting}
+    \end{block}
+
+    \column{0.54\textwidth}
+    \begin{block}{Ba cạm bẫy kỹ thuật cần tránh}
+      \small
+      \begin{itemize}
+        \item \textbf{Entry vs Exit:} \texttt{sys\_enter\_openat} đếm cả lượt mở tệp thất bại (\texttt{ENOENT}, \texttt{EACCES}); cần ghép với \texttt{sys\_exit\_openat} nếu chỉ xét \texttt{ret >= 0}.
+        \item \textbf{Giới hạn Hash Map:} khi đầy \texttt{1024} mục, \texttt{bpf\_map\_update\_elem} thất bại; ngoài ra hai CPU cùng khởi tạo khóa mới với \texttt{BPF\_NOEXIST} có thể bỏ sót 1 lượt đầu.
+        \item \textbf{Độ dài \texttt{comm}:} chỉ dài tối đa 16 byte (\texttt{TASK\_COMM\_LEN}) và có thể bị đổi lúc chạy.
+      \end{itemize}
+    \end{block}
+  \end{columns}
+  \note{Khoảng 80 giây. Nhấn mạnh 3 chi tiết thực chiến mà người mới viết eBPF hay bỏ qua: tracepoint entry không biết syscall thành công hay lỗi, hash map cố định kích thước có thể đầy và tồn tại race condition nhỏ lúc khởi tạo key đầu tiên bằng BPF\_NOEXIST, và tên comm bị cắt ở 16 byte.}
+\end{frame}
+
+\begin{frame}{Từ tên tác vụ (\texttt{comm}) đến định danh Container (\texttt{cgroup\_id})}
+  \begin{center}
+    \begin{tikzpicture}[font=\small]
+      \node[ebpfuser, text width=2.9cm, minimum height=1.1cm] (c1) at (0,1.2) {\textbf{Container A}\\PID 1: \texttt{python3}};
+      \node[ebpfuser, text width=2.9cm, minimum height=1.1cm] (c2) at (0,-0.4) {\textbf{Container B}\\PID 1: \texttt{python3}};
+      \node[ebpfkernel, text width=4.4cm, minimum height=2.2cm] (kern) at (4.8,0.4)
+        {\textbf{Shared Kernel}\\Cùng thấy \texttt{comm="python3"}\\[0.15cm]\scriptsize Cần đọc thêm\\ \texttt{bpf\_get\_current\_cgroup\_id()}};
+      \node[ebpfmap, text width=3.8cm, minimum height=2.2cm] (map) at (10.2,0.4)
+        {\textbf{Khóa theo Workload}\\[0.12cm]\footnotesize \texttt{cgroup\_id A} $\rightarrow$ tải A\\\texttt{cgroup\_id B} $\rightarrow$ tải B\\[0.1cm]\texttt{pid\_tgid} phân biệt PID thật trên host};
+      \draw[arr] (c1.east) -- (c1.east -| kern.west);
+      \draw[arr] (c2.east) -- (c2.east -| kern.west);
+      \draw[arr] (kern) -- (map);
+    \end{tikzpicture}
+  \end{center}
+  \vspace{0.15cm}
+  \cue{1}{Nhiều container cùng chạy \texttt{python3} hoặc \texttt{sh} sẽ gộp nhầm vào một dòng nếu chỉ dùng \texttt{comm}.}
+  \cue{2}{\texttt{cgroup\_id} trên host là khóa tự nhiên để tách riêng từng container ở Chương 4.}
+  \note{Khoảng 70 giây. Đây là cầu nối sang Chương 4. Trong môi trường container, nhiều container khác nhau cùng chạy python3 và đều có PID 1 bên trong namespace riêng. Nếu chỉ nhóm theo comm như ví dụ openat() vừa rồi thì số liệu bị trộn lẫn. Ở tầng host, eBPF dùng bpf\_get\_current\_cgroup\_id() để phân tách chính xác từng container.}
 \end{frame}

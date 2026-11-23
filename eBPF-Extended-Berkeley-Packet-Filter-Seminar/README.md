@@ -1,33 +1,38 @@
 # Seminar eBPF trên template LaTeX Beamer HCMUT
 
 Bộ slide tiếng Việt về **eBPF – Extended Berkeley Packet Filter**, kết hợp
-lý thuyết, demo và ứng dụng thực tế. Giữ các layout bìa, mục lục và thành viên,
-trang chia chương, block và bảng của template. Theme Madrid, tỉ lệ 16:9, màu,
-font, header/footer, logo và hai file nền trong `images/` giữ nguyên.
+lý thuyết, phát triển công cụ, ứng dụng thực tế và demo đo overhead. Giữ các
+layout bìa, mục lục và thành viên, trang chia chương, block và bảng của
+template. Theme Madrid, tỉ lệ 16:9, màu, font, header/footer, logo và hai file
+nền trong `images/` giữ nguyên.
 
 ## Cấu trúc nội dung
 
-Entry point: `main.tex`. Bốn chương lấy nội dung từ `chaptersnew/` và được
-trình bày bằng các layout, sơ đồ TikZ trong `chapters/`.
-Tổng cộng **29 trang PDF**, gồm bìa, mục lục, bốn phần nội dung và kết luận.
+Entry point: `main.tex`. Bốn chương lấy nội dung nền từ `chaptersnew/` và được
+mở rộng, trình bày bằng các layout, sơ đồ TikZ trong `chapters/`.
+Tổng cộng **40 trang PDF**, gồm bìa, mục lục, bốn phần nội dung cân đối cho
+ba thành viên (15 + 11 + 14 trang), cụm demo so sánh overhead ở cuối Chương 4
+và kết luận.
 Chapter 5 không được nạp vào bản trình chiếu. Các file nguồn trong `chaptersnew/`
 được giữ nguyên để đối chiếu.
 
 | Phần | File | Nội dung | Trang PDF |
 | --- | --- | --- | --- |
-| Mở đầu | `main.tex` | Bìa, mục lục và thành viên | 1–2 |
-| Giới thiệu | `chapters/chapter01.tex` | Chia chương, nhu cầu quan sát Linux, các phương pháp, mở rộng kernel, demo đếm lượt đọc chậm bằng perf trace và eBPF, khái niệm eBPF | 3–9 |
-| Kiến trúc eBPF | `chapters/chapter02.tex` | Chia chương, user/kernel space, nạp và gắn chương trình, verifier, context, maps | 10–15 |
-| Phát triển và công cụ | `chapters/chapter03.tex` | Chia chương, quy trình C/Clang/LLVM/libbpf, công cụ, ví dụ và demo openat | 16–20 |
-| eBPF trong hệ thống thật | `chapters/chapter04.tex` | Mở chương, kernel dùng chung, ứng dụng, Cilium Service load balancing, Hubble, demo `openat()` và kết luận | 21–29 |
+| Mở đầu | `main.tex` | Bìa (Nhóm VYT, PGS. Thoại Nam), mục lục và phân công thành viên | 1–2 |
+| Giới thiệu | `chapters/chapter01.tex` | Chia chương, nhu cầu quan sát Linux, các phương pháp truyền thống, mở rộng kernel | 3–6 |
+| Kiến trúc eBPF | `chapters/chapter02.tex` | Chia chương, user/kernel space, nạp & gắn, Verifier (từ chối/chấp nhận), VM/JIT/Helper, các nhóm hook, context, maps & đánh đổi đồng thời | 7–15 |
+| Phát triển và công cụ | `chapters/chapter03.tex` | Chia chương, quy trình C/`libbpf`, BTF & CO-RE, `bpftool`, `bpftrace`, phân tích kernel map & user-space loader `openat()`, lưu ý kỹ thuật và cầu nối `cgroup_id` | 16–26 |
+| eBPF trong hệ thống thật | `chapters/chapter04.tex` | Mở chương, kernel dùng chung, ứng dụng, Cilium & so sánh `iptables`, Hubble, Tetragon & BPF LSM, demo so sánh overhead, giới hạn vận hành và kết luận | 27–40 |
 
 Các sơ đồ TikZ có thể chỉnh sửa trong source. Hình từ tài liệu bên ngoài cho
 Chương 4 nằm trong `images/chapter04/` và được chèn bằng đường dẫn tương đối.
 Mỗi slide có liên kết nguồn hình. Các logo BCC, Cilium và Tetragon được chuyển
 từ SVG sang PNG để dùng với pdfLaTeX.
 
-Thông tin tác giả/nhóm, giảng viên, MSSV và ngày trình bày dùng các mục `[...]`
-để người trình bày điền.
+Thông tin nhóm (Nhóm VYT: Trần Đình Ý – `2414100`, Nguyễn Phúc Vĩnh – `2414001`,
+Trần Văn Minh Triết – `2413603`) và giảng viên hướng dẫn (`PGS. Thoại Nam`) đã
+được điền trong `main.tex`; trường `[Ngày trình bày]` giữ làm placeholder để điền
+trước buổi báo cáo.
 
 ## Cài đặt và build
 
@@ -44,7 +49,7 @@ Thông tin tác giả/nhóm, giảng viên, MSSV và ngày trình bày dùng cá
 
 Build bằng terminal từ thư mục project:
 
-```powershell
+```sh
 latexmk -pdf -synctex=1 -interaction=nonstopmode -file-line-error -halt-on-error main.tex
 ```
 
@@ -54,8 +59,8 @@ PDF nền trong `images/` và cấu hình `.vscode/` vẫn được giữ.
 ## Sửa bài thuyết trình
 
 - **Thông tin bìa:** sửa `\title` (tên ngắn và tên đầy đủ), `\subtitle`,
-  `\author` (tên ngắn ở footer và nội dung đầy đủ), `\date` trong `main.tex`.
-  Sửa bảng thành viên và mô tả mục lục tại cùng file.
+  `\author` (tên ngắn ở footer và nội dung đầy đủ), `\date` (`[Ngày trình bày]`)
+  trong `main.tex`. Sửa bảng thành viên và mô tả mục lục tại cùng file.
 - **Nội dung:** sửa `chapters/chapter01.tex` đến `chapter04.tex`.
   Mỗi chương có một trang chia chương. Bản trình chiếu chỉ nạp `chapter01.tex`–`chapter04.tex`.
 - **Thêm slide:** chèn vào file chương:
@@ -78,7 +83,10 @@ XeLaTeX/LuaLaTeX, cần cài Noto Sans và Noto Sans Mono theo cấu hình font.
 
 ## Kịch bản thuyết trình và nguồn kỹ thuật
 
-Kịch bản thuyết trình phân bổ 30 phút theo từng phần. Ghi chú có lệnh chuẩn bị và chạy lại hai demo. [Kịch bản seminar](PRESENTER_NOTES.md)
+Kịch bản thuyết trình phân bổ **45 phút** (13 phút × 3 thành viên + 6 phút Q&A)
+với lời thoại chi tiết cho từng slide từ trang 1 đến 40. Ghi chú có lệnh chuẩn bị
+và chạy lại demo so sánh overhead (`sh demo/compare-overhead.sh`).
+[Kịch bản seminar](PRESENTER_NOTES.md)
 
 Nguồn hình của Chương 4 hiển thị trực tiếp trên slide. Nguồn kỹ thuật bổ sung
 nằm trong kịch bản và các phần `\note{...}` của Beamer.
@@ -91,15 +99,16 @@ nằm trong kịch bản và các phần `\note{...}` của Beamer.
 - [Linux: libbpf overview và vòng đời chương trình](https://docs.kernel.org/bpf/libbpf/libbpf_overview.html)
 - [Linux: eBPF verifier](https://docs.kernel.org/bpf/verifier.html)
 - [Linux: BPF maps](https://docs.kernel.org/bpf/maps.html)
-- [Application Logging: Python logging](https://docs.python.org/3/library/logging.html)
-- [Linux: ftrace](https://docs.kernel.org/trace/ftrace.html)
-- [Linux: xây dựng external kernel modules](https://docs.kernel.org/kbuild/modules.html)
-- [Linux: BPF design Q&A](https://docs.kernel.org/bpf/bpf_design_QA.html)
+- [Linux: BPF Type Format (BTF)](https://docs.kernel.org/bpf/btf.html)
+- [BPF CO-RE Reference Guide](https://nakryiko.com/posts/bpf-core-reference-guide/)
+- [Linux: BPF Ring Buffer](https://docs.kernel.org/bpf/ringbuf.html)
+- [Linux: BPF Design Q&A](https://docs.kernel.org/bpf/bpf_design_QA.html)
 - [Linux: BPF LSM](https://docs.kernel.org/bpf/prog_lsm.html)
 - [bpftrace](https://bpftrace.org/about)
 - [bpftool manual](https://github.com/libbpf/bpftool/blob/main/docs/bpftool.rst)
 - [BCC](https://github.com/iovisor/bcc)
 - [Cilium](https://docs.cilium.io/en/stable/overview/intro/)
+- [Cilium: Kubernetes Without kube-proxy](https://docs.cilium.io/en/stable/network/kubernetes/kubeproxy-free/)
 - [Tetragon](https://tetragon.io/docs/overview/)
 
 Các sơ đồ tách luồng chuẩn bị chương trình và luồng xử lý sự kiện. Verifier kiểm tra
