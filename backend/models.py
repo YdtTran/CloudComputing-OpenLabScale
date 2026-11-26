@@ -47,6 +47,12 @@ class Settings(BaseModel):
     poll_seconds: float = Field(default=1, gt=0, le=10)
     docker_timeout_seconds: PositiveInt = 10
     terminal_origin: str = "http://127.0.0.1:8000"
+    enable_ebpf: bool = False
+    collector_image: str = "measured-collector:local"
+    idle_cpu_threshold_pct: float = Field(default=1.0, ge=0.0, le=100.0)
+    idle_quiet_seconds: float = Field(default=30.0, gt=0.0)
+    interaction_grace_seconds: float = Field(default=30.0, ge=0.0)
+    stale_threshold_seconds: float = Field(default=8.0, gt=0.0)
 
     @property
     def cpu_budget(self) -> int:

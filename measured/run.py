@@ -245,8 +245,8 @@ class Experiment:
                 next_sample = time.monotonic() + 4.9
             time.sleep(.02)
         self.take_samples()
-        # Allow ring-buffer delivery to complete; availability retains actual receipt.
-        time.sleep(.25)
+        # Allow ring-buffer and snapshot delivery to complete; availability retains actual receipt.
+        time.sleep(.6)
         self.drain()
         for s in self.sessions:
             s['end_ms'] = max(self.elapsed(), int(s['end_ms']))
@@ -290,6 +290,7 @@ class Experiment:
             rows['phases'].append(p)
         losses = [r for r in self.signals if r.get('type') == 'loss']
         execs = [r for r in self.signals if r.get('type') == 'exec']
+        snapshots = [r for r in self.signals if r.get('type') == 'snapshot'] or None
         def loss_at(t):
             eligible = [r for r in losses if r['coordinator_received_ns'] <= t]
             if not eligible or t - eligible[-1]['coordinator_received_ns'] > 2000000000:
@@ -304,11 +305,13 @@ class Experiment:
                 after = next_loss['count'] if next_loss else None
                 available = max(current['timestamp_ns'], next_loss['coordinator_received_ns'] if next_loss else current['timestamp_ns'])
                 rows['observations'].extend(resource_windows(s, self.origin, previous, current, execs,
-                                                            loss_at(previous['timestamp_ns']), after, available))
+                                                            loss_at(previous['timestamp_ns']), after, available,
+                                                            snapshots=snapshots))
             rows['truth'].extend(build_truth(s, [e for e in self.events if e['session_id'] == sid]))
         for name in TABLES:
             write_table(self.root / (name + '.csv'), name, rows[name])
         write_json(self.root / 'source-plan.json', dict(sessions=self.plan['sessions'], events=self.plan['events'], phases=self.plan['phases']))
+        has_full = any(o.get('status') == 'OK' for o in rows['observations'] if o.get('kind') == 'resource')
         config = dict(source_hashes=self.plan['hashes'], source_manifest_sha256=self.plan['manifest_hash'],
                       source_run_id=self.plan['manifest']['run_id'], source_to_measured_sessions=self.source_map,
                       source_to_measured_jobs=self.job_map, instances=self.instances,
@@ -316,13 +319,15 @@ class Experiment:
                       host=dict(kernel=platform.release(), platform=platform.platform()),
                       deployment=json.loads(command(self.compose + ['config', '--format', 'json'])),
                       images=self.metadata['images'],
-                      probe='sched:sched_process_exec', omitted=['io_events', 'socket_events', 'disk_read_bytes', 'disk_write_bytes', 'network_rx_bytes', 'network_tx_bytes'],
+                      probe=('sched:sched_process_exec,fork,exit + fexit:vfs_read,write,sock_sendmsg,recvmsg' if has_full else 'sched:sched_process_exec'),
+                      omitted=([] if has_full else ['io_events', 'socket_events', 'disk_read_bytes', 'disk_write_bytes', 'network_rx_bytes', 'network_tx_bytes']),
                       worker_clocks=self.metadata['worker_clocks'], origin_monotonic_ns=self.origin,
                       sampling='actual monotonic bounds, nominal 4.9s cadence to stay <=5s; overruns split into missing-CPU windows')
         write_json(self.root / 'manifest.json', dict(schema_version=SCHEMA, generator_version='measured-1',
                    run_id=self.run_id, seed=self.plan['manifest']['seed'], config=config, duration_ms=self.duration,
                    sample_ms=5000, interaction_truth_ms=30000, clock='elapsed_ms', origin_utc=self.origin_utc,
-                   source_mode='measured', limitations=LIMITATIONS,
+                   source_mode='measured',
+                   limitations=('Full measured CO-RE eBPF collection across cgroup v2 CPU/RAM and VFS/socket/exec counters on two isolated sessions; these two sessions do not establish general workload accuracy.' if has_full else LIMITATIONS),
                    files={name + '.csv': digest(self.root / (name + '.csv')) for name in TABLES}))
         validate(self.root)
         # The policy stage finalizes predictions before scoring is allowed to read truth.

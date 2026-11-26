@@ -1,72 +1,46 @@
-import type { AdminStats, RequestPayload, Session } from './types';
+import type { AdminStats, DemoStatus, RequestPayload, Session } from './types';
 
-function headers(csrf: string): HeadersInit {
-  return {
-    'Content-Type': 'application/json',
-    'X-CSRF-Token': csrf,
-  };
-}
-
-export async function submitSession(token: string, payload: RequestPayload = {}): Promise<Session> {
-  const res = await fetch('/sessions', {
-    method: 'POST',
-    headers: headers(token),
-    body: JSON.stringify(payload),
+async function apiFetch<T>(url: string, token: string, init: RequestInit = {}, label = 'Request'): Promise<T> {
+  const res = await fetch(url, {
+    ...init,
+    headers: {
+      'Content-Type': 'application/json',
+      'X-CSRF-Token': token,
+      ...init.headers,
+    },
   });
   if (!res.ok) {
     if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
     const errorData = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(errorData.detail || `Failed to submit session (${res.status})`);
+    throw new Error(`HTTP ${res.status}: ${errorData.detail || `${label} failed`}`);
   }
   return res.json();
 }
 
-export async function getSession(token: string, sessionId: string): Promise<Session> {
-  const res = await fetch(`/sessions/${encodeURIComponent(sessionId)}`, {
-    headers: headers(token),
-  });
-  if (!res.ok) {
-    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
-    const errorData = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(errorData.detail || `Failed to get session (${res.status})`);
-  }
-  return res.json();
+export function submitSession(token: string, payload: RequestPayload = {}): Promise<Session> {
+  return apiFetch('/sessions', token, { method: 'POST', body: JSON.stringify(payload) }, 'Submit session');
 }
 
-export async function listSessions(token: string): Promise<Session[]> {
-  const res = await fetch('/sessions', {
-    headers: headers(token),
-  });
-  if (!res.ok) {
-    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
-    const errorData = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(errorData.detail || `Failed to list sessions (${res.status})`);
-  }
-  return res.json();
+export function getSession(token: string, sessionId: string, signal?: AbortSignal): Promise<Session> {
+  return apiFetch(`/sessions/${encodeURIComponent(sessionId)}`, token, { signal }, 'Get session');
 }
 
-export async function releaseSession(token: string, sessionId: string): Promise<Session> {
-  const res = await fetch(`/sessions/${encodeURIComponent(sessionId)}`, {
-    method: 'DELETE',
-    headers: headers(token),
-  });
-  if (!res.ok) {
-    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
-    const errorData = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(errorData.detail || `Failed to release session (${res.status})`);
-  }
-  return res.json();
+export function listSessions(token: string, signal?: AbortSignal): Promise<Session[]> {
+  return apiFetch('/sessions', token, { signal }, 'List sessions');
 }
 
-export async function getStats(token: string): Promise<AdminStats> {
-  const res = await fetch('/stats', {
-    headers: headers(token),
-  });
-  if (!res.ok) {
-    if (res.status === 401) window.dispatchEvent(new Event('session-expired'));
-    const errorData = await res.json().catch(() => ({ detail: res.statusText }));
-    throw new Error(`HTTP ${res.status}: ${errorData.detail || res.statusText}`);
-  }
-  return res.json();
+export function releaseSession(token: string, sessionId: string): Promise<Session> {
+  return apiFetch(`/sessions/${encodeURIComponent(sessionId)}`, token, { method: 'DELETE' }, 'Release session');
 }
 
+export function getStats(token: string, signal?: AbortSignal): Promise<AdminStats> {
+  return apiFetch('/stats', token, { signal }, 'Get stats');
+}
+
+export function runDemoScenario(token: string, scenario: string): Promise<DemoStatus> {
+  return apiFetch('/admin/demo/run', token, { method: 'POST', body: JSON.stringify({ scenario }) }, 'Launch demo');
+}
+
+export function stopDemoScenario(token: string): Promise<DemoStatus> {
+  return apiFetch('/admin/demo/stop', token, { method: 'POST' }, 'Stop demo');
+}

@@ -64,7 +64,36 @@ def loss_delta(before, after):
     return after - before
 
 
-def resource_windows(session, origin_ns, previous, current, events, before_loss, after_loss, available_ns, mapping_valid=True):
+def _snapshot_delta(snapshots, cgid, previous_ns, current_ns):
+    if not snapshots:
+        return None
+    key = str(cgid)
+    before = None
+    after = None
+    for item in snapshots:
+        ts = item.get('monotonic_ns')
+        row = (item.get('cgroups') or {}).get(key)
+        if ts is None or row is None:
+            continue
+        if ts <= previous_ns:
+            before = item
+        if ts >= current_ns and after is None:
+            after = item
+    if before is None or after is None:
+        return None
+    b_row, a_row = before['cgroups'][key], after['cgroups'][key]
+    return dict(
+        disk_read_bytes=max(0, a_row['io_read_bytes'] - b_row['io_read_bytes']),
+        disk_write_bytes=max(0, a_row['io_write_bytes'] - b_row['io_write_bytes']),
+        network_rx_bytes=max(0, a_row['sock_rx_bytes'] - b_row['sock_rx_bytes']),
+        network_tx_bytes=max(0, a_row['sock_tx_bytes'] - b_row['sock_tx_bytes']),
+        io_events=max(0, a_row['io_events'] - b_row['io_events']),
+        socket_events=max(0, a_row['socket_events'] - b_row['socket_events']),
+        received_ns=after.get('coordinator_received_ns', current_ns),
+    )
+
+
+def resource_windows(session, origin_ns, previous, current, events, before_loss, after_loss, available_ns, mapping_valid=True, snapshots=None):
     """A sample overrun yields missing CPU windows, never an averaged on-time claim."""
     lo = max(int(session['start_ms']), (previous['timestamp_ns'] - origin_ns) // 1000000)
     hi = min(int(session['end_ms']), (current['timestamp_ns'] - origin_ns) // 1000000)
@@ -72,20 +101,34 @@ def resource_windows(session, origin_ns, previous, current, events, before_loss,
         return []
     cpu, _ = normalized_cpu(previous, current)
     overrun = hi - lo > 5000
+    snap = _snapshot_delta(snapshots, current['cgroup_id'], previous['timestamp_ns'], current['timestamp_ns']) if not overrun and mapping_valid else None
+    loss = loss_delta(before_loss, after_loss)
     result = []
     for a in range(lo, hi, 5000):
         b = min(a + 5000, hi)
         payload = {key: None for key in RESOURCE}
         owned = [e for e in events if e['cgroup_id'] == current['cgroup_id'] and a <= (e['timestamp_ns'] - origin_ns) // 1000000 < b]
-        delivery = max([available_ns] + [e['coordinator_received_ns'] for e in owned])
-        payload.update(cpu_pct=cpu if not overrun and mapping_valid else None,
-                       memory_bytes=current['memory_bytes'] if b == hi and mapping_valid else None,
-                       process_events=len(owned) if mapping_valid else None,
-                       loss_count=loss_delta(before_loss, after_loss), mapping_valid=mapping_valid,
+        delivery = max([available_ns] + [e['coordinator_received_ns'] for e in owned] + ([snap['received_ns']] if snap else []))
+        mem_val = current['memory_bytes'] if b == hi and mapping_valid else None
+        cpu_val = cpu if not overrun and mapping_valid else None
+        proc_val = len(owned) if mapping_valid else None
+        payload.update(cpu_pct=cpu_val, memory_bytes=mem_val, process_events=proc_val,
+                       loss_count=loss, mapping_valid=mapping_valid,
                        cgroup_source='cgroup_v2', event_source='ebpf')
+        full_ok = False
+        if snap is not None and b == hi and cpu_val is not None and mem_val is not None and loss == 0:
+            payload.update(
+                disk_read_bytes=snap['disk_read_bytes'],
+                disk_write_bytes=snap['disk_write_bytes'],
+                network_rx_bytes=snap['network_rx_bytes'],
+                network_tx_bytes=snap['network_tx_bytes'],
+                io_events=snap['io_events'],
+                socket_events=snap['socket_events'],
+            )
+            full_ok = True
         result.append(dict(run_id=session['run_id'], session_id=session['session_id'],
                            container_instance_id=session['container_instance_id'], kind='resource',
                            at_ms=b, available_at_ms=max(b, (delivery - origin_ns + 999999) // 1000000),
                            window_start_ms=a, window_end_ms=b, source='measured_collector',
-                           status='DEGRADED' if mapping_valid else 'UNHEALTHY', payload_json=dumps(payload)))
+                           status=('OK' if full_ok else ('DEGRADED' if mapping_valid else 'UNHEALTHY')), payload_json=dumps(payload)))
     return result

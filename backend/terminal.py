@@ -13,7 +13,7 @@ from .scheduler import Entry
 log = logging.getLogger(__name__)
 
 
-async def bridge(websocket: WebSocket, entry: Entry, engine, session_valid=None) -> None:
+async def bridge(websocket: WebSocket, entry: Entry, engine, session_valid=None, on_activity=None) -> None:
     sock = None
     marker = None
     tasks = []
@@ -47,6 +47,8 @@ async def bridge(websocket: WebSocket, entry: Entry, engine, session_valid=None)
                 if message["type"] == "websocket.disconnect":
                     return
                 if message.get("bytes") is not None:
+                    if on_activity is not None:
+                        on_activity()
                     await loop.sock_sendall(sock, message["bytes"])
                     continue
                 try:
@@ -57,6 +59,8 @@ async def bridge(websocket: WebSocket, entry: Entry, engine, session_valid=None)
                 except (TypeError, KeyError, ValueError):
                     code = 1003
                     return
+                if on_activity is not None:
+                    on_activity()
                 await asyncio.to_thread(engine.resize, terminal, rows, cols)
 
         async def watch_session() -> None:
